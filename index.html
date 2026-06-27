@@ -95,13 +95,11 @@ select:focus{border-color:var(--accent)}
 
 /* HELPER TEXT */
 .hint{font-size:11px;color:var(--text3);margin-top:2px}
-.calc-hint{font-size:12px;color:var(--text2);margin-top:4px}
 .lmi-warning{background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;color:var(--yellow);display:none}
 .lmi-warning.show{display:block}
 
-/* RESULTS */
-.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.results-grid.three{grid-template-columns:1fr 1fr 1fr}
+/* RESULTS GRIDS */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0px}
 .results-grid.single{grid-template-columns:1fr}
 
 /* HERO */
@@ -113,7 +111,7 @@ select:focus{border-color:var(--accent)}
 
 /* CARD */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .card-title{font-size:13px;font-weight:600;color:var(--text2)}
 .card-badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
@@ -123,14 +121,11 @@ select:focus{border-color:var(--accent)}
 .card-body{padding:16px}
 
 /* METRIC ROWS */
-.metric-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(30,45,71,0.5)}
+.metric-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(30,45,71,0.5)}
 .metric-row:last-child{border-bottom:none}
 .metric-label{font-size:13px;color:var(--text2)}
 .metric-val{font-size:13px;font-weight:600;color:var(--text)}
-.metric-row.highlight{background:var(--surface2);margin:0 -16px;padding:10px 16px;border-radius:var(--radius-sm)}
-.metric-row.total{margin-top:4px;padding-top:10px}
-.metric-row.total .metric-label{font-weight:600;color:var(--text)}
-.metric-row.total .metric-val{font-size:16px}
+.metric-row.highlight{background:var(--surface2);margin:0 -16px;padding:10px 16px}
 .val-green{color:var(--green)!important}
 .val-red{color:var(--red)!important}
 .val-yellow{color:var(--yellow)!important}
@@ -139,19 +134,30 @@ select:focus{border-color:var(--accent)}
 .val-big{font-size:20px!important;letter-spacing:-0.5px}
 .divider{height:1px;background:var(--border);margin:8px 0}
 
-/* YIELD DISPLAY */
-.yield-display{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+/* YIELD BOX */
 .yield-box{background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border2)}
 .yield-box .yb-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
-.yield-box .yb-val{font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.yield-box .yb-val{font-size:22px;font-weight:700;letter-spacing:-0.5px}
 
-/* CASH FLOW HERO */
-.cashflow-hero{border-radius:var(--radius-sm);padding:16px;text-align:center;margin-bottom:12px}
-.cashflow-hero.positive{background:var(--green-bg);border:1px solid var(--green-border)}
-.cashflow-hero.negative{background:var(--red-bg);border:1px solid var(--red-border)}
-.cashflow-hero .cf-label{font-size:12px;color:var(--text2);margin-bottom:4px}
-.cashflow-hero .cf-val{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1}
-.cashflow-hero .cf-sub{font-size:12px;color:var(--text2);margin-top:4px}
+/* STEP WATERFALL */
+.step-block{padding:14px 0;border-bottom:1px solid var(--border)}
+.step-block:last-child{border-bottom:none;padding-bottom:0}
+.step-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.step-yield{font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px}
+.step-highlight{background:rgba(45,212,191,0.04);margin:0 -16px;padding:14px 16px;border-left:3px solid var(--teal)}
+.step-total{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px}
+.step-total .st-label{font-size:13px;font-weight:600;color:var(--text)}
+.step-total .st-val{font-size:16px;font-weight:700}
+
+/* CASHFLOW HERO */
+.cf-hero{border-radius:var(--radius-sm);padding:16px;text-align:center;margin-top:12px}
+.cf-hero.positive{background:var(--green-bg);border:1px solid var(--green-border)}
+.cf-hero.negative{background:var(--red-bg);border:1px solid var(--red-border)}
+.cf-label{font-size:12px;color:var(--text2);margin-bottom:4px}
+.cf-val{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.cf-sub{font-size:12px;color:var(--text2);margin-top:4px}
 
 /* TAX TABLE */
 .tax-breakdown{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin:8px 0}
@@ -160,31 +166,28 @@ select:focus{border-color:var(--accent)}
 .tax-row .tv{color:var(--text);font-weight:500}
 
 /* CHART */
-.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:16px}
 .chart-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px}
 .chart-legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 .legend-dot{width:10px;height:3px;border-radius:2px}
 canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 
-/* EQUITY PROGRESS */
+/* EQUITY */
 .equity-bar{background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;margin:8px 0}
 .equity-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:4px;transition:width .5s}
 
-/* SAVED SIMULATIONS */
+/* SAVED */
 .saved-section{padding:24px;border-top:1px solid var(--border)}
 .saved-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .saved-title{font-size:16px;font-weight:700}
 .saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .sim-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;cursor:pointer;transition:.15s}
 .sim-card:hover{border-color:var(--border2);background:var(--surface2)}
-.sim-card.active-load{border-color:var(--accent);background:var(--accent-dim)}
 .sim-name{font-size:14px;font-weight:600;margin-bottom:8px}
 .sim-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
-.sim-stat{font-size:12px}
-.sim-stat .ss-l{color:var(--text3);display:block;margin-bottom:1px}
-.sim-stat .ss-v{color:var(--text);font-weight:500}
-.sim-actions{display:flex;gap:6px}
+.sim-stat .ss-l{font-size:11px;color:var(--text3);display:block;margin-bottom:1px}
+.sim-stat .ss-v{font-size:12px;color:var(--text);font-weight:500}
 .sim-del{position:absolute;top:12px;right:12px;opacity:0;transition:.15s}
 .sim-card:hover .sim-del{opacity:1}
 .empty-saved{color:var(--text3);font-size:13px;text-align:center;padding:32px;border:1px dashed var(--border2);border-radius:var(--radius)}
@@ -192,29 +195,51 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;width:360px;max-width:90vw}
-.modal h3{font-size:16px;font-weight:700;margin-bottom:16px}
-.modal input[type=text]{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;margin-bottom:12px}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;width:380px;max-width:90vw}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.modal p{font-size:13px;color:var(--text2);margin-bottom:16px}
+.modal input[type=text]{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;margin-bottom:14px}
 .modal input[type=text]:focus{border-color:var(--accent)}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end}
+
+/* STATUS CHIP */
+.chip{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.chip-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.chip-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.chip-blue{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(79,142,247,0.25)}
+.chip-yellow{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)}
 
 /* SECTION LABEL */
 .section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;padding:10px 0 4px}
 
-/* DEPRECIATION NOTE */
+/* OUTGOINGS */
+.outgoing-row{display:flex;align-items:center;gap:8px}
+.outgoing-label{font-size:12px;color:var(--text2);flex:1;min-width:0}
+.outgoing-input{width:110px;flex-shrink:0}
+.outgoing-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid var(--border);margin-top:6px;font-size:13px;font-weight:600}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* DEP NOTE */
 .dep-note{background:var(--purple-bg);border:1px solid rgba(167,139,250,0.25);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--purple)}
 
-/* INVESTMENT ONLY */
-.investment-only{display:none}
-.is-investment .investment-only{display:block}
-.is-investment .owner-only{display:none}
+/* ASSUMPTIONS BOX */
+.assumption-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px;margin-top:8px}
+.assumption-box summary{font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}
+.assumption-box summary::-webkit-details-marker{display:none}
+.assumption-box[open] summary::before{content:'▼';font-size:10px;color:var(--text3)}
+.assumption-box summary::before{content:'▶';font-size:10px;color:var(--text3)}
+.assumption-box ul{margin-top:10px;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.assumption-box li{font-size:11px;color:var(--text3);padding:4px 0;border-bottom:1px solid rgba(30,45,71,0.5);display:flex;justify-content:space-between}
+.assumption-box li:last-child{border-bottom:none}
+.assumption-box li span{color:var(--text2);font-weight:500}
 
 /* RESPONSIVE */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr;height:auto}
   .inputs-col{height:auto;position:relative;top:0;border-right:none;border-bottom:1px solid var(--border)}
   .results-grid{grid-template-columns:1fr}
-  .results-grid.three{grid-template-columns:1fr 1fr}
   .hero{grid-template-columns:1fr 1fr}
   .hero-item:nth-child(3){display:none}
 }
@@ -222,36 +247,20 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
   .hero{grid-template-columns:1fr}
   .hero-item{border-right:none!important;border-bottom:1px solid var(--border)}
   .hero-item:last-child{border-bottom:none}
-  .yield-display{grid-template-columns:1fr}
+  nav{padding:0 12px}
 }
 
 /* SCROLL */
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--text3)}
 
-/* ANIMATION */
+/* ANIMATE */
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .card,.chart-wrap{animation:fadeIn .3s ease}
 
-/* OUTGOINGS ROW */
-.outgoing-row{display:flex;align-items:center;gap:8px}
-.outgoing-label{font-size:12px;color:var(--text2);flex:1;min-width:0}
-.outgoing-input{width:110px;flex-shrink:0}
-.outgoing-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px;font-size:13px;font-weight:600}
-
-/* INLINE TWO COL */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
-/* STATUS CHIP */
-.status-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.chip-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-.chip-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
-.chip-blue{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(79,142,247,0.25)}
-
-/* NUMBERS */
-.num-neutral{color:var(--text)}
+/* SPACER */
+.mt16{margin-top:16px}
 </style>
 </head>
 <body>
@@ -264,14 +273,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
   </div>
   <div class="nav-actions">
     <button class="btn btn-ghost" onclick="openSaveModal()">Save Simulation</button>
-    <button class="btn btn-ghost btn-sm" onclick="scrollToSaved()">Saved (0)</button>
+    <button class="btn btn-ghost btn-sm" id="btnSavedCount" onclick="scrollToSaved()">Saved (0)</button>
   </div>
 </nav>
 
-<div class="layout" id="mainLayout">
+<div class="layout">
 
-<!-- ============ INPUTS ============ -->
-<div class="inputs-col" id="inputsCol">
+<!-- ═══ INPUTS COLUMN ═══ -->
+<div class="inputs-col">
 
   <!-- PROPERTY DETAILS -->
   <div class="panel" id="panelProperty">
@@ -282,9 +291,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <div class="panel-body">
       <div class="field">
         <label>Simulation Name (optional)</label>
-        <div class="input-wrap">
-          <input type="text" id="simName" placeholder="e.g. 3BR Fitzroy" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.simName=this.value">
-        </div>
+        <input type="text" id="simName" placeholder="e.g. 3BR Fitzroy" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.simName=this.value">
       </div>
       <div class="field">
         <label>Purchase Price</label>
@@ -310,7 +317,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </div>
       </div>
       <div class="field">
-        <label>State</label>
+        <label>State / Territory</label>
         <select id="stateSelect" onchange="update('state',this.value)">
           <option value="NSW">New South Wales (NSW)</option>
           <option value="VIC">Victoria (VIC)</option>
@@ -335,18 +342,15 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <div class="field">
         <label>Deposit — <span id="depositPctLabel">20%</span> = <span id="depositAmtLabel" style="color:var(--accent)">$160,000</span></label>
         <div class="range-row">
-          <input type="range" id="depositSlider" min="5" max="50" value="20" step="1" oninput="update('depositPct',+this.value);document.getElementById('depositPctLabel').textContent=this.value+'%';recalcDepositLabel()">
+          <input type="range" id="depositSlider" min="5" max="50" value="20" step="1" oninput="update('depositPct',+this.value);syncDepositLabels()">
           <span class="range-val" id="depositRangeVal">20%</span>
         </div>
         <div class="lmi-warning" id="lmiWarning">⚠ Deposit below 20% — Lenders Mortgage Insurance (LMI) may apply, typically $5,000–$30,000+</div>
       </div>
       <div class="two-col">
         <div class="field">
-          <label>Loan Term</label>
-          <div class="range-row" style="flex-direction:column;align-items:flex-start;gap:6px">
-            <input type="range" id="termSlider" min="10" max="30" value="30" step="1" style="width:100%" oninput="update('loanYears',+this.value);document.getElementById('termLabel').textContent=this.value+' yrs'">
-            <span style="font-size:13px;font-weight:600;color:var(--text)" id="termLabel">30 yrs</span>
-          </div>
+          <label>Loan Term — <span id="termLabel">30 yrs</span></label>
+          <input type="range" id="termSlider" min="10" max="30" value="30" step="1" oninput="update('loanYears',+this.value);document.getElementById('termLabel').textContent=this.value+' yrs'">
         </div>
         <div class="field">
           <label>Interest Rate</label>
@@ -366,8 +370,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     </div>
   </div>
 
-  <!-- RENTAL INCOME -->
-  <div class="panel investment-only" id="panelRental">
+  <!-- RENTAL INCOME — only shown for investment -->
+  <div class="panel" id="panelRental" style="display:none">
     <div class="panel-header" onclick="togglePanel('panelRental')">
       <span class="panel-title"><span class="dot" style="background:#fbbf24"></span>Rental Income</span>
       <span class="panel-toggle">▼</span>
@@ -379,7 +383,23 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <span class="input-pre">$</span>
           <input type="number" id="weeklyRent" value="600" min="0" max="10000" step="10" oninput="update('weeklyRent',+this.value)">
         </div>
-        <p class="hint">Estimated market rent per week</p>
+        <p class="hint">Estimated current market rent per week</p>
+      </div>
+      <div class="field">
+        <label>Vacancy — <span id="vacancyLabel">2 weeks</span> per year</label>
+        <div class="range-row">
+          <input type="range" id="vacancySlider" min="0" max="8" value="2" step="1" oninput="update('vacancyWeeks',+this.value);document.getElementById('vacancyLabel').textContent=this.value+' week'+(+this.value===1?'':'s');document.getElementById('vacancyRangeVal').textContent=this.value+' wks'">
+          <span class="range-val" id="vacancyRangeVal">2 wks</span>
+        </div>
+        <p class="hint">2–4 weeks is typical. This is the time the property sits empty between tenants.</p>
+      </div>
+      <div class="field">
+        <label>Property Management Fee — <span id="pmLabel">8.5%</span> of rent</label>
+        <div class="range-row">
+          <input type="range" id="pmSlider" min="5" max="15" value="8.5" step="0.5" oninput="update('pmFeePct',+this.value);document.getElementById('pmLabel').textContent=this.value+'%';document.getElementById('pmRangeVal').textContent=this.value+'%'">
+          <span class="range-val" id="pmRangeVal">8.5%</span>
+        </div>
+        <p class="hint">Typical: 7–10% in major cities. Applied to rent actually collected.</p>
       </div>
     </div>
   </div>
@@ -419,7 +439,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <input type="number" id="buildingInsurance" value="1500" min="0" step="50" oninput="update('buildingInsurance',+this.value)">
         </div>
       </div>
-      <div class="outgoing-row investment-only" id="rowLandlordIns">
+      <div class="outgoing-row" id="rowLandlordIns" style="display:none">
         <span class="outgoing-label">Landlord Insurance</span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
@@ -427,13 +447,13 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </div>
       </div>
       <div class="outgoing-row">
-        <span class="outgoing-label">Maintenance & Repairs</span>
+        <span class="outgoing-label">Maintenance &amp; Repairs</span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="maintenance" value="0" min="0" step="100" oninput="update('maintenance',+this.value)">
         </div>
       </div>
-      <p class="hint" style="margin-top:-8px">Leave 0 to auto-calculate at 1% of property value ($<span id="autoMaintenanceHint">8,000</span>/yr)</p>
+      <p class="hint" style="margin-top:-8px">Leave 0 to auto-use 1% of property value ($<span id="autoMainHint">8,000</span>/yr)</p>
       <div class="outgoing-row">
         <span class="outgoing-label">Land Tax</span>
         <div class="input-wrap has-pre outgoing-input">
@@ -441,8 +461,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <input type="number" id="landTax" value="0" min="0" step="100" oninput="update('landTax',+this.value)">
         </div>
       </div>
-      <div class="outgoing-row investment-only" id="rowAccounting">
-        <span class="outgoing-label">Accountant / Tax</span>
+      <div class="outgoing-row" id="rowAccounting" style="display:none">
+        <span class="outgoing-label">Accountant / Tax Advice</span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="accounting" value="500" min="0" step="50" oninput="update('accounting',+this.value)">
@@ -457,68 +477,75 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       </div>
       <div class="outgoing-total">
         <span>Total Annual Outgoings</span>
-        <span style="color:var(--orange)" id="totalOutgoingsDisplay">$5,500</span>
+        <span style="color:var(--orange);font-size:15px" id="totalOutgoingsDisplay">—</span>
       </div>
     </div>
   </div>
 
-  <!-- SETTINGS -->
+  <!-- ASSUMPTIONS & SETTINGS -->
   <div class="panel" id="panelSettings">
     <div class="panel-header" onclick="togglePanel('panelSettings')">
-      <span class="panel-title"><span class="dot" style="background:#a78bfa"></span>Assumptions & Settings</span>
+      <span class="panel-title"><span class="dot" style="background:#a78bfa"></span>Assumptions &amp; Settings</span>
       <span class="panel-toggle">▼</span>
     </div>
     <div class="panel-body">
       <div class="field">
         <label>Your Income Tax Bracket</label>
         <select id="incomeBracket" onchange="update('incomeBracket',this.value)">
-          <option value="under18200">Under $18,200 — 0% marginal</option>
-          <option value="18201-45000">$18,201 – $45,000 — 21% marginal</option>
-          <option value="45001-120000" selected>$45,001 – $120,000 — 34.5% marginal</option>
-          <option value="120001-180000">$120,001 – $180,000 — 39% marginal</option>
-          <option value="over180000">Over $180,000 — 47% marginal</option>
+          <option value="under18200">Under $18,200 — 0% marginal rate</option>
+          <option value="18201-45000">$18,201 – $45,000 — 21% (incl. Medicare)</option>
+          <option value="45001-120000" selected>$45,001 – $120,000 — 34.5% (incl. Medicare)</option>
+          <option value="120001-180000">$120,001 – $180,000 — 39% (incl. Medicare)</option>
+          <option value="over180000">Over $180,000 — 47% (incl. Medicare)</option>
         </select>
-        <p class="hint">Used to calculate tax benefit from negative gearing</p>
-      </div>
-      <div class="field investment-only">
-        <label>Vacancy — <span id="vacancyLabel">2 weeks</span>/year</label>
-        <div class="range-row">
-          <input type="range" id="vacancySlider" min="0" max="8" value="2" step="1" oninput="update('vacancyWeeks',+this.value);document.getElementById('vacancyLabel').textContent=this.value+' week'+(this.value==1?'':'s')">
-          <span class="range-val" id="vacancyRangeVal">2 wks</span>
-        </div>
-      </div>
-      <div class="field investment-only">
-        <label>Property Management Fee — <span id="pmLabel">8.5%</span> of rent</label>
-        <div class="range-row">
-          <input type="range" id="pmSlider" min="5" max="15" value="8.5" step="0.5" oninput="update('pmFeePct',+this.value);document.getElementById('pmLabel').textContent=this.value+'%'">
-          <span class="range-val" id="pmRangeVal">8.5%</span>
-        </div>
-        <p class="hint">Typical range: 7–10% in major cities</p>
+        <p class="hint">Used to calculate the tax saving from negative gearing</p>
       </div>
       <div class="field">
         <label>Assumed Capital Growth — <span id="growthLabel">5%</span>/year</label>
         <div class="range-row">
-          <input type="range" id="growthSlider" min="0" max="12" value="5" step="0.5" oninput="update('capitalGrowthPct',+this.value);document.getElementById('growthLabel').textContent=this.value+'%'">
+          <input type="range" id="growthSlider" min="0" max="12" value="5" step="0.5" oninput="update('capitalGrowthPct',+this.value);document.getElementById('growthLabel').textContent=this.value+'%';document.getElementById('growthRangeVal').textContent=this.value+'%'">
           <span class="range-val" id="growthRangeVal">5%</span>
         </div>
+        <p class="hint">Only used for the 30-year projection chart. Does not affect cash flow calculations.</p>
       </div>
       <div class="field" id="deprecField" style="display:none">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
           <input type="checkbox" id="includeDepreciation" checked onchange="update('includeDepreciation',this.checked)" style="width:auto;accent-color:var(--purple)">
-          Include Depreciation (new properties only)
+          Include building depreciation (new properties)
         </label>
-        <p class="hint">Division 40 & 43 — estimated at ~2.5% of property value per year</p>
+        <p class="hint">Div 43 (building) + Div 40 (fixtures) — estimated at 2.5% of purchase price/year. Get a QS report for exact figures.</p>
       </div>
+
+      <!-- HOW WE CALCULATE -->
+      <details class="assumption-box">
+        <summary>How calculations work &amp; assumptions</summary>
+        <ul>
+          <li>Mortgage formula<span>Standard P&I amortisation or IO = loan × rate</span></li>
+          <li>Year 1 interest<span>Exact month-by-month amortisation</span></li>
+          <li>Gross yield<span>Annual rent (after vacancy) ÷ purchase price × 100</span></li>
+          <li>Net yield (Step 3)<span>Gross rent − PM fees − all outgoings, ÷ price × 100</span></li>
+          <li>Vacancy<span>Weekly rent × vacancy weeks = lost income</span></li>
+          <li>PM fee<span>Applied to rent actually collected (after vacancy)</span></li>
+          <li>Maintenance<span>If left at $0, auto-calculated at 1% of price per year</span></li>
+          <li>Negative gearing<span>Annual loss × your marginal tax rate = tax saving</span></li>
+          <li>Deductible expenses<span>Interest + PM fees + all outgoings + depreciation (not principal)</span></li>
+          <li>Depreciation<span>~2.5% of price/year for new properties only (estimate)</span></li>
+          <li>Stamp duty<span>State-specific rates, investment property (no first-home concession applied)</span></li>
+          <li>Other purchase costs<span>Fixed at $3,000 (conveyancing, inspections) — update as needed</span></li>
+          <li>CGT<span>50% discount for &gt;12 months hold not calculated here — see tax advisor</span></li>
+          <li>Capital growth<span>Compounding annually for chart only — not guaranteed</span></li>
+        </ul>
+      </details>
     </div>
   </div>
 
 </div><!-- end inputs-col -->
 
-<!-- ============ RESULTS ============ -->
-<div class="results-col" id="resultsCol">
+<!-- ═══ RESULTS COLUMN ═══ -->
+<div class="results-col">
 
   <!-- HERO NUMBERS -->
-  <div class="hero" id="heroSection">
+  <div class="hero">
     <div class="hero-item">
       <div class="hero-label">Loan Amount</div>
       <div class="hero-val" id="hLoanAmt" style="color:var(--accent)">$640,000</div>
@@ -528,19 +555,17 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <div class="hero-val" id="hWeeklyRepay" style="color:var(--yellow)">$997/wk</div>
     </div>
     <div class="hero-item">
-      <div class="hero-label">Total Upfront Required</div>
-      <div class="hero-val" id="hUpfront" style="color:var(--purple)">$194,900</div>
+      <div class="hero-label">Total Cash Needed</div>
+      <div class="hero-val" id="hUpfront" style="color:var(--purple)">$194,235</div>
     </div>
   </div>
 
-  <!-- TOP GRID: Purchase + Mortgage -->
-  <div class="results-grid" id="topGrid">
-
-    <!-- Purchase Summary -->
+  <!-- PURCHASE + MORTGAGE -->
+  <div class="results-grid">
     <div class="card">
       <div class="card-head">
         <span class="card-title">Purchase Summary</span>
-        <span class="card-badge badge-blue" id="stateLabel">NSW</span>
+        <span class="chip chip-blue" id="stateLabel">NSW</span>
       </div>
       <div class="card-body">
         <div class="metric-row">
@@ -557,270 +582,296 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </div>
         <div class="divider"></div>
         <div class="metric-row">
-          <span class="metric-label">Stamp Duty (est.)</span>
-          <span class="metric-val val-red" id="rStampDuty">$31,235</span>
+          <span class="metric-label">Stamp Duty (estimate)</span>
+          <span class="metric-val val-red" id="rStampDuty">—</span>
         </div>
         <div class="metric-row">
-          <span class="metric-label">Conveyancing & Inspections</span>
+          <span class="metric-label">Conveyancing &amp; Inspections</span>
           <span class="metric-val">~$3,000</span>
         </div>
         <div class="divider"></div>
-        <div class="metric-row total">
-          <span class="metric-label">Total Upfront</span>
-          <span class="metric-val val-purple val-big" id="rTotalUpfront">$194,235</span>
-        </div>
         <div class="metric-row">
-          <span class="metric-label">Equity %</span>
-          <span class="metric-val" id="rEquityPct">20%</span>
+          <span class="metric-label" style="font-weight:600;color:var(--text)">Total Cash Needed</span>
+          <span class="metric-val val-big" style="color:var(--purple)" id="rTotalUpfront">—</span>
         </div>
-        <div class="equity-bar">
-          <div class="equity-fill" id="equityFill" style="width:20%"></div>
+        <div style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+            <span style="color:var(--text3)">Your equity at purchase</span>
+            <span style="color:var(--text2)" id="rEquityPct">20%</span>
+          </div>
+          <div class="equity-bar"><div class="equity-fill" id="equityFill" style="width:20%"></div></div>
         </div>
       </div>
     </div>
 
-    <!-- Mortgage Card -->
     <div class="card">
       <div class="card-head">
         <span class="card-title">Mortgage</span>
-        <span class="card-badge" id="loanTypeBadge" style="background:var(--accent-dim);color:var(--accent);border:1px solid rgba(79,142,247,0.25)">P&amp;I</span>
+        <span class="chip" id="loanTypeBadge" style="background:var(--accent-dim);color:var(--accent);border:1px solid rgba(79,142,247,0.25)">P&amp;I</span>
       </div>
       <div class="card-body">
-        <div class="metric-row">
-          <span class="metric-label">Monthly Repayment</span>
-          <span class="metric-val val-yellow" id="rMonthly">$4,321</span>
-        </div>
-        <div class="metric-row highlight">
+        <div class="metric-row highlight" style="margin:0 -16px;padding:10px 16px">
           <span class="metric-label">Weekly Repayment</span>
           <span class="metric-val val-yellow val-big" id="rWeekly">$997/wk</span>
         </div>
         <div class="metric-row">
+          <span class="metric-label">Monthly Repayment</span>
+          <span class="metric-val val-yellow" id="rMonthly">$4,321/mo</span>
+        </div>
+        <div class="metric-row">
           <span class="metric-label">Annual Repayments</span>
-          <span class="metric-val" id="rAnnual">$51,852</span>
+          <span class="metric-val" id="rAnnual">$51,852/yr</span>
         </div>
         <div class="divider"></div>
         <div class="metric-row">
+          <span class="metric-label">Year 1 Interest (deductible)</span>
+          <span class="metric-val" id="rYear1Int">$41,157</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Total Interest over Loan</span>
+          <span class="metric-val val-red" id="rTotalInterest">—</span>
+        </div>
+        <div class="metric-row">
           <span class="metric-label">Total Repayments</span>
-          <span class="metric-val" id="rTotalRepay">$1,555,560</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Total Interest Paid</span>
-          <span class="metric-val val-red" id="rTotalInterest">$915,560</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Interest as % of Purchase</span>
-          <span class="metric-val val-red" id="rInterestPct">114%</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-label">Year 1 Interest</span>
-          <span class="metric-val" id="rYear1Int">$41,200</span>
+          <span class="metric-val" id="rTotalRepay">—</span>
         </div>
       </div>
     </div>
-  </div><!-- end top grid -->
+  </div><!-- end purchase+mortgage grid -->
 
-  <!-- INVESTMENT SECTION -->
-  <div id="investmentResults" class="investment-only">
+  <!-- ═══ INVESTMENT SECTION (hidden for owner-occupied) ═══ -->
+  <div id="investmentResults" style="display:none">
 
-    <!-- Yield Row -->
-    <div class="results-grid" style="margin-top:16px">
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Rental Yield</span>
-        </div>
-        <div class="card-body">
-          <div class="yield-display">
-            <div class="yield-box">
-              <div class="yb-label">Gross Yield</div>
-              <div class="yb-val val-green" id="rGrossYield">3.90%</div>
-            </div>
-            <div class="yield-box">
-              <div class="yb-label">Net Yield</div>
-              <div class="yb-val val-teal" id="rNetYield" style="color:var(--teal)">2.48%</div>
-            </div>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Weekly Rent</span>
-            <span class="metric-val" id="rWeeklyRent">$600/wk</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Vacancy (<span id="rVacWks">2</span> wks)</span>
-            <span class="metric-val val-red" id="rVacancyLoss">−$1,200</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Gross Annual Rent</span>
-            <span class="metric-val" id="rGrossAnnualRent">$31,200</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">PM Fees (<span id="rPmPct">8.5</span>%)</span>
-            <span class="metric-val val-red" id="rPmFees">−$2,652</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">Annual Outgoings</span>
-            <span class="metric-val val-red" id="rAnnualOutgoings">−$5,500</span>
-          </div>
-          <div class="divider"></div>
-          <div class="metric-row total">
-            <span class="metric-label">Net Annual Income</span>
-            <span class="metric-val" id="rNetAnnualIncome">$23,048</span>
-          </div>
-        </div>
+    <!-- STEPPED YIELD CARD -->
+    <div class="card mt16">
+      <div class="card-head">
+        <span class="card-title">Yield Analysis — Step by Step</span>
+        <span id="gearingChip" class="chip chip-red">Negatively Geared</span>
       </div>
+      <div class="card-body">
 
-      <!-- Cash Flow -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Cash Flow (Pre-Tax)</span>
-          <span id="gearingChip" class="status-chip chip-red">Negatively Geared</span>
-        </div>
-        <div class="card-body">
-          <div class="cashflow-hero" id="cfHero">
-            <div class="cf-label">Weekly Out of Pocket</div>
-            <div class="cf-val" id="cfWeeklyVal">−$555</div>
-            <div class="cf-sub" id="cfMonthlyVal">−$2,406/month</div>
+        <!-- STEP 1: GROSS INCOME -->
+        <div class="step-block">
+          <div class="step-heading">
+            <div class="step-num">1</div>
+            <span class="step-title">Gross Rental Income</span>
+            <span class="step-yield" id="s1YieldBadge" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)">3.90% gross yield</span>
           </div>
           <div class="metric-row">
-            <span class="metric-label">+ Net Weekly Rent</span>
-            <span class="metric-val val-green" id="cfRent">+$441</span>
+            <span class="metric-label">Weekly rent × 52 weeks</span>
+            <span class="metric-val" id="s1GrossDesc">$600 × 52 = $31,200</span>
           </div>
-          <div class="metric-row">
-            <span class="metric-label">− Weekly Mortgage</span>
-            <span class="metric-val val-red" id="cfMortgage">−$997</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">− Weekly Outgoings</span>
-            <span class="metric-val val-red" id="cfOutgoings">−$106</span>
-          </div>
-          <div class="divider"></div>
-          <div class="metric-row">
-            <span class="metric-label">Annual Cash Flow</span>
-            <span class="metric-val" id="cfAnnual">−$28,860</span>
-          </div>
-          <div class="metric-row" style="margin-top:8px">
-            <span class="metric-label" style="font-size:12px;color:var(--text3)">Break-even weekly rent</span>
-            <span class="metric-val" style="font-size:12px;color:var(--text2)" id="breakEvenRent">$756/wk</span>
+          <div class="step-total">
+            <span class="st-label">Gross Annual Rent</span>
+            <span class="st-val val-green" id="s1Total">$31,200/yr</span>
           </div>
         </div>
+
+        <!-- STEP 2: AFTER VACANCY & PM -->
+        <div class="step-block">
+          <div class="step-heading">
+            <div class="step-num" style="background:var(--yellow)">2</div>
+            <span class="step-title">After Vacancy &amp; Management Fees</span>
+            <span class="step-yield" id="s2YieldBadge" style="background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)">3.42% effective yield</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Less: Vacancy (<span id="s2VacWks">2</span> wks × $<span id="s2VacRent">600</span>)</span>
+            <span class="metric-val val-red" id="s2Vacancy">−$1,200</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Less: PM fees (<span id="s2PmPct">8.5</span>% of collected rent)</span>
+            <span class="metric-val val-red" id="s2PmFees">−$2,652</span>
+          </div>
+          <div class="step-total">
+            <span class="st-label">Net Effective Rent</span>
+            <span class="st-val" id="s2Total">$27,348/yr</span>
+          </div>
+        </div>
+
+        <!-- STEP 3: AFTER OUTGOINGS — KEY METRIC -->
+        <div class="step-block step-highlight">
+          <div class="step-heading">
+            <div class="step-num" style="background:var(--teal);color:#000">3</div>
+            <span class="step-title">Net Operating Income — Pre-Mortgage ★</span>
+            <span class="step-yield" id="s3YieldBadge" style="background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.3)">2.73% net yield</span>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin-bottom:10px">★ The return the property generates ignoring how you finance it. Use this to compare properties independently of your mortgage structure.</p>
+          <div class="metric-row">
+            <span class="metric-label">Less: Council rates</span>
+            <span class="metric-val val-red" id="s3Council">−$1,800</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Less: Water rates</span>
+            <span class="metric-val val-red" id="s3Water">−$1,200</span>
+          </div>
+          <div class="metric-row" id="s3StrataRow">
+            <span class="metric-label">Less: Strata / body corporate</span>
+            <span class="metric-val val-red" id="s3Strata">−$0</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Less: Insurance (building + landlord)</span>
+            <span class="metric-val val-red" id="s3Insurance">−$2,500</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Less: Maintenance &amp; repairs</span>
+            <span class="metric-val val-red" id="s3Maintenance">−$8,000</span>
+          </div>
+          <div class="metric-row" id="s3LandTaxRow">
+            <span class="metric-label">Less: Land tax</span>
+            <span class="metric-val val-red" id="s3LandTax">−$0</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Less: Accountant / tax advice</span>
+            <span class="metric-val val-red" id="s3Accounting">−$500</span>
+          </div>
+          <div class="metric-row" id="s3OtherRow">
+            <span class="metric-label">Less: Other</span>
+            <span class="metric-val val-red" id="s3Other">−$0</span>
+          </div>
+          <div class="step-total" style="margin-top:10px">
+            <span class="st-label">Net Operating Income</span>
+            <span class="st-val" id="s3Total" style="font-size:18px">$13,848/yr</span>
+          </div>
+        </div>
+
+        <!-- STEP 4: AFTER MORTGAGE -->
+        <div class="step-block">
+          <div class="step-heading">
+            <div class="step-num" style="background:var(--red)">4</div>
+            <span class="step-title">After Mortgage — Pre-Tax Cash Flow</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Less: Annual mortgage repayments</span>
+            <span class="metric-val val-red" id="s4Mortgage">−$51,852</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label" style="font-size:12px;color:var(--text3)">Break-even rent (to cover mortgage + outgoings)</span>
+            <span class="metric-val" style="font-size:12px;color:var(--text2)" id="breakEvenRent">—</span>
+          </div>
+          <!-- BIG CASHFLOW NUMBER -->
+          <div class="cf-hero negative" id="cfHero">
+            <div class="cf-label">Weekly Out of Pocket (Pre-Tax)</div>
+            <div class="cf-val" id="cfWeeklyVal">−$730/wk</div>
+            <div class="cf-sub" id="cfMonthlyVal">−$3,167/month · −$38,004/year</div>
+          </div>
+        </div>
+
       </div>
-    </div>
+    </div><!-- end stepped yield card -->
 
-    <!-- TAX ANALYSIS -->
-    <div class="results-grid single" style="margin-top:16px">
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Tax Analysis — Negative Gearing</span>
-          <span id="taxStatusBadge" class="card-badge badge-red">Loss Claimable</span>
-        </div>
-        <div class="card-body">
-          <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Based on your income bracket. Interest-only deductible; principal repayments are not.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-            <div>
-              <div class="section-label">Deductible Expenses (Year 1)</div>
-              <div class="tax-breakdown">
-                <div class="tax-row"><span class="tl">Mortgage Interest</span><span class="tv" id="taxInterest">$41,200</span></div>
-                <div class="tax-row"><span class="tl">PM Fees</span><span class="tv" id="taxPmFees">$2,652</span></div>
-                <div class="tax-row"><span class="tl">Other Outgoings</span><span class="tv" id="taxOutgoings">$5,500</span></div>
-                <div class="tax-row" id="depRow"><span class="tl">Depreciation</span><span class="tv" id="taxDepreciation" style="color:var(--purple)">$0</span></div>
-                <div style="border-top:1px solid var(--border);margin:6px 0;padding-top:6px" class="tax-row">
-                  <span class="tl" style="font-weight:600">Total Deductible</span>
-                  <span class="tv" id="taxTotalDeductible" style="font-weight:600">$49,352</span>
-                </div>
+    <!-- TAX ANALYSIS CARD -->
+    <div class="card mt16">
+      <div class="card-head">
+        <span class="card-title">Tax Analysis</span>
+        <span id="taxStatusBadge" class="chip chip-green">Loss Claimable</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Only the <em>interest</em> portion of your mortgage is tax-deductible — principal repayments are not. The deductible loss offsets your personal income tax.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div class="section-label">Deductible Expenses (Year 1)</div>
+            <div class="tax-breakdown">
+              <div class="tax-row"><span class="tl">Mortgage Interest</span><span class="tv" id="taxInterest">$41,157</span></div>
+              <div class="tax-row"><span class="tl">PM Fees</span><span class="tv" id="taxPmFees">$2,652</span></div>
+              <div class="tax-row"><span class="tl">All Outgoings</span><span class="tv" id="taxOutgoings">$13,500</span></div>
+              <div class="tax-row" id="depRow"><span class="tl">Depreciation (new)</span><span class="tv val-purple" id="taxDepreciation">$0</span></div>
+              <div style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px" class="tax-row">
+                <span class="tl" style="font-weight:600;color:var(--text)">Total Deductible</span>
+                <span class="tv" id="taxTotalDeductible" style="font-weight:600">$57,309</span>
               </div>
             </div>
-            <div>
-              <div class="section-label">Tax Outcome</div>
-              <div class="tax-breakdown">
-                <div class="tax-row"><span class="tl">Annual Gross Rent</span><span class="tv" id="taxGrossRent">$31,200</span></div>
-                <div class="tax-row"><span class="tl">Less Deductible</span><span class="tv" id="taxDeductibleShow">−$49,352</span></div>
-                <div style="border-top:1px solid var(--border);margin:6px 0;padding-top:6px" class="tax-row">
-                  <span class="tl">Net Rental Loss</span>
-                  <span class="tv val-red" id="taxNetLoss">−$18,152</span>
-                </div>
-                <div class="tax-row"><span class="tl">Marginal Rate</span><span class="tv" id="taxMarginalRate">34.5%</span></div>
-                <div class="tax-row" style="background:var(--green-bg);padding:4px 6px;border-radius:4px;margin-top:2px">
-                  <span class="tl" style="color:var(--green);font-weight:600">Tax Benefit</span>
-                  <span class="tv val-green" id="taxBenefit" style="font-weight:700">$6,262/yr</span>
-                </div>
+          </div>
+          <div>
+            <div class="section-label">Tax Outcome</div>
+            <div class="tax-breakdown">
+              <div class="tax-row"><span class="tl">Gross Annual Rent</span><span class="tv" id="taxGrossRent">$31,200</span></div>
+              <div class="tax-row"><span class="tl">Less Total Deductible</span><span class="tv" id="taxDeductibleShow">−$57,309</span></div>
+              <div style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px" class="tax-row">
+                <span class="tl">Net Rental Loss</span>
+                <span class="tv val-red" id="taxNetLoss">−$26,109</span>
+              </div>
+              <div class="tax-row"><span class="tl">Marginal Rate</span><span class="tv" id="taxMarginalRate">34.5%</span></div>
+              <div class="tax-row" style="background:var(--green-bg);padding:4px 6px;border-radius:4px;margin-top:4px">
+                <span class="tl" style="color:var(--green);font-weight:600">Annual Tax Benefit</span>
+                <span class="tv val-green" id="taxBenefit" style="font-weight:700">$9,008/yr</span>
               </div>
             </div>
           </div>
-          <div style="margin-top:16px;background:var(--surface2);border-radius:var(--radius-sm);padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
-            <div>
-              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Tax Benefit/week</div>
-              <div style="font-size:18px;font-weight:700;color:var(--green)" id="taxBenefitWeekly">+$120</div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">After-Tax Weekly</div>
-              <div style="font-size:18px;font-weight:700" id="afterTaxWeekly">−$435</div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">After-Tax Monthly</div>
-              <div style="font-size:18px;font-weight:700" id="afterTaxMonthly">−$1,885</div>
-            </div>
+        </div>
+        <div style="margin-top:16px;background:var(--surface2);border-radius:var(--radius-sm);padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+          <div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Tax Saving / week</div>
+            <div style="font-size:20px;font-weight:700" id="taxBenefitWeekly">+$173</div>
           </div>
-          <div class="dep-note" id="depNote" style="margin-top:12px;display:none">
-            🏗 New Property Depreciation: Division 43 building allowance (~2.5% of value) + Division 40 plant & equipment could save an additional <strong id="depSaving">$0</strong>/year in tax. This is an estimate only — obtain a Quantity Surveyor report for exact amounts.
+          <div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax Weekly</div>
+            <div style="font-size:20px;font-weight:700" id="afterTaxWeekly">−$557</div>
           </div>
-          <div style="margin-top:10px;font-size:11px;color:var(--text3)">
-            ⚖ Capital gains: 50% CGT discount applies for properties held &gt;12 months (individuals). Consult a tax advisor for your situation.
+          <div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax Monthly</div>
+            <div style="font-size:20px;font-weight:700" id="afterTaxMonthly">−$2,414</div>
           </div>
         </div>
+        <div class="dep-note" id="depNote" style="margin-top:12px;display:none">
+          🏗 <strong>Depreciation bonus (new property):</strong> The $<span id="depAmount">0</span>/yr depreciation estimate saves you an extra <strong id="depSaving">$0</strong>/yr in tax. Get a Quantity Surveyor depreciation schedule for exact amounts.
+        </div>
+        <p style="margin-top:12px;font-size:11px;color:var(--text3)">⚖ CGT: 50% discount for properties held &gt;12 months. Speak to a tax advisor for your specific situation.</p>
       </div>
     </div>
 
   </div><!-- end investmentResults -->
 
-  <!-- EQUITY & GROWTH (always visible) -->
-  <div class="results-grid single" style="margin-top:16px" id="equityGrowthCard">
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">Equity & Growth Projection</span>
-        <span style="font-size:12px;color:var(--text3)" id="growthRateLabel">@ 5.0% p.a.</span>
-      </div>
-      <div class="card-body">
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center;margin-bottom:12px">
-          <div class="yield-box">
-            <div class="yb-label">Now</div>
-            <div style="font-size:14px;font-weight:700;color:var(--accent)" id="eq0">$160k</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct0">20%</div>
-          </div>
-          <div class="yield-box">
-            <div class="yb-label">Yr 5</div>
-            <div style="font-size:14px;font-weight:700;color:var(--accent)" id="eq5">$357k</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct5">35%</div>
-          </div>
-          <div class="yield-box">
-            <div class="yb-label">Yr 10</div>
-            <div style="font-size:14px;font-weight:700;color:var(--teal)" id="eq10">$644k</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct10">49%</div>
-          </div>
-          <div class="yield-box">
-            <div class="yb-label">Yr 20</div>
-            <div style="font-size:14px;font-weight:700;color:var(--teal)" id="eq20">$1.8M</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct20">72%</div>
-          </div>
-          <div class="yield-box">
-            <div class="yb-label">Yr 30</div>
-            <div style="font-size:14px;font-weight:700;color:var(--green)" id="eq30">$4.2M</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct30">100%</div>
-          </div>
+  <!-- EQUITY & GROWTH — always visible -->
+  <div class="card mt16">
+    <div class="card-head">
+      <span class="card-title">Equity &amp; Growth Projection</span>
+      <span style="font-size:12px;color:var(--text3)" id="growthRateLabel">@ 5.0% growth/yr</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center">
+        <div class="yield-box">
+          <div class="yb-label">Now</div>
+          <div style="font-size:15px;font-weight:700;color:var(--accent)" id="eq0">$160k</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct0">20%</div>
+        </div>
+        <div class="yield-box">
+          <div class="yb-label">Yr 5</div>
+          <div style="font-size:15px;font-weight:700;color:var(--accent)" id="eq5">$357k</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct5">35%</div>
+        </div>
+        <div class="yield-box">
+          <div class="yb-label">Yr 10</div>
+          <div style="font-size:15px;font-weight:700;color:var(--teal)" id="eq10">$644k</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct10">49%</div>
+        </div>
+        <div class="yield-box">
+          <div class="yb-label">Yr 20</div>
+          <div style="font-size:15px;font-weight:700;color:var(--teal)" id="eq20">$1.8M</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct20">72%</div>
+        </div>
+        <div class="yield-box">
+          <div class="yb-label">Yr 30</div>
+          <div style="font-size:15px;font-weight:700;color:var(--green)" id="eq30">$4.2M</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px" id="eqPct30">100%</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- CHART -->
-  <div class="chart-wrap" style="margin-top:16px">
+  <div class="chart-wrap">
     <div class="chart-title">30-Year Projection</div>
     <div class="chart-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#34d399;height:3px"></div>Property Value</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#fb7185;height:3px"></div>Loan Balance</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7;height:3px"></div>Your Equity</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Property Value</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fb7185"></div>Loan Balance</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>Your Equity</div>
     </div>
     <canvas id="projChart" height="200"></canvas>
   </div>
 
-  <p style="font-size:11px;color:var(--text3);margin-top:8px;margin-bottom:24px">Projections are estimates only. Consult a licensed financial advisor before making investment decisions. Stamp duty figures are estimates — verify with state revenue office.</p>
+  <p style="font-size:11px;color:var(--text3);margin-top:12px;margin-bottom:24px;line-height:1.7">
+    Projections are estimates only and not financial advice. Stamp duty figures are estimates — verify with your state revenue office. Consult a licensed financial advisor before making investment decisions.
+  </p>
 
 </div><!-- end results-col -->
 </div><!-- end layout -->
@@ -832,7 +883,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <button class="btn btn-ghost btn-sm" onclick="clearAllSims()" id="clearAllBtn" style="display:none">Clear All</button>
   </div>
   <div id="savedGrid" class="saved-grid">
-    <div class="empty-saved">No simulations saved yet.<br>Use "Save Simulation" to compare different properties.</div>
+    <div class="empty-saved">No simulations saved yet.<br>Use "Save Simulation" to compare different properties side by side.</div>
   </div>
 </div>
 
@@ -840,8 +891,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 <div class="modal-overlay" id="saveModal">
   <div class="modal">
     <h3>Save Simulation</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Give this simulation a name to identify it later.</p>
-    <input type="text" id="modalSimName" placeholder="e.g. 3BR Fitzroy Investment" maxlength="50">
+    <p>Give this simulation a name so you can identify it later.</p>
+    <input type="text" id="modalSimName" placeholder="e.g. 3BR Fitzroy Investment" maxlength="60">
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="confirmSave()">Save</button>
@@ -864,6 +915,8 @@ const s = {
   interestRate: 6.50,
   loanType: 'pi',
   weeklyRent: 600,
+  vacancyWeeks: 2,
+  pmFeePct: 8.5,
   councilRates: 1800,
   waterRates: 1200,
   strataFees: 0,
@@ -873,8 +926,6 @@ const s = {
   landTax: 0,
   accounting: 500,
   otherOutgoings: 0,
-  vacancyWeeks: 2,
-  pmFeePct: 8.5,
   incomeBracket: '45001-120000',
   capitalGrowthPct: 5,
   includeDepreciation: true,
@@ -883,26 +934,27 @@ const s = {
 // ═══════════════════════════════════════
 //  HELPERS
 // ═══════════════════════════════════════
-const fmt = (n, d=0) => {
+const fmt = (n) => {
   const abs = Math.abs(n);
   let str;
   if (abs >= 1000000) str = '$' + (abs/1000000).toFixed(2).replace(/\.?0+$/,'') + 'M';
   else if (abs >= 1000) str = '$' + Math.round(abs).toLocaleString('en-AU');
-  else str = '$' + abs.toFixed(d);
+  else str = '$' + Math.round(abs);
   return n < 0 ? '−' + str : str;
 };
 const fmtShort = n => {
   const abs = Math.abs(n);
-  let str = abs >= 1000000 ? '$' + (abs/1e6).toFixed(1) + 'M' : '$' + Math.round(abs/1000) + 'k';
+  const str = abs >= 1000000 ? '$' + (abs/1e6).toFixed(1) + 'M' : '$' + Math.round(abs/1000) + 'k';
   return n < 0 ? '−' + str : str;
 };
 const pct = n => n.toFixed(2) + '%';
 const el = id => document.getElementById(id);
-const set = (id, val) => { const e = el(id); if(e) e.textContent = val; };
-const setClass = (id, cls) => { const e = el(id); if(e) e.className = cls; };
+const set = (id, val) => { const e = el(id); if (e) e.textContent = val; };
+const neg = (n) => '−' + fmt(Math.abs(n));
+const signedFmt = (n) => (n >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(n)).toLocaleString('en-AU');
 
 // ═══════════════════════════════════════
-//  UPDATES
+//  STATE UPDATERS
 // ═══════════════════════════════════════
 function update(key, val) {
   s[key] = val;
@@ -911,37 +963,41 @@ function update(key, val) {
 
 function setPurpose(p) {
   s.purpose = p;
-  el('togInv').classList.toggle('active', p==='investment');
-  el('togOwn').classList.toggle('active', p==='owner');
-  document.querySelectorAll('.investment-only').forEach(e => {
-    e.style.display = p==='investment' ? '' : 'none';
-  });
+  el('togInv').classList.toggle('active', p === 'investment');
+  el('togOwn').classList.toggle('active', p === 'owner');
+  const isInv = p === 'investment';
+  // Show/hide investment-specific elements
+  el('panelRental').style.display = isInv ? '' : 'none';
+  el('investmentResults').style.display = isInv ? '' : 'none';
+  el('rowLandlordIns').style.display = isInv ? '' : 'none';
+  el('rowAccounting').style.display = isInv ? '' : 'none';
   render();
 }
 
 function setType(t) {
   s.propertyType = t;
-  el('togEst').classList.toggle('active', t==='established');
-  el('togNew').classList.toggle('active', t==='new');
-  el('deprecField').style.display = t==='new' ? '' : 'none';
+  el('togEst').classList.toggle('active', t === 'established');
+  el('togNew').classList.toggle('active', t === 'new');
+  el('deprecField').style.display = t === 'new' ? '' : 'none';
   render();
 }
 
 function setLoanType(t) {
   s.loanType = t;
-  el('togPI').classList.toggle('active', t==='pi');
-  el('togIO').classList.toggle('active', t==='io');
+  el('togPI').classList.toggle('active', t === 'pi');
+  el('togIO').classList.toggle('active', t === 'io');
   render();
 }
 
-function recalcDepositLabel() {
+function syncDepositLabels() {
   const d = s.purchasePrice * s.depositPct / 100;
+  el('depositPctLabel').textContent = s.depositPct + '%';
   el('depositAmtLabel').textContent = fmt(d);
   el('depositRangeVal').textContent = s.depositPct + '%';
 }
 
 // ═══════════════════════════════════════
-//  STAMP DUTY
+//  STAMP DUTY (state-specific, investment property)
 // ═══════════════════════════════════════
 function calcStampDuty(price, state) {
   if (state === 'NSW') {
@@ -985,7 +1041,6 @@ function calcStampDuty(price, state) {
     return 23330 + (price-500000)*0.065;
   }
   if (state === 'ACT') {
-    // ACT conveyance duty (simplified)
     if (price <= 200000) return price*0.006;
     if (price <= 300000) return 1200 + (price-200000)*0.023;
     if (price <= 500000) return 3500 + (price-300000)*0.047;
@@ -994,50 +1049,51 @@ function calcStampDuty(price, state) {
     if (price <= 1455000) return 40900 + (price-1000000)*0.06;
     return price*0.049;
   }
-  // TAS, NT — rough estimate
-  return price * 0.04;
+  return price * 0.04; // TAS / NT rough estimate
 }
 
 // ═══════════════════════════════════════
-//  MARGINAL RATE
+//  TAX BRACKET → MARGINAL RATE (incl. Medicare levy)
 // ═══════════════════════════════════════
 function getMarginalRate(bracket) {
-  const m = { 'under18200':0, '18201-45000':0.21, '45001-120000':0.345, '120001-180000':0.39, 'over180000':0.47 };
-  return m[bracket] || 0.345;
+  return { 'under18200':0, '18201-45000':0.21, '45001-120000':0.345, '120001-180000':0.39, 'over180000':0.47 }[bracket] || 0.345;
 }
 
 // ═══════════════════════════════════════
-//  CALCULATE YEAR 1 INTEREST
+//  YEAR 1 INTEREST (exact month-by-month)
 // ═══════════════════════════════════════
-function calcYear1Interest(loan, annualRate, loanYears) {
+function calcYear1Interest(loan, annualRate, years) {
+  if (annualRate === 0) return 0;
   const r = annualRate / 100 / 12;
-  const n = loanYears * 12;
-  if (r === 0) return 0;
+  const n = years * 12;
   const pmt = loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
-  let bal = loan, totalInt = 0;
-  for (let m=0; m<12; m++) {
+  let bal = loan, total = 0;
+  for (let m = 0; m < 12; m++) {
     const interest = bal * r;
-    totalInt += interest;
+    total += interest;
     bal -= (pmt - interest);
   }
-  return totalInt;
+  return total;
 }
 
 // ═══════════════════════════════════════
-//  MAIN CALCULATION
+//  MAIN CALCULATION ENGINE
 // ═══════════════════════════════════════
 function calculate() {
-  const p = s.purchasePrice;
+  const p = s.purchasePrice || 0;
   const deposit = p * s.depositPct / 100;
   const loan = p - deposit;
   const r = s.interestRate / 100 / 12;
   const n = s.loanYears * 12;
 
-  let monthly;
-  if (s.loanType === 'pi') {
-    monthly = r > 0 ? loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) : loan/n;
-  } else {
-    monthly = loan * r; // IO
+  // Mortgage payment
+  let monthly = 0;
+  if (loan > 0) {
+    if (s.loanType === 'pi') {
+      monthly = r > 0 ? loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) : loan/n;
+    } else {
+      monthly = loan * r; // Interest Only
+    }
   }
   const weekly = monthly * 12 / 52;
   const annual = monthly * 12;
@@ -1045,48 +1101,59 @@ function calculate() {
   const totalInterest = totalRepay - loan;
   const year1Interest = s.loanType === 'io' ? loan * s.interestRate/100 : calcYear1Interest(loan, s.interestRate, s.loanYears);
 
+  // Purchase costs
   const stampDuty = calcStampDuty(p, s.state);
-  const otherCosts = 3000;
-  const totalUpfront = deposit + stampDuty + otherCosts;
+  const totalUpfront = deposit + stampDuty + 3000;
 
-  const maintenanceAmt = s.maintenance || (p * 0.01);
+  // Outgoings — itemised
+  const maintenanceAmt = s.maintenance > 0 ? s.maintenance : p * 0.01;
   const landlordIns = s.purpose === 'investment' ? s.landlordInsurance : 0;
   const acctFee = s.purpose === 'investment' ? s.accounting : 0;
-  const totalOutgoings = s.councilRates + s.waterRates + s.strataFees + s.buildingInsurance + landlordIns + maintenanceAmt + s.landTax + acctFee + s.otherOutgoings;
+  const insurance = s.buildingInsurance + landlordIns;
+  // Individual outgoings for step 3 display
+  const out = {
+    council: s.councilRates,
+    water: s.waterRates,
+    strata: s.strataFees,
+    insurance,
+    maintenance: maintenanceAmt,
+    landTax: s.landTax,
+    accounting: acctFee,
+    other: s.otherOutgoings,
+  };
+  const totalOutgoings = Object.values(out).reduce((a,b) => a+b, 0);
 
-  // Rental
-  const grossAnnualRent = s.weeklyRent * (52 - s.vacancyWeeks);
-  const pmFee = grossAnnualRent * s.pmFeePct / 100;
-  const netRentAfterPM = grossAnnualRent - pmFee;
-  const netAnnualIncome = netRentAfterPM - totalOutgoings;
-  const grossYield = p > 0 ? (grossAnnualRent / p) * 100 : 0;
-  const netYield = p > 0 ? (netAnnualIncome / p) * 100 : 0;
+  // Rental income waterfall
+  const grossAnnualRent = s.weeklyRent * 52;          // STEP 1: full rent × 52
+  const vacancyLoss = s.weeklyRent * s.vacancyWeeks;   // weeks of no rent
+  const effectiveRent = grossAnnualRent - vacancyLoss;  // rent actually collected
+  const pmFee = effectiveRent * s.pmFeePct / 100;       // PM fee on collected rent
+  const netEffectiveRent = effectiveRent - pmFee;       // STEP 2
 
-  const weeklyNetRent = netRentAfterPM / 52;
-  const weeklyOutgoings = totalOutgoings / 52;
-  const weeklyCashFlow = weeklyNetRent - weekly - weeklyOutgoings;
+  const noi = netEffectiveRent - totalOutgoings;        // STEP 3: Net Operating Income
+  const grossYield = p > 0 ? (effectiveRent / p) * 100 : 0;
+  const netYield = p > 0 ? (noi / p) * 100 : 0;
 
-  // Break-even rent (where weekly cash flow = 0)
-  // weeklyNetRentBE - weekly - weeklyOutgoings = 0
-  // weeklyNetRentBE = weekly + weeklyOutgoings
-  // weeklyNetRentBE = netRentAfterPM_BE / 52
-  // netRentAfterPM_BE = grossBE - pmFeePct%*grossBE = grossBE*(1-pmPct/100)
-  // grossBE = s.weeklyBE * (52-vacWks)
-  // So: s.weeklyBE * (52-vacWks) * (1-pmPct/100) / 52 = weekly + weeklyOutgoings
-  const breakEvenWeekly = (weekly + weeklyOutgoings) * 52 / ((52 - s.vacancyWeeks) * (1 - s.pmFeePct/100));
+  // STEP 4: After mortgage
+  const weeklyCashFlow = noi / 52 - weekly;
+  const annualCashFlow = weeklyCashFlow * 52;
 
-  // Tax
+  // Break-even: rent where cashflow = 0
+  // (weeklyRentBE × (52-vac) - pmFee%) / 52 - outgoings/52 - weekly = 0
+  const breakEvenWeekly = (weekly * 52 + totalOutgoings) / ((52 - s.vacancyWeeks) * (1 - s.pmFeePct/100));
+
+  // Tax analysis
   const depreciation = (s.propertyType === 'new' && s.includeDepreciation) ? p * 0.025 : 0;
   const totalDeductible = year1Interest + pmFee + totalOutgoings + depreciation;
-  const taxableRentalIncome = grossAnnualRent - totalDeductible;
+  const taxableRentalIncome = effectiveRent - totalDeductible;
   const marginalRate = getMarginalRate(s.incomeBracket);
   let taxBenefit = 0;
   let gearingStatus = 'neutral';
   if (taxableRentalIncome < 0) {
-    taxBenefit = Math.abs(taxableRentalIncome) * marginalRate;
+    taxBenefit = Math.abs(taxableRentalIncome) * marginalRate; // positive = we get money back
     gearingStatus = 'negative';
   } else {
-    taxBenefit = -taxableRentalIncome * marginalRate;
+    taxBenefit = -taxableRentalIncome * marginalRate; // negative = we owe more tax
     gearingStatus = 'positive';
   }
   const taxBenefitWeekly = taxBenefit / 52;
@@ -1094,10 +1161,12 @@ function calculate() {
   const depTaxSaving = depreciation * marginalRate;
 
   return {
-    deposit, loan, monthly, weekly, annual, totalRepay, totalInterest, year1Interest,
-    stampDuty, totalUpfront, totalOutgoings, maintenanceAmt,
-    grossAnnualRent, pmFee, netRentAfterPM, netAnnualIncome, grossYield, netYield,
-    weeklyNetRent, weeklyOutgoings, weeklyCashFlow, breakEvenWeekly,
+    p, deposit, loan, monthly, weekly, annual, totalRepay, totalInterest, year1Interest,
+    stampDuty, totalUpfront,
+    out, totalOutgoings, maintenanceAmt,
+    grossAnnualRent, vacancyLoss, effectiveRent, pmFee, netEffectiveRent,
+    noi, grossYield, netYield,
+    weeklyCashFlow, annualCashFlow, breakEvenWeekly,
     depreciation, totalDeductible, taxableRentalIncome, taxBenefit, marginalRate,
     gearingStatus, taxBenefitWeekly, afterTaxWeekly, depTaxSaving,
   };
@@ -1110,86 +1179,89 @@ function render() {
   const c = calculate();
 
   // Hero
-  el('hLoanAmt').textContent = fmt(c.loan);
-  el('hWeeklyRepay').textContent = fmt(c.weekly) + '/wk';
-  el('hUpfront').textContent = fmt(c.totalUpfront);
+  set('hLoanAmt', fmt(c.loan));
+  set('hWeeklyRepay', fmt(c.weekly) + '/wk');
+  set('hUpfront', fmt(c.totalUpfront));
 
   // Purchase Summary
-  set('rPurchasePrice', fmt(s.purchasePrice));
+  set('rPurchasePrice', fmt(c.p));
   set('rDepositPct', s.depositPct);
   set('rDeposit', fmt(c.deposit));
   set('rLoanAmt', fmt(c.loan));
   set('rStampDuty', fmt(c.stampDuty));
   set('rTotalUpfront', fmt(c.totalUpfront));
-  const equityPct = Math.round(c.deposit / s.purchasePrice * 100);
-  set('rEquityPct', equityPct + '%');
-  el('equityFill').style.width = Math.min(equityPct, 100) + '%';
   set('stateLabel', s.state);
-
-  // LMI warning
+  const eqPct = c.p > 0 ? Math.round(c.deposit / c.p * 100) : 0;
+  set('rEquityPct', eqPct + '%');
+  el('equityFill').style.width = Math.min(eqPct, 100) + '%';
   el('lmiWarning').classList.toggle('show', s.depositPct < 20);
 
   // Mortgage
   set('loanTypeBadge', s.loanType === 'pi' ? 'P&I' : 'Interest Only');
-  set('rMonthly', fmt(c.monthly) + '/mo');
   set('rWeekly', fmt(c.weekly) + '/wk');
+  set('rMonthly', fmt(c.monthly) + '/mo');
   set('rAnnual', fmt(c.annual) + '/yr');
-  set('rTotalRepay', fmt(c.totalRepay));
-  set('rTotalInterest', fmt(c.totalInterest));
-  set('rInterestPct', pct(c.totalInterest / s.purchasePrice * 100));
   set('rYear1Int', fmt(c.year1Interest));
+  set('rTotalInterest', fmt(c.totalInterest));
+  set('rTotalRepay', fmt(c.totalRepay));
 
-  // Maintenance hint
-  set('autoMaintenanceHint', Math.round(s.purchasePrice * 0.01).toLocaleString('en-AU'));
+  // Maintenance hint in inputs
+  set('autoMainHint', Math.round(c.p * 0.01).toLocaleString('en-AU'));
 
-  // Rental
+  // Outgoings total — always visible in panel
+  set('totalOutgoingsDisplay', fmt(c.totalOutgoings) + '/yr');
+
+  // === INVESTMENT-ONLY RESULTS ===
   if (s.purpose === 'investment') {
-    const grossRentDisp = fmt(s.weeklyRent) + '/wk';
-    const vacLoss = s.weeklyRent * s.vacancyWeeks;
-    set('rWeeklyRent', grossRentDisp);
-    set('rVacWks', s.vacancyWeeks);
-    set('rVacancyLoss', '−' + fmt(vacLoss));
-    set('rGrossAnnualRent', fmt(c.grossAnnualRent));
-    set('rPmPct', s.pmFeePct);
-    set('rPmFees', '−' + fmt(c.pmFee));
-    set('rAnnualOutgoings', '−' + fmt(c.totalOutgoings));
-    const niColor = c.netAnnualIncome >= 0 ? 'val-green' : 'val-red';
-    el('rNetAnnualIncome').textContent = fmt(c.netAnnualIncome);
-    el('rNetAnnualIncome').className = 'metric-val ' + niColor;
 
-    set('rGrossYield', pct(c.grossYield));
-    set('rNetYield', pct(c.netYield));
-    el('rNetYield').style.color = c.netYield >= 0 ? 'var(--teal)' : 'var(--red)';
+    // STEP 1
+    const effYield = c.p > 0 ? (c.effectiveRent / c.p) * 100 : 0;
+    set('s1GrossDesc', '$' + s.weeklyRent + ' × 52 = ' + fmt(c.grossAnnualRent));
+    set('s1Total', fmt(c.grossAnnualRent) + '/yr');
+    set('s1YieldBadge', pct(c.grossYield) + ' gross yield');
 
-    // Cash flow
+    // STEP 2
+    set('s2VacWks', s.vacancyWeeks);
+    set('s2VacRent', s.weeklyRent);
+    set('s2Vacancy', neg(c.vacancyLoss));
+    set('s2PmPct', s.pmFeePct);
+    set('s2PmFees', neg(c.pmFee));
+    set('s2Total', fmt(c.netEffectiveRent) + '/yr');
+    set('s2YieldBadge', pct(effYield) + ' effective yield');
+
+    // STEP 3
+    set('s3Council', neg(c.out.council));
+    set('s3Water', neg(c.out.water));
+    set('s3Strata', neg(c.out.strata));
+    el('s3StrataRow').style.display = c.out.strata > 0 ? '' : 'none';
+    set('s3Insurance', neg(c.out.insurance));
+    set('s3Maintenance', neg(c.out.maintenance));
+    set('s3LandTax', neg(c.out.landTax));
+    el('s3LandTaxRow').style.display = c.out.landTax > 0 ? '' : 'none';
+    set('s3Accounting', neg(c.out.accounting));
+    set('s3Other', neg(c.out.other));
+    el('s3OtherRow').style.display = c.out.other > 0 ? '' : 'none';
+    const noiColor = c.noi >= 0 ? 'var(--green)' : 'var(--red)';
+    el('s3Total').textContent = (c.noi >= 0 ? '+' : '') + fmt(c.noi) + '/yr';
+    el('s3Total').style.color = noiColor;
+    set('s3YieldBadge', pct(c.netYield) + ' net yield');
+    el('s3YieldBadge').style.color = c.netYield >= 0 ? 'var(--teal)' : 'var(--red)';
+
+    // STEP 4
+    set('s4Mortgage', neg(c.annual));
     const cfHero = el('cfHero');
-    cfHero.className = 'cashflow-hero ' + (c.weeklyCashFlow >= 0 ? 'positive' : 'negative');
-    el('cfWeeklyVal').textContent = (c.weeklyCashFlow >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(c.weeklyCashFlow)) + '/wk';
+    cfHero.className = 'cf-hero ' + (c.weeklyCashFlow >= 0 ? 'positive' : 'negative');
+    el('cfWeeklyVal').textContent = signedFmt(c.weeklyCashFlow) + '/wk';
     el('cfWeeklyVal').style.color = c.weeklyCashFlow >= 0 ? 'var(--green)' : 'var(--red)';
     const monthly = c.weeklyCashFlow * 52 / 12;
-    el('cfMonthlyVal').textContent = (monthly >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(monthly)).toLocaleString() + '/month';
-
-    set('cfRent', '+' + fmt(c.weeklyNetRent) + '/wk');
-    el('cfRent').className = 'metric-val val-green';
-    set('cfMortgage', '−' + fmt(c.weekly) + '/wk');
-    set('cfOutgoings', '−' + fmt(c.weeklyOutgoings) + '/wk');
-    const annCF = c.weeklyCashFlow * 52;
-    el('cfAnnual').textContent = (annCF >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(annCF)).toLocaleString();
-    el('cfAnnual').className = 'metric-val ' + (annCF >= 0 ? 'val-green' : 'val-red');
+    el('cfMonthlyVal').textContent = signedFmt(monthly) + '/month · ' + signedFmt(c.annualCashFlow) + '/year';
     set('breakEvenRent', '$' + Math.round(c.breakEvenWeekly) + '/wk');
 
     // Gearing chip
     const chip = el('gearingChip');
-    if (c.gearingStatus === 'negative') {
-      chip.textContent = 'Negatively Geared';
-      chip.className = 'status-chip chip-red';
-    } else if (c.gearingStatus === 'positive') {
-      chip.textContent = 'Positively Geared';
-      chip.className = 'status-chip chip-green';
-    } else {
-      chip.textContent = 'Neutral';
-      chip.className = 'status-chip chip-blue';
-    }
+    if (c.gearingStatus === 'negative') { chip.textContent = 'Negatively Geared'; chip.className = 'chip chip-red'; }
+    else if (c.gearingStatus === 'positive') { chip.textContent = 'Positively Geared'; chip.className = 'chip chip-green'; }
+    else { chip.textContent = 'Neutral'; chip.className = 'chip chip-blue'; }
 
     // Tax
     set('taxInterest', fmt(c.year1Interest));
@@ -1197,82 +1269,69 @@ function render() {
     set('taxOutgoings', fmt(c.totalOutgoings));
     set('taxDepreciation', c.depreciation > 0 ? fmt(c.depreciation) : '$0');
     set('taxTotalDeductible', fmt(c.totalDeductible));
-    set('taxGrossRent', fmt(c.grossAnnualRent));
-    set('taxDeductibleShow', '−' + fmt(c.totalDeductible));
+    set('taxGrossRent', fmt(c.effectiveRent));
+    set('taxDeductibleShow', neg(c.totalDeductible));
     const netLoss = c.taxableRentalIncome;
-    el('taxNetLoss').textContent = (netLoss >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(netLoss)).toLocaleString();
+    el('taxNetLoss').textContent = (netLoss >= 0 ? '+' : '') + fmt(netLoss);
     el('taxNetLoss').className = 'tv ' + (netLoss >= 0 ? 'val-green' : 'val-red');
     set('taxMarginalRate', pct(c.marginalRate * 100));
 
     const taxBadge = el('taxStatusBadge');
     if (c.gearingStatus === 'negative') {
-      taxBadge.textContent = 'Loss Claimable';
-      taxBadge.className = 'card-badge badge-green';
+      taxBadge.textContent = 'Loss Claimable'; taxBadge.className = 'chip chip-green';
       set('taxBenefit', '+' + fmt(c.taxBenefit) + '/yr');
       el('taxBenefit').style.color = 'var(--green)';
     } else {
-      taxBadge.textContent = 'Tax Payable';
-      taxBadge.className = 'card-badge badge-red';
-      set('taxBenefit', fmt(c.taxBenefit) + '/yr');
+      taxBadge.textContent = 'Tax Payable'; taxBadge.className = 'chip chip-red';
+      set('taxBenefit', neg(c.taxBenefit) + '/yr');
       el('taxBenefit').style.color = 'var(--red)';
     }
 
     const tbw = c.taxBenefitWeekly;
-    el('taxBenefitWeekly').textContent = (tbw >= 0 ? '+' : '') + '$' + Math.abs(Math.round(tbw));
+    el('taxBenefitWeekly').textContent = signedFmt(tbw);
     el('taxBenefitWeekly').style.color = tbw > 0 ? 'var(--green)' : 'var(--red)';
-
-    const atw = c.afterTaxWeekly;
-    el('afterTaxWeekly').textContent = (atw >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(atw));
-    el('afterTaxWeekly').style.color = atw >= 0 ? 'var(--green)' : 'var(--red)';
-    const atm = atw * 52 / 12;
-    el('afterTaxMonthly').textContent = (atm >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(atm)).toLocaleString();
+    el('afterTaxWeekly').textContent = signedFmt(c.afterTaxWeekly) + '/wk';
+    el('afterTaxWeekly').style.color = c.afterTaxWeekly >= 0 ? 'var(--green)' : 'var(--red)';
+    const atm = c.afterTaxWeekly * 52 / 12;
+    el('afterTaxMonthly').textContent = signedFmt(atm) + '/mo';
     el('afterTaxMonthly').style.color = atm >= 0 ? 'var(--green)' : 'var(--red)';
 
     // Depreciation note
-    if (s.propertyType === 'new' && s.includeDepreciation) {
+    if (s.propertyType === 'new' && s.includeDepreciation && c.depreciation > 0) {
       el('depNote').style.display = '';
+      set('depAmount', Math.round(c.depreciation).toLocaleString('en-AU'));
       set('depSaving', fmt(c.depTaxSaving));
     } else {
       el('depNote').style.display = 'none';
     }
   }
 
-  // Outgoings total
-  const maintenanceAmt = s.maintenance || (s.purchasePrice * 0.01);
-  const landlordIns = s.purpose === 'investment' ? s.landlordInsurance : 0;
-  const acctFee = s.purpose === 'investment' ? s.accounting : 0;
-  const totalOut = s.councilRates + s.waterRates + s.strataFees + s.buildingInsurance + landlordIns + maintenanceAmt + s.landTax + acctFee + s.otherOutgoings;
-  set('totalOutgoingsDisplay', fmt(totalOut) + '/yr');
-
   // Equity projection
+  set('growthRateLabel', '@ ' + s.capitalGrowthPct.toFixed(1) + '% growth/yr');
   const growth = s.capitalGrowthPct / 100;
-  const loanBal = (yr) => {
-    if (s.loanType === 'io') return c.loan;
-    const r = s.interestRate / 100 / 12;
-    const n = s.loanYears * 12;
-    if (r === 0) return Math.max(0, c.loan - (c.monthly * yr * 12));
-    const months = yr * 12;
-    return c.loan * (Math.pow(1+r,n) - Math.pow(1+r,months)) / (Math.pow(1+r,n) - 1);
+  const loanBal = yr => {
+    if (s.loanType === 'io') return Math.max(0, c.loan);
+    const r2 = s.interestRate / 100 / 12;
+    const n2 = s.loanYears * 12;
+    if (r2 === 0 || n2 === 0) return Math.max(0, c.loan - c.monthly * yr * 12);
+    const m = yr * 12;
+    if (m >= n2) return 0;
+    return c.loan * (Math.pow(1+r2,n2) - Math.pow(1+r2,m)) / (Math.pow(1+r2,n2)-1);
   };
-  const propVal = yr => s.purchasePrice * Math.pow(1+growth, yr);
-  const equity = yr => Math.max(0, propVal(yr) - Math.max(0, loanBal(yr)));
-
-  set('growthRateLabel', '@ ' + s.capitalGrowthPct.toFixed(1) + '% p.a.');
-
-  [[0,'eq0','eqPct0'],[5,'eq5','eqPct5'],[10,'eq10','eqPct10'],[20,'eq20','eqPct20'],[30,'eq30','eqPct30']].forEach(([yr,eqId,pctId]) => {
-    const eq = equity(yr);
-    const pv = propVal(yr);
-    set(eqId, fmtShort(eq));
-    set(pctId, Math.round(eq/pv*100) + '%');
+  const propVal = yr => c.p * Math.pow(1+growth, yr);
+  const equity = yr => Math.max(0, propVal(yr) - loanBal(yr));
+  [[0,'eq0','eqPct0'],[5,'eq5','eqPct5'],[10,'eq10','eqPct10'],[20,'eq20','eqPct20'],[30,'eq30','eqPct30']].forEach(([yr,eId,pId]) => {
+    const eq = equity(yr), pv = propVal(yr);
+    set(eId, fmtShort(eq));
+    set(pId, pv > 0 ? Math.round(eq/pv*100)+'%' : '—');
   });
 
-  // Chart
   drawChart(loanBal, propVal, equity);
 
-  // Nav saved count
-  const sims = getSims();
-  el('clearAllBtn').style.display = sims.length > 0 ? '' : 'none';
-  document.querySelector('button[onclick="scrollToSaved()"]').textContent = `Saved (${sims.length})`;
+  // Nav counter
+  const simCount = getSims().length;
+  set('btnSavedCount', 'Saved (' + simCount + ')');
+  el('clearAllBtn').style.display = simCount > 0 ? '' : 'none';
 }
 
 // ═══════════════════════════════════════
@@ -1283,79 +1342,41 @@ function drawChart(loanBalFn, propValFn, equityFn) {
   const dpr = window.devicePixelRatio || 1;
   const W = canvas.parentElement.clientWidth - 32;
   const H = 220;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-
-  const pad = { t: 16, r: 16, b: 36, l: 72 };
-  const gW = W - pad.l - pad.r;
-  const gH = H - pad.t - pad.b;
-
+  const pad = {t:16, r:16, b:36, l:72};
+  const gW = W - pad.l - pad.r, gH = H - pad.t - pad.b;
   ctx.clearRect(0, 0, W, H);
-
   const years = Array.from({length:31},(_,i)=>i);
   const loanVals = years.map(y => Math.max(0, loanBalFn(y)));
   const propVals = years.map(y => propValFn(y));
   const eqVals = years.map(y => equityFn(y));
-
-  const maxVal = Math.max(...propVals);
+  const maxVal = Math.max(...propVals, 1);
   const xOf = y => pad.l + (y/30)*gW;
   const yOf = v => pad.t + gH - (v/maxVal)*gH;
-
-  // Grid
-  ctx.strokeStyle = 'rgba(30,45,71,0.8)';
-  ctx.lineWidth = 1;
-  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
-    const y = pad.t + gH*(1-t);
-    ctx.beginPath();
-    ctx.moveTo(pad.l, y);
-    ctx.lineTo(pad.l+gW, y);
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(74,93,122,0.8)';
-    ctx.font = '10px system-ui';
-    ctx.textAlign = 'right';
-    ctx.fillText(fmtShort(maxVal*t), pad.l-6, y+4);
+  ctx.strokeStyle = 'rgba(30,45,71,0.8)'; ctx.lineWidth = 1;
+  [0,0.25,0.5,0.75,1].forEach(t => {
+    const yy = pad.t + gH*(1-t);
+    ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(pad.l+gW, yy); ctx.stroke();
+    ctx.fillStyle = 'rgba(74,93,122,0.8)'; ctx.font = '10px system-ui'; ctx.textAlign = 'right';
+    ctx.fillText(fmtShort(maxVal*t), pad.l-6, yy+4);
   });
-
-  // X labels
-  ctx.fillStyle = 'rgba(74,93,122,0.8)';
-  ctx.textAlign = 'center';
-  [0,5,10,15,20,25,30].forEach(yr => {
-    ctx.fillText('Yr '+yr, xOf(yr), pad.t+gH+20);
-  });
-
-  // Equity fill
+  ctx.fillStyle = 'rgba(74,93,122,0.8)'; ctx.textAlign = 'center';
+  [0,5,10,15,20,25,30].forEach(yr => ctx.fillText('Yr '+yr, xOf(yr), pad.t+gH+20));
   ctx.beginPath();
-  years.forEach((y,i) => {
-    const x = xOf(y), yv = yOf(eqVals[i]);
-    i===0 ? ctx.moveTo(x,yv) : ctx.lineTo(x,yv);
-  });
-  const baseY = pad.t + gH;
-  ctx.lineTo(xOf(30), baseY);
-  ctx.lineTo(xOf(0), baseY);
-  ctx.closePath();
-  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t+gH);
-  grad.addColorStop(0, 'rgba(79,142,247,0.25)');
-  grad.addColorStop(1, 'rgba(79,142,247,0.02)');
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // Draw lines
-  function drawLine(vals, color, dashed) {
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+  years.forEach((y,i) => { const x=xOf(y),yy=yOf(eqVals[i]); i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy); });
+  ctx.lineTo(xOf(30), pad.t+gH); ctx.lineTo(xOf(0), pad.t+gH); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+gH);
+  grad.addColorStop(0,'rgba(79,142,247,0.2)'); grad.addColorStop(1,'rgba(79,142,247,0.01)');
+  ctx.fillStyle = grad; ctx.fill();
+  const drawLine = (vals, color, dashed) => {
+    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
     ctx.setLineDash(dashed ? [4,3] : []);
-    years.forEach((y,i) => {
-      const x = xOf(y), yv = yOf(vals[i]);
-      i===0 ? ctx.moveTo(x,yv) : ctx.lineTo(x,yv);
-    });
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
+    years.forEach((y,i) => { const x=xOf(y),yy=yOf(vals[i]); i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy); });
+    ctx.stroke(); ctx.setLineDash([]);
+  };
   drawLine(propVals, '#34d399', false);
   drawLine(loanVals, '#fb7185', true);
   drawLine(eqVals, '#4f8ef7', false);
@@ -1364,8 +1385,8 @@ function drawChart(loanBalFn, propValFn, equityFn) {
 // ═══════════════════════════════════════
 //  SAVED SIMULATIONS
 // ═══════════════════════════════════════
-function getSims() { try { return JSON.parse(localStorage.getItem('propanalytics') || '[]'); } catch { return []; } }
-function saveSims(arr) { localStorage.setItem('propanalytics', JSON.stringify(arr)); }
+const getSims = () => { try { return JSON.parse(localStorage.getItem('propanalytics') || '[]'); } catch { return []; } };
+const saveSims = arr => localStorage.setItem('propanalytics', JSON.stringify(arr));
 
 function openSaveModal() {
   el('modalSimName').value = s.simName || '';
@@ -1373,116 +1394,76 @@ function openSaveModal() {
   setTimeout(() => el('modalSimName').focus(), 100);
 }
 function closeModal() { el('saveModal').classList.remove('open'); }
-el('saveModal').addEventListener('click', e => { if(e.target===el('saveModal')) closeModal(); });
-el('modalSimName').addEventListener('keydown', e => { if(e.key==='Enter') confirmSave(); });
+el('saveModal').addEventListener('click', e => { if (e.target === el('saveModal')) closeModal(); });
+el('modalSimName').addEventListener('keydown', e => { if (e.key === 'Enter') confirmSave(); });
 
 function confirmSave() {
-  const name = el('modalSimName').value.trim() || s.simName || ('Property ' + (getSims().length+1));
+  const name = el('modalSimName').value.trim() || ('Property ' + (getSims().length+1));
   const c = calculate();
   const sim = {
-    id: Date.now(),
-    name,
+    id: Date.now(), name,
     ts: new Date().toLocaleDateString('en-AU'),
     inputs: {...s},
     results: {
-      loan: c.loan,
-      weekly: c.weekly,
-      grossYield: c.grossYield,
-      netYield: c.netYield,
-      weeklyCashFlow: c.weeklyCashFlow,
-      afterTaxWeekly: c.afterTaxWeekly,
-      gearingStatus: c.gearingStatus,
+      loan: c.loan, weekly: c.weekly,
+      grossYield: c.grossYield, netYield: c.netYield,
+      noi: c.noi, weeklyCashFlow: c.weeklyCashFlow,
+      afterTaxWeekly: c.afterTaxWeekly, gearingStatus: c.gearingStatus,
       totalUpfront: c.totalUpfront,
     }
   };
-  const sims = getSims();
-  sims.push(sim);
-  saveSims(sims);
-  closeModal();
-  renderSavedSimulations();
-  render();
+  const sims = getSims(); sims.push(sim); saveSims(sims);
+  closeModal(); renderSavedSimulations(); render();
 }
 
 function deleteSim(id) {
-  const sims = getSims().filter(s => s.id !== id);
-  saveSims(sims);
-  renderSavedSimulations();
-  render();
+  saveSims(getSims().filter(s => s.id !== id));
+  renderSavedSimulations(); render();
 }
 
 function loadSim(id) {
-  const sim = getSims().find(s => s.id === id);
+  const sim = getSims().find(x => x.id === id);
   if (!sim) return;
   Object.assign(s, sim.inputs);
-  syncUI();
-  render();
-  window.scrollTo({top:0,behavior:'smooth'});
+  syncUI(); render();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function clearAllSims() {
-  if (!confirm('Clear all saved simulations?')) return;
-  saveSims([]);
-  renderSavedSimulations();
-  render();
+  if (!confirm('Delete all saved simulations?')) return;
+  saveSims([]); renderSavedSimulations(); render();
 }
 
-function scrollToSaved() {
-  el('savedSection').scrollIntoView({behavior:'smooth'});
-}
+function scrollToSaved() { el('savedSection').scrollIntoView({behavior:'smooth'}); }
 
 function renderSavedSimulations() {
   const sims = getSims();
   const grid = el('savedGrid');
-  if (sims.length === 0) {
-    grid.innerHTML = '<div class="empty-saved">No simulations saved yet.<br>Use "Save Simulation" to compare different properties.</div>';
+  if (!sims.length) {
+    grid.innerHTML = '<div class="empty-saved">No simulations saved yet.<br>Use "Save Simulation" to compare different properties side by side.</div>';
     return;
   }
   grid.innerHTML = sims.map(sim => {
     const cf = sim.results.weeklyCashFlow;
     const atw = sim.results.afterTaxWeekly;
-    const cfColor = cf >= 0 ? 'var(--green)' : 'var(--red)';
-    const gearing = sim.results.gearingStatus === 'negative' ? '🔴 Neg. Geared' : sim.results.gearingStatus === 'positive' ? '🟢 Pos. Geared' : '🔵 Neutral';
     const isInv = sim.inputs.purpose === 'investment';
-    return `
-    <div class="sim-card" onclick="loadSim(${sim.id})">
+    const gearing = sim.results.gearingStatus === 'negative' ? '🔴 Neg. Geared' : sim.results.gearingStatus === 'positive' ? '🟢 Pos. Geared' : '🔵 Neutral';
+    return `<div class="sim-card" onclick="loadSim(${sim.id})">
       <button class="btn btn-danger btn-sm sim-del" onclick="event.stopPropagation();deleteSim(${sim.id})">✕</button>
       <div class="sim-name">${sim.name}</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${sim.ts} · ${sim.inputs.state} · ${sim.inputs.propertyType}</div>
       <div class="sim-meta">
-        <div class="sim-stat">
-          <span class="ss-l">Purchase Price</span>
-          <span class="ss-v">${fmt(sim.inputs.purchasePrice)}</span>
-        </div>
-        <div class="sim-stat">
-          <span class="ss-l">Weekly Repayment</span>
-          <span class="ss-v">${fmt(sim.results.weekly)}/wk</span>
-        </div>
+        <div class="sim-stat"><span class="ss-l">Price</span><span class="ss-v">${fmt(sim.inputs.purchasePrice)}</span></div>
+        <div class="sim-stat"><span class="ss-l">Weekly Repayment</span><span class="ss-v">${fmt(sim.results.weekly)}/wk</span></div>
         ${isInv ? `
-        <div class="sim-stat">
-          <span class="ss-l">Gross Yield</span>
-          <span class="ss-v" style="color:var(--green)">${sim.results.grossYield.toFixed(2)}%</span>
-        </div>
-        <div class="sim-stat">
-          <span class="ss-l">Weekly Cash Flow</span>
-          <span class="ss-v" style="color:${cfColor}">${cf>=0?'+':'−'}$${Math.abs(Math.round(cf))}/wk</span>
-        </div>
-        <div class="sim-stat">
-          <span class="ss-l">After-Tax Weekly</span>
-          <span class="ss-v" style="color:${atw>=0?'var(--green)':'var(--red)'}">${atw>=0?'+':'−'}$${Math.abs(Math.round(atw))}/wk</span>
-        </div>
-        <div class="sim-stat">
-          <span class="ss-l">Status</span>
-          <span class="ss-v">${gearing}</span>
-        </div>
+        <div class="sim-stat"><span class="ss-l">Gross Yield</span><span class="ss-v" style="color:var(--green)">${sim.results.grossYield.toFixed(2)}%</span></div>
+        <div class="sim-stat"><span class="ss-l">Net Yield (pre-mortgage)</span><span class="ss-v" style="color:var(--teal)">${sim.results.netYield.toFixed(2)}%</span></div>
+        <div class="sim-stat"><span class="ss-l">Weekly Cash Flow</span><span class="ss-v" style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span></div>
+        <div class="sim-stat"><span class="ss-l">After-Tax Weekly</span><span class="ss-v" style="color:${atw>=0?'var(--green)':'var(--red)'}">${signedFmt(atw)}/wk</span></div>
+        <div class="sim-stat"><span class="ss-l">Gearing</span><span class="ss-v">${gearing}</span></div>
         ` : `
-        <div class="sim-stat">
-          <span class="ss-l">Loan Amount</span>
-          <span class="ss-v">${fmt(sim.results.loan)}</span>
-        </div>
-        <div class="sim-stat">
-          <span class="ss-l">Total Upfront</span>
-          <span class="ss-v">${fmt(sim.results.totalUpfront)}</span>
-        </div>
+        <div class="sim-stat"><span class="ss-l">Loan Amount</span><span class="ss-v">${fmt(sim.results.loan)}</span></div>
+        <div class="sim-stat"><span class="ss-l">Total Upfront</span><span class="ss-v">${fmt(sim.results.totalUpfront)}</span></div>
         `}
       </div>
       <div style="font-size:11px;color:var(--text3)">Click to load</div>
@@ -1491,17 +1472,22 @@ function renderSavedSimulations() {
 }
 
 // ═══════════════════════════════════════
-//  SYNC UI FROM STATE
+//  SYNC UI ← STATE (used when loading a saved simulation)
 // ═══════════════════════════════════════
 function syncUI() {
+  el('simName').value = s.simName;
   el('purchasePrice').value = s.purchasePrice;
   el('depositSlider').value = s.depositPct;
-  el('depositPctLabel').textContent = s.depositPct + '%';
-  el('depositRangeVal').textContent = s.depositPct + '%';
   el('termSlider').value = s.loanYears;
   el('termLabel').textContent = s.loanYears + ' yrs';
   el('interestRate').value = s.interestRate;
   el('weeklyRent').value = s.weeklyRent;
+  el('vacancySlider').value = s.vacancyWeeks;
+  el('vacancyLabel').textContent = s.vacancyWeeks + ' week' + (s.vacancyWeeks===1?'':'s');
+  el('vacancyRangeVal').textContent = s.vacancyWeeks + ' wks';
+  el('pmSlider').value = s.pmFeePct;
+  el('pmLabel').textContent = s.pmFeePct + '%';
+  el('pmRangeVal').textContent = s.pmFeePct + '%';
   el('councilRates').value = s.councilRates;
   el('waterRates').value = s.waterRates;
   el('strataFees').value = s.strataFees;
@@ -1511,23 +1497,16 @@ function syncUI() {
   el('landTax').value = s.landTax;
   el('accounting').value = s.accounting;
   el('otherOutgoings').value = s.otherOutgoings;
-  el('vacancySlider').value = s.vacancyWeeks;
-  el('vacancyLabel').textContent = s.vacancyWeeks + ' week' + (s.vacancyWeeks===1?'':'s');
-  el('vacancyRangeVal').textContent = s.vacancyWeeks + ' wks';
-  el('pmSlider').value = s.pmFeePct;
-  el('pmLabel').textContent = s.pmFeePct + '%';
-  el('pmRangeVal').textContent = s.pmFeePct + '%';
+  el('incomeBracket').value = s.incomeBracket;
   el('growthSlider').value = s.capitalGrowthPct;
   el('growthLabel').textContent = s.capitalGrowthPct + '%';
   el('growthRangeVal').textContent = s.capitalGrowthPct + '%';
-  el('incomeBracket').value = s.incomeBracket;
   el('stateSelect').value = s.state;
   el('includeDepreciation').checked = s.includeDepreciation;
-  el('simName').value = s.simName;
+  syncDepositLabels();
   setPurpose(s.purpose);
   setType(s.propertyType);
   setLoanType(s.loanType);
-  recalcDepositLabel();
 }
 
 // ═══════════════════════════════════════
@@ -1536,31 +1515,12 @@ function syncUI() {
 function togglePanel(id) {
   const panel = el(id);
   panel.classList.toggle('collapsed');
-  const arrow = panel.querySelector('.panel-toggle');
-  arrow.textContent = panel.classList.contains('collapsed') ? '▶' : '▼';
+  panel.querySelector('.panel-toggle').textContent = panel.classList.contains('collapsed') ? '▶' : '▼';
 }
 
-// ═══════════════════════════════════════
-//  RANGE SYNC
-// ═══════════════════════════════════════
-document.getElementById('vacancySlider').addEventListener('input', function() {
-  el('vacancyRangeVal').textContent = this.value + ' wks';
-});
-document.getElementById('pmSlider').addEventListener('input', function() {
-  el('pmRangeVal').textContent = this.value + '%';
-});
-document.getElementById('growthSlider').addEventListener('input', function() {
-  el('growthRangeVal').textContent = this.value + '%';
-});
-
-// ═══════════════════════════════════════
-//  RESIZE CHART
-// ═══════════════════════════════════════
+// Resize chart on window resize
 let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(render, 150);
-});
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(render, 150); });
 
 // ═══════════════════════════════════════
 //  INIT
