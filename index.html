@@ -32,6 +32,35 @@
   --radius: 12px;
   --radius-sm: 8px;
 }
+/* SLATE THEME */
+[data-theme="slate"] {
+  --bg: #1a1f2e;
+  --surface: #222840;
+  --surface2: #2a3250;
+  --surface3: #333d60;
+  --border: #333d60;
+  --border2: #3d4a72;
+  --text: #e2e8f5;
+  --text2: #8b9fc0;
+  --text3: #5a6d90;
+}
+/* LIGHT THEME */
+[data-theme="light"] {
+  --bg: #f0f4fb;
+  --surface: #ffffff;
+  --surface2: #f5f8ff;
+  --surface3: #e8eef8;
+  --border: #d4dce8;
+  --border2: #c2cedd;
+  --text: #1a2540;
+  --text2: #4a5d7a;
+  --text3: #8096b0;
+  --accent: #3a7ae8;
+  --accent-dim: rgba(58,122,232,0.12);
+}
+[data-theme="light"] nav { background: rgba(240,244,251,0.95); }
+[data-theme="light"] .inputs-col { background: var(--surface); }
+[data-theme="light"] .card { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
@@ -272,6 +301,11 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px">AU</span>
   </div>
   <div class="nav-actions">
+    <div style="display:flex;gap:4px;background:var(--surface2);border-radius:var(--radius-sm);padding:3px;border:1px solid var(--border2)">
+      <button class="tog active" id="thm-dark" onclick="setTheme('dark')" title="Dark">🌑</button>
+      <button class="tog" id="thm-slate" onclick="setTheme('slate')" title="Slate">🌓</button>
+      <button class="tog" id="thm-light" onclick="setTheme('light')" title="Light">☀️</button>
+    </div>
     <button class="btn btn-ghost" onclick="openSaveModal()">Save Simulation</button>
     <button class="btn btn-ghost btn-sm" id="btnSavedCount" onclick="scrollToSaved()">Saved (0)</button>
   </div>
@@ -328,6 +362,63 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <option value="TAS">Tasmania (TAS)</option>
           <option value="NT">Northern Territory (NT)</option>
         </select>
+      </div>
+      <div id="rowFHB" style="display:none">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)">
+          <input type="checkbox" id="fhbCheck" style="width:auto;accent-color:var(--green)" onchange="update('isFirstHomeBuyer',this.checked)">
+          First Home Buyer? (stamp duty concession may apply)
+        </label>
+        <p class="hint" style="margin-top:4px">NSW ≤$800k: exempt · VIC ≤$600k: exempt · QLD ≤$500k: exempt · WA ≤$430k: exempt · verify with your state revenue office</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PURCHASE COSTS -->
+  <div class="panel" id="panelPurchaseCosts">
+    <div class="panel-header" onclick="togglePanel('panelPurchaseCosts')">
+      <span class="panel-title"><span class="dot" style="background:#34d399"></span>Purchase Costs (one-time)</span>
+      <span class="panel-toggle">▼</span>
+    </div>
+    <div class="panel-body">
+      <p class="hint" style="margin-top:0">Paid at settlement, on top of deposit &amp; stamp duty. Adjust to your quotes.</p>
+      <div class="outgoing-row">
+        <span class="outgoing-label">Conveyancing / Legal</span>
+        <div class="input-wrap has-pre outgoing-input">
+          <span class="input-pre">$</span>
+          <input type="number" id="conveyancing" value="2500" min="0" step="100" oninput="update('conveyancing',+this.value)">
+        </div>
+      </div>
+      <div class="outgoing-row">
+        <span class="outgoing-label">Building Inspection</span>
+        <div class="input-wrap has-pre outgoing-input">
+          <span class="input-pre">$</span>
+          <input type="number" id="buildingInspection" value="500" min="0" step="50" oninput="update('buildingInspection',+this.value)">
+        </div>
+      </div>
+      <div class="outgoing-row">
+        <span class="outgoing-label">Pest Inspection</span>
+        <div class="input-wrap has-pre outgoing-input">
+          <span class="input-pre">$</span>
+          <input type="number" id="pestInspection" value="0" min="0" step="50" oninput="update('pestInspection',+this.value)">
+        </div>
+      </div>
+      <div class="outgoing-row">
+        <span class="outgoing-label">Loan Establishment Fee</span>
+        <div class="input-wrap has-pre outgoing-input">
+          <span class="input-pre">$</span>
+          <input type="number" id="loanFee" value="0" min="0" step="50" oninput="update('loanFee',+this.value)">
+        </div>
+      </div>
+      <div class="outgoing-row">
+        <span class="outgoing-label">Other (moving, title ins.…)</span>
+        <div class="input-wrap has-pre outgoing-input">
+          <span class="input-pre">$</span>
+          <input type="number" id="otherPurchaseCosts" value="0" min="0" step="100" oninput="update('otherPurchaseCosts',+this.value)">
+        </div>
+      </div>
+      <div class="outgoing-total">
+        <span>Total Purchase Costs</span>
+        <span style="color:var(--green);font-size:15px" id="totalPurchaseCostsDisplay">$3,000</span>
       </div>
     </div>
   </div>
@@ -396,10 +487,10 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <div class="field">
         <label>Property Management Fee — <span id="pmLabel">8.5%</span> of rent</label>
         <div class="range-row">
-          <input type="range" id="pmSlider" min="5" max="15" value="8.5" step="0.5" oninput="update('pmFeePct',+this.value);document.getElementById('pmLabel').textContent=this.value+'%';document.getElementById('pmRangeVal').textContent=this.value+'%'">
+          <input type="range" id="pmSlider" min="0" max="15" value="8.5" step="0.5" oninput="update('pmFeePct',+this.value);document.getElementById('pmLabel').textContent=this.value+'%';document.getElementById('pmRangeVal').textContent=this.value+'%'">
           <span class="range-val" id="pmRangeVal">8.5%</span>
         </div>
-        <p class="hint">Typical: 7–10% in major cities. Applied to rent actually collected.</p>
+        <p class="hint">Set to 0% if self-managing. Typical: 7–10% in major cities. Applied to rent actually collected.</p>
       </div>
     </div>
   </div>
@@ -453,7 +544,12 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <input type="number" id="maintenance" value="0" min="0" step="100" oninput="update('maintenance',+this.value)">
         </div>
       </div>
-      <p class="hint" style="margin-top:-8px">Leave 0 to auto-use 1% of property value ($<span id="autoMainHint">8,000</span>/yr)</p>
+      <div style="margin-top:-4px;margin-bottom:4px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text3)">
+          <input type="checkbox" id="useMaintenanceEstimate" style="width:auto;accent-color:var(--accent)" onchange="update('useMaintenanceEstimate',this.checked)">
+          Apply 1% estimate ($<span id="autoMainHint">8,000</span>/yr) — ATO general guideline
+        </label>
+      </div>
       <div class="outgoing-row">
         <span class="outgoing-label">Land Tax</span>
         <div class="input-wrap has-pre outgoing-input">
@@ -482,6 +578,59 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     </div>
   </div>
 
+  <!-- DEPRECIATION & TAX — investment only -->
+  <div class="panel" id="panelDepreciation" style="display:none">
+    <div class="panel-header" onclick="togglePanel('panelDepreciation')">
+      <span class="panel-title"><span class="dot" style="background:#a78bfa"></span>Depreciation (Tax Deduction)</span>
+      <span class="panel-toggle">▼</span>
+    </div>
+    <div class="panel-body">
+      <div class="dep-note" style="margin-bottom:10px">
+        Depreciation is a <strong>non-cash deduction</strong> — you don't pay it out of pocket. The ATO lets you claim the building's wear &amp; tear against rental income, reducing your tax bill for free.
+      </div>
+      <div class="field">
+        <label>Approx. Year Built</label>
+        <div class="input-wrap">
+          <input type="number" id="propertyYearBuilt" value="2000" min="1900" max="2030" step="1" oninput="update('propertyYearBuilt',+this.value)">
+        </div>
+        <p class="hint" id="depEligNote">Post-1987: Div 43 at 2.5%/yr applies</p>
+      </div>
+      <div id="depEstimateBlock">
+        <div class="field">
+          <label>Building Value — <span id="buildingValLabel">70%</span> of purchase price</label>
+          <div class="range-row">
+            <input type="range" id="buildingValueSlider" min="30" max="95" value="70" step="5"
+              oninput="update('buildingValuePct',+this.value);document.getElementById('buildingValLabel').textContent=this.value+'%';document.getElementById('buildingValRangeVal').textContent=this.value+'%'">
+            <span class="range-val" id="buildingValRangeVal">70%</span>
+          </div>
+          <p class="hint">Houses: 40–60% · Apartments: 60–80% · New: 80–90%. Land is not depreciable.</p>
+        </div>
+        <div class="field">
+          <label>Depreciation Amount</label>
+          <div class="toggle-group" style="margin-bottom:8px">
+            <button class="tog active" id="togDepATO" onclick="setDepMode('ato')">ATO Estimate</button>
+            <button class="tog" id="togDepCustom" onclick="setDepMode('custom')">Custom Amount</button>
+          </div>
+          <div id="depAtoRow" style="background:var(--purple-bg);border:1px solid rgba(167,139,250,0.25);border-radius:var(--radius-sm);padding:10px 12px">
+            <div style="font-size:13px;font-weight:600;color:var(--purple)">Estimated: <span id="depEstimateDisplay">$14,000/yr</span></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px" id="depEstimateFormula">= $800,000 × 70% × 2.5%</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px">Get a Quantity Surveyor schedule for exact figures — typically more than this estimate.</div>
+          </div>
+          <div id="depCustomRow" style="display:none">
+            <div class="input-wrap has-pre">
+              <span class="input-pre">$</span>
+              <input type="number" id="depAmount" value="0" min="0" step="100" oninput="update('depreciationAmount',+this.value)">
+            </div>
+            <p class="hint">Enter your QS-determined annual depreciation amount</p>
+          </div>
+        </div>
+      </div>
+      <div id="depIneligNote" style="display:none;background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--yellow)">
+        ⚠ Pre-1985 buildings: no Div 43 building allowance. Div 40 (plant &amp; equipment) may still apply — get a QS report.
+      </div>
+    </div>
+  </div>
+
   <!-- ASSUMPTIONS & SETTINGS -->
   <div class="panel" id="panelSettings">
     <div class="panel-header" onclick="togglePanel('panelSettings')">
@@ -490,15 +639,12 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     </div>
     <div class="panel-body">
       <div class="field">
-        <label>Your Income Tax Bracket</label>
-        <select id="incomeBracket" onchange="update('incomeBracket',this.value)">
-          <option value="under18200">Under $18,200 — 0% marginal rate</option>
-          <option value="18201-45000">$18,201 – $45,000 — 21% (incl. Medicare)</option>
-          <option value="45001-120000" selected>$45,001 – $120,000 — 34.5% (incl. Medicare)</option>
-          <option value="120001-180000">$120,001 – $180,000 — 39% (incl. Medicare)</option>
-          <option value="over180000">Over $180,000 — 47% (incl. Medicare)</option>
-        </select>
-        <p class="hint">Used to calculate the tax saving from negative gearing</p>
+        <label>Your Annual Income (before property)</label>
+        <div class="input-wrap has-pre">
+          <span class="input-pre">$</span>
+          <input type="number" id="annualIncome" value="100000" min="0" max="5000000" step="1000" oninput="update('annualIncome',+this.value)">
+        </div>
+        <p class="hint">Used to calculate exact tax impact — accounts for bracket boundaries. 2024-25 Stage 3 rates apply.</p>
       </div>
       <div class="field">
         <label>Assumed Capital Growth — <span id="growthLabel">5%</span>/year</label>
@@ -508,31 +654,19 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </div>
         <p class="hint">Only used for the 30-year projection chart. Does not affect cash flow calculations.</p>
       </div>
-      <div class="field" id="deprecField" style="display:none">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-          <input type="checkbox" id="includeDepreciation" checked onchange="update('includeDepreciation',this.checked)" style="width:auto;accent-color:var(--purple)">
-          Include building depreciation (new properties)
-        </label>
-        <p class="hint">Div 43 (building) + Div 40 (fixtures) — estimated at 2.5% of purchase price/year. Get a QS report for exact figures.</p>
-      </div>
-
       <!-- HOW WE CALCULATE -->
       <details class="assumption-box">
         <summary>How calculations work &amp; assumptions</summary>
         <ul>
-          <li>Mortgage formula<span>Standard P&I amortisation or IO = loan × rate</span></li>
+          <li>Tax calculation<span>Exact ATO formula: Stage 3 brackets + LITO + Medicare levy</span></li>
+          <li>Negative gearing<span>NEW LAW: applies to new properties only — established losses are ring-fenced</span></li>
+          <li>Depreciation (Div 43)<span>Post-1987 buildings: 2.5%/yr of building value. 1985-87: 4%/yr. Pre-1985: not available</span></li>
+          <li>Depreciation (cash)<span>Non-cash deduction — reduces taxable income but no actual cash outflow</span></li>
+          <li>PM fee<span>0–15% of rent actually collected (after vacancy). Set to 0 for self-managed.</span></li>
+          <li>Maintenance<span>Enter actual or apply 1% ATO estimate using the checkbox</span></li>
+          <li>Stamp duty<span>State-specific rates. FHB concessions apply for owner-occupied only.</span></li>
           <li>Year 1 interest<span>Exact month-by-month amortisation</span></li>
-          <li>Gross yield<span>Annual rent (after vacancy) ÷ purchase price × 100</span></li>
-          <li>Net yield (Step 3)<span>Gross rent − PM fees − all outgoings, ÷ price × 100</span></li>
-          <li>Vacancy<span>Weekly rent × vacancy weeks = lost income</span></li>
-          <li>PM fee<span>Applied to rent actually collected (after vacancy)</span></li>
-          <li>Maintenance<span>If left at $0, auto-calculated at 1% of price per year</span></li>
-          <li>Negative gearing<span>Annual loss × your marginal tax rate = tax saving</span></li>
-          <li>Deductible expenses<span>Interest + PM fees + all outgoings + depreciation (not principal)</span></li>
-          <li>Depreciation<span>~2.5% of price/year for new properties only (estimate)</span></li>
-          <li>Stamp duty<span>State-specific rates, investment property (no first-home concession applied)</span></li>
-          <li>Other purchase costs<span>Fixed at $3,000 (conveyancing, inspections) — update as needed</span></li>
-          <li>CGT<span>50% discount for &gt;12 months hold not calculated here — see tax advisor</span></li>
+          <li>CGT<span>50% discount for individuals holding &gt;12 months — verify current rules with ATO</span></li>
           <li>Capital growth<span>Compounding annually for chart only — not guaranteed</span></li>
         </ul>
       </details>
@@ -582,12 +716,12 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </div>
         <div class="divider"></div>
         <div class="metric-row">
-          <span class="metric-label">Stamp Duty (estimate)</span>
+          <span class="metric-label">Stamp Duty <span id="fhbBadge" style="display:none;font-size:10px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:10px;padding:1px 6px;margin-left:4px">FHB</span></span>
           <span class="metric-val val-red" id="rStampDuty">—</span>
         </div>
         <div class="metric-row">
-          <span class="metric-label">Conveyancing &amp; Inspections</span>
-          <span class="metric-val">~$3,000</span>
+          <span class="metric-label">Purchase Costs (legal, inspections…)</span>
+          <span class="metric-val" id="rPurchaseCosts">$3,000</span>
         </div>
         <div class="divider"></div>
         <div class="metric-row">
@@ -767,14 +901,21 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       </div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Only the <em>interest</em> portion of your mortgage is tax-deductible — principal repayments are not. The deductible loss offsets your personal income tax.</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Uses your exact annual income + ATO 2024-25 tax formula to calculate precise tax impact.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div>
             <div class="section-label">Deductible Expenses (Year 1)</div>
             <div class="tax-breakdown">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;padding:2px 0 4px">Cash expenses (real money out)</div>
               <div class="tax-row"><span class="tl">Mortgage Interest</span><span class="tv" id="taxInterest">$41,157</span></div>
               <div class="tax-row"><span class="tl">PM Fees</span><span class="tv" id="taxPmFees">$2,652</span></div>
               <div class="tax-row"><span class="tl">All Outgoings</span><span class="tv" id="taxOutgoings">$13,500</span></div>
-              <div class="tax-row" id="depRow"><span class="tl">Depreciation (new)</span><span class="tv val-purple" id="taxDepreciation">$0</span></div>
+              <div style="border-top:1px solid var(--border);padding-top:4px;margin-top:2px" class="tax-row">
+                <span class="tl" style="color:var(--text)">Cash Deductible</span>
+                <span class="tv" id="taxCashDeductible" style="font-weight:600">$57,309</span>
+              </div>
+              <div style="font-size:10px;color:var(--purple);text-transform:uppercase;letter-spacing:0.5px;padding:6px 0 4px">Non-cash (paper deduction only)</div>
+              <div class="tax-row"><span class="tl" style="color:var(--purple)">Building Depreciation</span><span class="tv val-purple" id="taxDepreciation">$0</span></div>
               <div style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px" class="tax-row">
                 <span class="tl" style="font-weight:600;color:var(--text)">Total Deductible</span>
                 <span class="tv" id="taxTotalDeductible" style="font-weight:600">$57,309</span>
@@ -784,16 +925,19 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <div>
             <div class="section-label">Tax Outcome</div>
             <div class="tax-breakdown">
-              <div class="tax-row"><span class="tl">Gross Annual Rent</span><span class="tv" id="taxGrossRent">$31,200</span></div>
+              <div class="tax-row"><span class="tl">Your salary income</span><span class="tv" id="taxAnnualIncome">$100,000</span></div>
+              <div class="tax-row"><span class="tl">Rental income collected</span><span class="tv" id="taxGrossRent">$31,200</span></div>
               <div class="tax-row"><span class="tl">Less Total Deductible</span><span class="tv" id="taxDeductibleShow">−$57,309</span></div>
               <div style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px" class="tax-row">
-                <span class="tl">Net Rental Loss</span>
+                <span class="tl">Net Rental Position</span>
                 <span class="tv val-red" id="taxNetLoss">−$26,109</span>
               </div>
-              <div class="tax-row"><span class="tl">Marginal Rate</span><span class="tv" id="taxMarginalRate">34.5%</span></div>
+              <div id="ringFencedNote" style="display:none;background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:6px 8px;margin:6px 0;font-size:11px;color:var(--yellow)">
+                ⚠ Established property: this loss is ring-fenced — it cannot reduce your salary tax this year. It carries forward to offset future rental income or capital gains from this property.
+              </div>
               <div class="tax-row" style="background:var(--green-bg);padding:4px 6px;border-radius:4px;margin-top:4px">
-                <span class="tl" style="color:var(--green);font-weight:600">Annual Tax Benefit</span>
-                <span class="tv val-green" id="taxBenefit" style="font-weight:700">$9,008/yr</span>
+                <span class="tl" style="font-weight:600">Annual Tax Effect</span>
+                <span class="tv" id="taxBenefit" style="font-weight:700">$9,008/yr</span>
               </div>
             </div>
           </div>
@@ -813,9 +957,9 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           </div>
         </div>
         <div class="dep-note" id="depNote" style="margin-top:12px;display:none">
-          🏗 <strong>Depreciation bonus (new property):</strong> The $<span id="depAmount">0</span>/yr depreciation estimate saves you an extra <strong id="depSaving">$0</strong>/yr in tax. Get a Quantity Surveyor depreciation schedule for exact amounts.
+          🏗 <strong>Depreciation benefit (non-cash):</strong> The <span id="depNoteAmt">$0</span>/yr depreciation deduction saves you <strong id="depNoteSaving">$0</strong>/yr in tax — without spending a cent. This is a paper deduction only.
         </div>
-        <p style="margin-top:12px;font-size:11px;color:var(--text3)">⚖ CGT: 50% discount for properties held &gt;12 months. Speak to a tax advisor for your specific situation.</p>
+        <p style="margin-top:12px;font-size:11px;color:var(--text3)">⚖ CGT: 50% discount for individuals holding &gt;12 months (verify current rules with ATO — rules may have changed since this calculator was last updated).</p>
       </div>
     </div>
 
@@ -923,12 +1067,25 @@ const s = {
   buildingInsurance: 1500,
   landlordInsurance: 1000,
   maintenance: 0,
+  useMaintenanceEstimate: false,
   landTax: 0,
   accounting: 500,
   otherOutgoings: 0,
-  incomeBracket: '45001-120000',
+  annualIncome: 100000,
   capitalGrowthPct: 5,
-  includeDepreciation: true,
+  // Depreciation
+  propertyYearBuilt: 2000,
+  buildingValuePct: 70,
+  useATODepreciation: true,
+  depreciationAmount: 0,
+  // Purchase costs
+  conveyancing: 2500,
+  buildingInspection: 500,
+  pestInspection: 0,
+  loanFee: 0,
+  otherPurchaseCosts: 0,
+  // First home buyer
+  isFirstHomeBuyer: false,
 };
 
 // ═══════════════════════════════════════
@@ -966,11 +1123,12 @@ function setPurpose(p) {
   el('togInv').classList.toggle('active', p === 'investment');
   el('togOwn').classList.toggle('active', p === 'owner');
   const isInv = p === 'investment';
-  // Show/hide investment-specific elements
   el('panelRental').style.display = isInv ? '' : 'none';
+  el('panelDepreciation').style.display = isInv ? '' : 'none';
   el('investmentResults').style.display = isInv ? '' : 'none';
   el('rowLandlordIns').style.display = isInv ? '' : 'none';
   el('rowAccounting').style.display = isInv ? '' : 'none';
+  el('rowFHB').style.display = isInv ? 'none' : '';
   render();
 }
 
@@ -978,8 +1136,22 @@ function setType(t) {
   s.propertyType = t;
   el('togEst').classList.toggle('active', t === 'established');
   el('togNew').classList.toggle('active', t === 'new');
-  el('deprecField').style.display = t === 'new' ? '' : 'none';
   render();
+}
+
+function setDepMode(mode) {
+  s.useATODepreciation = mode === 'ato';
+  el('togDepATO').classList.toggle('active', mode === 'ato');
+  el('togDepCustom').classList.toggle('active', mode === 'custom');
+  el('depAtoRow').style.display = mode === 'ato' ? '' : 'none';
+  el('depCustomRow').style.display = mode === 'custom' ? '' : 'none';
+  render();
+}
+
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  ['dark','slate','light'].forEach(x => el('thm-'+x).classList.toggle('active', x===t));
+  localStorage.setItem('pa_theme', t);
 }
 
 function setLoanType(t) {
@@ -997,9 +1169,9 @@ function syncDepositLabels() {
 }
 
 // ═══════════════════════════════════════
-//  STAMP DUTY (state-specific, investment property)
+//  STAMP DUTY
 // ═══════════════════════════════════════
-function calcStampDuty(price, state) {
+function calcNormalDuty(price, state) {
   if (state === 'NSW') {
     if (price <= 14000) return price * 0.0125;
     if (price <= 31000) return 175 + (price-14000)*0.015;
@@ -1049,14 +1221,53 @@ function calcStampDuty(price, state) {
     if (price <= 1455000) return 40900 + (price-1000000)*0.06;
     return price*0.049;
   }
-  return price * 0.04; // TAS / NT rough estimate
+  return price * 0.04; // TAS / NT estimate
+}
+
+function calcStampDuty(price, state, fhb) {
+  if (fhb) {
+    // FHB concessions (owner-occupied only — investment never qualifies)
+    if (state === 'NSW') {
+      if (price <= 800000) return 0;
+      if (price <= 1000000) { const nd=calcNormalDuty(price,'NSW'); return nd*(price-800000)/200000; }
+    }
+    if (state === 'VIC') {
+      if (price <= 600000) return 0;
+      if (price <= 750000) { const nd=calcNormalDuty(price,'VIC'); return nd*(price-600000)/150000; }
+    }
+    if (state === 'QLD') {
+      if (price <= 500000) return 0;
+      if (price <= 550000) { const nd=calcNormalDuty(price,'QLD'); return nd*(price-500000)/50000; }
+    }
+    if (state === 'WA') {
+      if (price <= 430000) return 0;
+      if (price <= 530000) { const nd=calcNormalDuty(price,'WA'); return nd*(price-430000)/100000; }
+    }
+    // SA, ACT, TAS, NT: no FHB stamp duty concession modelled
+  }
+  return calcNormalDuty(price, state);
 }
 
 // ═══════════════════════════════════════
-//  TAX BRACKET → MARGINAL RATE (incl. Medicare levy)
+//  EXACT TAX CALCULATION (Stage 3, 2024-25+)
 // ═══════════════════════════════════════
-function getMarginalRate(bracket) {
-  return { 'under18200':0, '18201-45000':0.21, '45001-120000':0.345, '120001-180000':0.39, 'over180000':0.47 }[bracket] || 0.345;
+function calcTax(income) {
+  if (income <= 0) return 0;
+  let tax = 0;
+  if (income > 18200) tax += Math.min(income-18200, 26800) * 0.19;
+  if (income > 45000) tax += Math.min(income-45000, 90000) * 0.325;
+  if (income > 135000) tax += Math.min(income-135000, 55000) * 0.37;
+  if (income > 190000) tax += (income-190000) * 0.45;
+  // Low Income Tax Offset (LITO)
+  let lito = 0;
+  if (income <= 37500) lito = 700;
+  else if (income <= 45000) lito = 700 - (income-37500)*0.05;
+  else if (income <= 66667) lito = 325 - (income-45000)*0.015;
+  tax = Math.max(0, tax - lito);
+  // Medicare levy 2% (with low-income phase-in)
+  let mcare = 0;
+  if (income > 26000) mcare = income <= 32500 ? (income-26000)*0.1 : income*0.02;
+  return Math.round(tax + mcare);
 }
 
 // ═══════════════════════════════════════
@@ -1086,13 +1297,13 @@ function calculate() {
   const r = s.interestRate / 100 / 12;
   const n = s.loanYears * 12;
 
-  // Mortgage payment
+  // Mortgage
   let monthly = 0;
   if (loan > 0) {
     if (s.loanType === 'pi') {
       monthly = r > 0 ? loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) : loan/n;
     } else {
-      monthly = loan * r; // Interest Only
+      monthly = loan * r;
     }
   }
   const weekly = monthly * 12 / 52;
@@ -1101,16 +1312,17 @@ function calculate() {
   const totalInterest = totalRepay - loan;
   const year1Interest = s.loanType === 'io' ? loan * s.interestRate/100 : calcYear1Interest(loan, s.interestRate, s.loanYears);
 
-  // Purchase costs
-  const stampDuty = calcStampDuty(p, s.state);
-  const totalUpfront = deposit + stampDuty + 3000;
+  // Purchase costs (all editable)
+  const purchaseCosts = s.conveyancing + s.buildingInspection + s.pestInspection + s.loanFee + s.otherPurchaseCosts;
+  const fhb = s.isFirstHomeBuyer && s.purpose === 'owner'; // FHB only for owner-occupied
+  const stampDuty = calcStampDuty(p, s.state, fhb);
+  const totalUpfront = deposit + stampDuty + purchaseCosts;
 
-  // Outgoings — itemised
-  const maintenanceAmt = s.maintenance > 0 ? s.maintenance : p * 0.01;
+  // Outgoings
+  const maintenanceAmt = s.useMaintenanceEstimate ? p * 0.01 : s.maintenance;
   const landlordIns = s.purpose === 'investment' ? s.landlordInsurance : 0;
   const acctFee = s.purpose === 'investment' ? s.accounting : 0;
   const insurance = s.buildingInsurance + landlordIns;
-  // Individual outgoings for step 3 display
   const out = {
     council: s.councilRates,
     water: s.waterRates,
@@ -1123,52 +1335,79 @@ function calculate() {
   };
   const totalOutgoings = Object.values(out).reduce((a,b) => a+b, 0);
 
-  // Rental income waterfall
-  const grossAnnualRent = s.weeklyRent * 52;          // STEP 1: full rent × 52
-  const vacancyLoss = s.weeklyRent * s.vacancyWeeks;   // weeks of no rent
-  const effectiveRent = grossAnnualRent - vacancyLoss;  // rent actually collected
-  const pmFee = effectiveRent * s.pmFeePct / 100;       // PM fee on collected rent
-  const netEffectiveRent = effectiveRent - pmFee;       // STEP 2
-
-  const noi = netEffectiveRent - totalOutgoings;        // STEP 3: Net Operating Income
+  // Rental waterfall
+  const grossAnnualRent = s.weeklyRent * 52;
+  const vacancyLoss = s.weeklyRent * s.vacancyWeeks;
+  const effectiveRent = grossAnnualRent - vacancyLoss;
+  const pmFee = effectiveRent * s.pmFeePct / 100;
+  const netEffectiveRent = effectiveRent - pmFee;
+  const noi = netEffectiveRent - totalOutgoings;
   const grossYield = p > 0 ? (effectiveRent / p) * 100 : 0;
   const netYield = p > 0 ? (noi / p) * 100 : 0;
 
-  // STEP 4: After mortgage
   const weeklyCashFlow = noi / 52 - weekly;
   const annualCashFlow = weeklyCashFlow * 52;
+  const breakEvenWeekly = s.pmFeePct < 100
+    ? (weekly * 52 + totalOutgoings) / ((52 - s.vacancyWeeks) * (1 - s.pmFeePct/100))
+    : 0;
 
-  // Break-even: rent where cashflow = 0
-  // (weeklyRentBE × (52-vac) - pmFee%) / 52 - outgoings/52 - weekly = 0
-  const breakEvenWeekly = (weekly * 52 + totalOutgoings) / ((52 - s.vacancyWeeks) * (1 - s.pmFeePct/100));
+  // Depreciation — available for post-1987 buildings (Div 43)
+  const depRate = s.propertyYearBuilt >= 1988 ? 0.025 : (s.propertyYearBuilt >= 1985 ? 0.04 : 0);
+  const atoDepreciation = depRate > 0 ? p * (s.buildingValuePct/100) * depRate : 0;
+  const depreciation = s.purpose === 'investment'
+    ? (s.useATODepreciation ? atoDepreciation : s.depreciationAmount)
+    : 0;
 
-  // Tax analysis
-  const depreciation = (s.propertyType === 'new' && s.includeDepreciation) ? p * 0.025 : 0;
-  const totalDeductible = year1Interest + pmFee + totalOutgoings + depreciation;
-  const taxableRentalIncome = effectiveRent - totalDeductible;
-  const marginalRate = getMarginalRate(s.incomeBracket);
-  let taxBenefit = 0;
-  let gearingStatus = 'neutral';
-  if (taxableRentalIncome < 0) {
-    taxBenefit = Math.abs(taxableRentalIncome) * marginalRate; // positive = we get money back
-    gearingStatus = 'negative';
-  } else {
-    taxBenefit = -taxableRentalIncome * marginalRate; // negative = we owe more tax
-    gearingStatus = 'positive';
+  // Tax — using exact calculation from actual income
+  const annualIncome = s.annualIncome || 0;
+  const cashDeductible = year1Interest + pmFee + totalOutgoings; // real cash expenses
+  const totalDeductible = cashDeductible + depreciation;         // + non-cash depreciation
+  const rentalNetIncome = effectiveRent - totalDeductible;       // negative = loss
+
+  // Negative gearing: ONLY for new investment properties
+  const canNegGear = s.purpose === 'investment' && s.propertyType === 'new';
+  let taxBenefit = 0, gearingStatus = 'neutral';
+
+  if (s.purpose === 'investment') {
+    if (rentalNetIncome >= 0) {
+      // Positively geared: extra tax on rental profit
+      const taxWithout = calcTax(annualIncome);
+      const taxWith = calcTax(annualIncome + rentalNetIncome);
+      taxBenefit = -(taxWith - taxWithout); // negative = extra tax owed
+      gearingStatus = 'positive';
+    } else if (canNegGear) {
+      // New property negative gearing: loss reduces taxable income
+      const taxWithout = calcTax(annualIncome);
+      const taxWith = calcTax(Math.max(0, annualIncome + rentalNetIncome));
+      taxBenefit = taxWithout - taxWith; // positive = tax saving
+      gearingStatus = 'negative';
+    } else {
+      // Established property: loss is ring-fenced, no immediate benefit
+      taxBenefit = 0;
+      gearingStatus = 'negative_ringfenced';
+    }
   }
+
   const taxBenefitWeekly = taxBenefit / 52;
   const afterTaxWeekly = weeklyCashFlow + taxBenefitWeekly;
-  const depTaxSaving = depreciation * marginalRate;
+  // Separate: how much of the tax benefit is from depreciation (non-cash)
+  const depTaxSaving = canNegGear && depreciation > 0
+    ? calcTax(Math.max(0, annualIncome + rentalNetIncome + depreciation)) - calcTax(Math.max(0, annualIncome + rentalNetIncome))
+    : 0;
+
+  // CGT estimate (50% discount method, at various years)
+  const costBase = p + stampDuty + purchaseCosts;
 
   return {
     p, deposit, loan, monthly, weekly, annual, totalRepay, totalInterest, year1Interest,
-    stampDuty, totalUpfront,
+    purchaseCosts, stampDuty, totalUpfront,
     out, totalOutgoings, maintenanceAmt,
     grossAnnualRent, vacancyLoss, effectiveRent, pmFee, netEffectiveRent,
     noi, grossYield, netYield,
     weeklyCashFlow, annualCashFlow, breakEvenWeekly,
-    depreciation, totalDeductible, taxableRentalIncome, taxBenefit, marginalRate,
-    gearingStatus, taxBenefitWeekly, afterTaxWeekly, depTaxSaving,
+    atoDepreciation, depreciation, cashDeductible, totalDeductible,
+    rentalNetIncome, taxBenefit, gearingStatus, taxBenefitWeekly, afterTaxWeekly,
+    depTaxSaving, costBase, canNegGear,
   };
 }
 
@@ -1189,7 +1428,9 @@ function render() {
   set('rDeposit', fmt(c.deposit));
   set('rLoanAmt', fmt(c.loan));
   set('rStampDuty', fmt(c.stampDuty));
+  set('rPurchaseCosts', fmt(c.purchaseCosts));
   set('rTotalUpfront', fmt(c.totalUpfront));
+  el('fhbBadge').style.display = (s.isFirstHomeBuyer && s.purpose === 'owner') ? '' : 'none';
   set('stateLabel', s.state);
   const eqPct = c.p > 0 ? Math.round(c.deposit / c.p * 100) : 0;
   set('rEquityPct', eqPct + '%');
@@ -1205,24 +1446,51 @@ function render() {
   set('rTotalInterest', fmt(c.totalInterest));
   set('rTotalRepay', fmt(c.totalRepay));
 
-  // Maintenance hint in inputs
-  set('autoMainHint', Math.round(c.p * 0.01).toLocaleString('en-AU'));
+  // Maintenance
+  const mainEst = Math.round(c.p * 0.01);
+  set('autoMainHint', mainEst.toLocaleString('en-AU'));
+  if (s.useMaintenanceEstimate) {
+    el('maintenance').value = mainEst;
+    el('maintenance').disabled = true;
+    el('maintenance').style.opacity = '0.5';
+  } else {
+    el('maintenance').disabled = false;
+    el('maintenance').style.opacity = '1';
+  }
 
-  // Outgoings total — always visible in panel
+  // Purchase costs
+  set('totalPurchaseCostsDisplay', fmt(c.purchaseCosts));
+
+  // Outgoings total
   set('totalOutgoingsDisplay', fmt(c.totalOutgoings) + '/yr');
+
+  // Depreciation estimate display
+  if (c.atoDepreciation > 0) {
+    const yr = s.propertyYearBuilt;
+    const rate = yr >= 1988 ? '2.5%' : '4%';
+    set('depEstimateDisplay', fmt(c.atoDepreciation) + '/yr');
+    set('depEstimateFormula', `${fmt(c.p)} × ${s.buildingValuePct}% bldg × ${rate}`);
+    set('depEligNote', yr >= 1988 ? 'Post-1987: Div 43 at 2.5%/yr applies' : yr >= 1985 ? '1985–1987: Div 43 at 4%/yr applies' : '');
+    el('depIneligNote').style.display = 'none';
+    el('depEstimateBlock').style.display = '';
+  } else {
+    el('depIneligNote').style.display = '';
+    el('depEstimateBlock').style.display = 'none';
+    set('depEligNote', `Built ${s.propertyYearBuilt}: pre-1985 buildings have no Div 43 allowance`);
+  }
 
   // === INVESTMENT-ONLY RESULTS ===
   if (s.purpose === 'investment') {
 
     // STEP 1
     const effYield = c.p > 0 ? (c.effectiveRent / c.p) * 100 : 0;
-    set('s1GrossDesc', '$' + s.weeklyRent + ' × 52 = ' + fmt(c.grossAnnualRent));
+    set('s1GrossDesc', '$' + s.weeklyRent.toLocaleString('en-AU') + ' × 52 = ' + fmt(c.grossAnnualRent));
     set('s1Total', fmt(c.grossAnnualRent) + '/yr');
     set('s1YieldBadge', pct(c.grossYield) + ' gross yield');
 
     // STEP 2
     set('s2VacWks', s.vacancyWeeks);
-    set('s2VacRent', s.weeklyRent);
+    set('s2VacRent', s.weeklyRent.toLocaleString('en-AU'));
     set('s2Vacancy', neg(c.vacancyLoss));
     set('s2PmPct', s.pmFeePct);
     set('s2PmFees', neg(c.pmFee));
@@ -1255,55 +1523,64 @@ function render() {
     el('cfWeeklyVal').style.color = c.weeklyCashFlow >= 0 ? 'var(--green)' : 'var(--red)';
     const monthly = c.weeklyCashFlow * 52 / 12;
     el('cfMonthlyVal').textContent = signedFmt(monthly) + '/month · ' + signedFmt(c.annualCashFlow) + '/year';
-    set('breakEvenRent', '$' + Math.round(c.breakEvenWeekly) + '/wk');
+    set('breakEvenRent', '$' + Math.round(c.breakEvenWeekly).toLocaleString('en-AU') + '/wk');
 
     // Gearing chip
     const chip = el('gearingChip');
     if (c.gearingStatus === 'negative') { chip.textContent = 'Negatively Geared'; chip.className = 'chip chip-red'; }
     else if (c.gearingStatus === 'positive') { chip.textContent = 'Positively Geared'; chip.className = 'chip chip-green'; }
+    else if (c.gearingStatus === 'negative_ringfenced') { chip.textContent = 'Loss Ring-fenced'; chip.className = 'chip chip-yellow'; }
     else { chip.textContent = 'Neutral'; chip.className = 'chip chip-blue'; }
 
-    // Tax
+    // Tax card
     set('taxInterest', fmt(c.year1Interest));
     set('taxPmFees', fmt(c.pmFee));
     set('taxOutgoings', fmt(c.totalOutgoings));
+    set('taxCashDeductible', fmt(c.cashDeductible));
     set('taxDepreciation', c.depreciation > 0 ? fmt(c.depreciation) : '$0');
     set('taxTotalDeductible', fmt(c.totalDeductible));
     set('taxGrossRent', fmt(c.effectiveRent));
     set('taxDeductibleShow', neg(c.totalDeductible));
-    const netLoss = c.taxableRentalIncome;
+    const netLoss = c.rentalNetIncome;
     el('taxNetLoss').textContent = (netLoss >= 0 ? '+' : '') + fmt(netLoss);
     el('taxNetLoss').className = 'tv ' + (netLoss >= 0 ? 'val-green' : 'val-red');
-    set('taxMarginalRate', pct(c.marginalRate * 100));
+    set('taxAnnualIncome', fmt(s.annualIncome || 0));
 
     const taxBadge = el('taxStatusBadge');
     if (c.gearingStatus === 'negative') {
-      taxBadge.textContent = 'Loss Claimable'; taxBadge.className = 'chip chip-green';
+      taxBadge.textContent = 'Tax Saving'; taxBadge.className = 'chip chip-green';
       set('taxBenefit', '+' + fmt(c.taxBenefit) + '/yr');
       el('taxBenefit').style.color = 'var(--green)';
+      el('ringFencedNote').style.display = 'none';
+    } else if (c.gearingStatus === 'negative_ringfenced') {
+      taxBadge.textContent = 'Loss Ring-fenced'; taxBadge.className = 'chip chip-yellow';
+      set('taxBenefit', '$0 (established property — loss cannot offset other income)');
+      el('taxBenefit').style.color = 'var(--yellow)';
+      el('ringFencedNote').style.display = '';
     } else {
       taxBadge.textContent = 'Tax Payable'; taxBadge.className = 'chip chip-red';
-      set('taxBenefit', neg(c.taxBenefit) + '/yr');
+      set('taxBenefit', neg(Math.abs(c.taxBenefit)) + '/yr');
       el('taxBenefit').style.color = 'var(--red)';
+      el('ringFencedNote').style.display = 'none';
+    }
+
+    // Depreciation non-cash benefit note
+    if (c.depreciation > 0 && c.depTaxSaving > 0) {
+      el('depNote').style.display = '';
+      set('depNoteAmt', fmt(c.depreciation));
+      set('depNoteSaving', fmt(c.depTaxSaving));
+    } else {
+      el('depNote').style.display = 'none';
     }
 
     const tbw = c.taxBenefitWeekly;
-    el('taxBenefitWeekly').textContent = signedFmt(tbw);
-    el('taxBenefitWeekly').style.color = tbw > 0 ? 'var(--green)' : 'var(--red)';
+    el('taxBenefitWeekly').textContent = signedFmt(tbw) + '/wk';
+    el('taxBenefitWeekly').style.color = tbw > 0 ? 'var(--green)' : tbw < 0 ? 'var(--red)' : 'var(--text2)';
     el('afterTaxWeekly').textContent = signedFmt(c.afterTaxWeekly) + '/wk';
     el('afterTaxWeekly').style.color = c.afterTaxWeekly >= 0 ? 'var(--green)' : 'var(--red)';
     const atm = c.afterTaxWeekly * 52 / 12;
     el('afterTaxMonthly').textContent = signedFmt(atm) + '/mo';
     el('afterTaxMonthly').style.color = atm >= 0 ? 'var(--green)' : 'var(--red)';
-
-    // Depreciation note
-    if (s.propertyType === 'new' && s.includeDepreciation && c.depreciation > 0) {
-      el('depNote').style.display = '';
-      set('depAmount', Math.round(c.depreciation).toLocaleString('en-AU'));
-      set('depSaving', fmt(c.depTaxSaving));
-    } else {
-      el('depNote').style.display = 'none';
-    }
   }
 
   // Equity projection
@@ -1494,15 +1771,31 @@ function syncUI() {
   el('buildingInsurance').value = s.buildingInsurance;
   el('landlordInsurance').value = s.landlordInsurance;
   el('maintenance').value = s.maintenance;
+  el('useMaintenanceEstimate').checked = s.useMaintenanceEstimate;
   el('landTax').value = s.landTax;
   el('accounting').value = s.accounting;
   el('otherOutgoings').value = s.otherOutgoings;
-  el('incomeBracket').value = s.incomeBracket;
+  el('annualIncome').value = s.annualIncome || 0;
   el('growthSlider').value = s.capitalGrowthPct;
   el('growthLabel').textContent = s.capitalGrowthPct + '%';
   el('growthRangeVal').textContent = s.capitalGrowthPct + '%';
   el('stateSelect').value = s.state;
-  el('includeDepreciation').checked = s.includeDepreciation;
+  el('fhbCheck').checked = s.isFirstHomeBuyer || false;
+  el('propertyYearBuilt').value = s.propertyYearBuilt;
+  el('buildingValueSlider').value = s.buildingValuePct;
+  el('buildingValLabel').textContent = s.buildingValuePct + '%';
+  el('buildingValRangeVal').textContent = s.buildingValuePct + '%';
+  el('conveyancing').value = s.conveyancing;
+  el('buildingInspection').value = s.buildingInspection;
+  el('pestInspection').value = s.pestInspection;
+  el('loanFee').value = s.loanFee;
+  el('otherPurchaseCosts').value = s.otherPurchaseCosts;
+  if (!s.useATODepreciation) {
+    el('depAmount').value = s.depreciationAmount;
+    setDepMode('custom');
+  } else {
+    setDepMode('ato');
+  }
   syncDepositLabels();
   setPurpose(s.purpose);
   setType(s.propertyType);
@@ -1525,6 +1818,10 @@ window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer
 // ═══════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════
+// Restore theme
+const savedTheme = localStorage.getItem('pa_theme') || 'dark';
+setTheme(savedTheme);
+
 syncUI();
 render();
 renderSavedSimulations();
