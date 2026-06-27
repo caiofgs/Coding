@@ -288,6 +288,20 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .card,.chart-wrap{animation:fadeIn .3s ease}
 
+/* FORMAT HINT */
+.fmt-hint{font-size:10px;color:var(--accent);font-weight:600;letter-spacing:0.2px}
+
+/* COMPARE TABLE */
+.compare-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.compare-table th{padding:8px 12px;text-align:left;font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface)}
+.compare-table td{padding:8px 12px;border-bottom:1px solid rgba(30,45,71,0.4);vertical-align:top;white-space:nowrap}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table .metric-col{color:var(--text2);font-weight:500;background:var(--surface);position:sticky;left:0;z-index:1}
+.compare-table .sim-col{text-align:right;cursor:pointer;transition:.15s}
+.compare-table .sim-col:hover{background:var(--surface2)}
+.compare-table .sim-col.best{background:rgba(52,211,153,0.06)}
+.compare-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+
 /* SPACER */
 .mt16{margin-top:16px}
 </style>
@@ -306,7 +320,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <button class="tog" id="thm-slate" onclick="setTheme('slate')" title="Slate">🌓</button>
       <button class="tog" id="thm-light" onclick="setTheme('light')" title="Light">☀️</button>
     </div>
-    <button class="btn btn-ghost" onclick="openSaveModal()">Save Simulation</button>
+    <button class="btn btn-ghost" onclick="newSimulation()">+ New</button>
+    <button class="btn btn-ghost" onclick="openSaveModal()">Save</button>
     <button class="btn btn-ghost btn-sm" id="btnSavedCount" onclick="scrollToSaved()">Saved (0)</button>
   </div>
 </nav>
@@ -328,11 +343,54 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <input type="text" id="simName" placeholder="e.g. 3BR Fitzroy" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.simName=this.value">
       </div>
       <div class="field">
+        <label>Property Address</label>
+        <input type="text" id="addressField" placeholder="e.g. 12 Smith St, Fitzroy VIC 3065" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.address=this.value">
+      </div>
+      <div class="field">
+        <label>Listing URL (advertisement link)</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="url" id="adUrlField" placeholder="https://www.realestate.com.au/..." style="flex:1;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;" oninput="s.adUrl=this.value;el('adUrlLink').style.display=this.value?'':'none'">
+          <a id="adUrlLink" href="#" target="_blank" style="display:none;font-size:12px;color:var(--accent);white-space:nowrap" onclick="this.href=s.adUrl">Open ↗</a>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Property Type</label>
+          <select id="propertySubtype" onchange="s.propertySubtype=this.value">
+            <option value="house">House</option>
+            <option value="townhouse">Townhouse</option>
+            <option value="apartment">Apartment</option>
+            <option value="unit">Unit</option>
+            <option value="villa">Villa</option>
+            <option value="duplex">Duplex</option>
+            <option value="land">Land</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Beds / Baths</label>
+          <div style="display:flex;gap:6px">
+            <div class="input-wrap" style="flex:1">
+              <input type="number" id="bedroomsField" value="3" min="0" max="20" step="1" placeholder="Beds" oninput="s.bedrooms=+this.value" style="text-align:center">
+            </div>
+            <div class="input-wrap" style="flex:1">
+              <input type="number" id="bathroomsField" value="2" min="0" max="10" step="0.5" placeholder="Baths" oninput="s.bathrooms=+this.value" style="text-align:center">
+            </div>
+          </div>
+          <p class="hint">Bedrooms · Bathrooms</p>
+        </div>
+      </div>
+      <div class="field">
         <label>Purchase Price</label>
         <div class="input-wrap has-pre">
           <span class="input-pre">$</span>
           <input type="number" id="purchasePrice" value="800000" min="50000" max="20000000" step="5000" oninput="update('purchasePrice',+this.value)">
         </div>
+        <span style="font-size:11px;color:var(--accent);font-weight:600" id="fmtPurchasePrice">$800,000</span>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="notesField" placeholder="Pros, cons, observations about this property…" oninput="s.notes=this.value" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:70px;font-family:inherit;line-height:1.5"></textarea>
       </div>
       <div class="two-col">
         <div class="field">
@@ -474,6 +532,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <span class="input-pre">$</span>
           <input type="number" id="weeklyRent" value="600" min="0" max="10000" step="10" oninput="update('weeklyRent',+this.value)">
         </div>
+        <span style="font-size:11px;color:var(--accent);font-weight:600" id="fmtRent"></span>
         <p class="hint">Estimated current market rent per week</p>
       </div>
       <div class="field">
@@ -503,42 +562,42 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     </div>
     <div class="panel-body">
       <div class="outgoing-row">
-        <span class="outgoing-label">Council Rates</span>
+        <span class="outgoing-label">Council Rates<br><span class="fmt-hint" id="fmtCouncil"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="councilRates" value="1800" min="0" step="50" oninput="update('councilRates',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
-        <span class="outgoing-label">Water Rates</span>
+        <span class="outgoing-label">Water Rates<br><span class="fmt-hint" id="fmtWater"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="waterRates" value="1200" min="0" step="50" oninput="update('waterRates',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
-        <span class="outgoing-label">Strata / Body Corporate</span>
+        <span class="outgoing-label">Strata / Body Corporate<br><span class="fmt-hint" id="fmtStrata"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="strataFees" value="0" min="0" step="100" oninput="update('strataFees',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
-        <span class="outgoing-label">Building Insurance</span>
+        <span class="outgoing-label">Building Insurance<br><span class="fmt-hint" id="fmtBldgIns"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="buildingInsurance" value="1500" min="0" step="50" oninput="update('buildingInsurance',+this.value)">
         </div>
       </div>
       <div class="outgoing-row" id="rowLandlordIns" style="display:none">
-        <span class="outgoing-label">Landlord Insurance</span>
+        <span class="outgoing-label">Landlord Insurance<br><span class="fmt-hint" id="fmtLandlordIns"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="landlordInsurance" value="1000" min="0" step="50" oninput="update('landlordInsurance',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
-        <span class="outgoing-label">Maintenance &amp; Repairs</span>
+        <span class="outgoing-label">Maintenance &amp; Repairs<br><span class="fmt-hint" id="fmtMaintenance"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="maintenance" value="0" min="0" step="100" oninput="update('maintenance',+this.value)">
@@ -551,21 +610,21 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </label>
       </div>
       <div class="outgoing-row">
-        <span class="outgoing-label">Land Tax</span>
+        <span class="outgoing-label">Land Tax<br><span class="fmt-hint" id="fmtLandTax"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="landTax" value="0" min="0" step="100" oninput="update('landTax',+this.value)">
         </div>
       </div>
       <div class="outgoing-row" id="rowAccounting" style="display:none">
-        <span class="outgoing-label">Accountant / Tax Advice</span>
+        <span class="outgoing-label">Accountant / Tax Advice<br><span class="fmt-hint" id="fmtAccounting"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="accounting" value="500" min="0" step="50" oninput="update('accounting',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
-        <span class="outgoing-label">Other</span>
+        <span class="outgoing-label">Other<br><span class="fmt-hint" id="fmtOther"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
           <input type="number" id="otherOutgoings" value="0" min="0" step="100" oninput="update('otherOutgoings',+this.value)">
@@ -644,7 +703,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <span class="input-pre">$</span>
           <input type="number" id="annualIncome" value="100000" min="0" max="5000000" step="1000" oninput="update('annualIncome',+this.value)">
         </div>
-        <p class="hint">Used to calculate exact tax impact — accounts for bracket boundaries. 2024-25 Stage 3 rates apply.</p>
+        <span style="font-size:11px;color:var(--accent);font-weight:600" id="fmtAnnualIncome">$100,000</span>
+        <p class="hint" style="margin-top:4px">Used to calculate exact tax impact — accounts for bracket boundaries. 2024-25 Stage 3 rates apply.</p>
       </div>
       <div class="field">
         <label>Assumed Capital Growth — <span id="growthLabel">5%</span>/year</label>
@@ -654,6 +714,21 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </div>
         <p class="hint">Only used for the 30-year projection chart. Does not affect cash flow calculations.</p>
       </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px">
+          Tax Law Scenario
+          <span id="taxLawChip" class="chip chip-blue" style="font-size:11px">Current Law</span>
+        </label>
+        <div class="toggle-group">
+          <button class="tog active" id="togLawNew" onclick="setTaxLaw('new')">Current Law</button>
+          <button class="tog" id="togLawOld" onclick="setTaxLaw('old')">Old Law</button>
+        </div>
+        <div style="margin-top:6px;font-size:11px;color:var(--text3);background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;line-height:1.6">
+          <strong style="color:var(--text2)">Current Law:</strong> No CGT discount · Negative gearing only for new properties<br>
+          <strong style="color:var(--text2)">Old Law:</strong> 50% CGT discount (held &gt;12m) · Negative gearing for all investment properties
+        </div>
+      </div>
+
       <!-- HOW WE CALCULATE -->
       <details class="assumption-box">
         <summary>How calculations work &amp; assumptions</summary>
@@ -963,6 +1038,40 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       </div>
     </div>
 
+    <!-- CGT ESTIMATE CARD -->
+    <div class="card mt16">
+      <div class="card-head">
+        <span class="card-title">Capital Gains Tax Estimate</span>
+        <span id="cgtLawNote" class="chip chip-blue" style="font-size:11px">Current Law</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px" id="cgtDiscountNote">No CGT discount — current law</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div class="section-label">If sold at Year 10</div>
+            <div class="tax-breakdown">
+              <div class="tax-row"><span class="tl">Projected sale price</span><span class="tv" id="cgtSalePrice10">—</span></div>
+              <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain10">—</span></div>
+              <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable10">—</span></div>
+              <div class="tax-row" style="background:var(--red-bg);padding:4px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable10">—</span></div>
+              <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet10">—</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="section-label">If sold at Year 20</div>
+            <div class="tax-breakdown">
+              <div class="tax-row"><span class="tl">Projected sale price</span><span class="tv" id="cgtSalePrice20">—</span></div>
+              <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain20">—</span></div>
+              <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable20">—</span></div>
+              <div class="tax-row" style="background:var(--red-bg);padding:4px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable20">—</span></div>
+              <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet20">—</span></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:10px;font-size:11px;color:var(--text3)">Cost base = purchase price + stamp duty + purchase costs. Taxable gain uses your marginal rate at time of sale (estimated using current income). Switch between Current / Old law in Settings.</p>
+      </div>
+    </div>
+
   </div><!-- end investmentResults -->
 
   <!-- EQUITY & GROWTH — always visible -->
@@ -1024,11 +1133,18 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 <div class="saved-section" id="savedSection">
   <div class="saved-header">
     <div class="saved-title">Saved Simulations</div>
-    <button class="btn btn-ghost btn-sm" onclick="clearAllSims()" id="clearAllBtn" style="display:none">Clear All</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:3px;gap:3px" id="viewToggle">
+        <button class="tog active btn-sm" id="viewCards" onclick="setSavedView('cards')">Cards</button>
+        <button class="tog btn-sm" id="viewTable" onclick="setSavedView('table')">Compare</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="clearAllSims()" id="clearAllBtn" style="display:none">Clear All</button>
+    </div>
   </div>
   <div id="savedGrid" class="saved-grid">
-    <div class="empty-saved">No simulations saved yet.<br>Use "Save Simulation" to compare different properties side by side.</div>
+    <div class="empty-saved">No simulations saved yet.<br>Use "Save" to compare different properties side by side.</div>
   </div>
+  <div id="savedCompare" style="display:none"></div>
 </div>
 
 <!-- SAVE MODAL -->
@@ -1086,6 +1202,15 @@ const s = {
   otherPurchaseCosts: 0,
   // First home buyer
   isFirstHomeBuyer: false,
+  // Property metadata
+  address: '',
+  adUrl: '',
+  propertySubtype: 'house',
+  bedrooms: 3,
+  bathrooms: 2,
+  notes: '',
+  // Tax law: 'new' = no CGT discount, NG new-only | 'old' = 50% CGT discount, NG all investment
+  taxLaw: 'new',
 };
 
 // ═══════════════════════════════════════
@@ -1116,6 +1241,40 @@ const signedFmt = (n) => (n >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(n)).
 function update(key, val) {
   s[key] = val;
   render();
+}
+
+// Format a number input's companion display span
+function fmtInput(id, val) {
+  const e = el(id);
+  if (e) e.textContent = val >= 1000 ? '$' + Math.round(val).toLocaleString('en-AU') : (val > 0 ? '$' + Math.round(val) : '');
+}
+
+function setTaxLaw(law) {
+  s.taxLaw = law;
+  el('togLawNew').classList.toggle('active', law === 'new');
+  el('togLawOld').classList.toggle('active', law === 'old');
+  render();
+}
+
+const DEFAULT_STATE = {
+  simName:'', purchasePrice:800000, purpose:'investment', propertyType:'established',
+  state:'NSW', depositPct:20, loanYears:30, interestRate:6.50, loanType:'pi',
+  weeklyRent:600, vacancyWeeks:2, pmFeePct:8.5,
+  councilRates:1800, waterRates:1200, strataFees:0, buildingInsurance:1500,
+  landlordInsurance:1000, maintenance:0, useMaintenanceEstimate:false,
+  landTax:0, accounting:500, otherOutgoings:0, annualIncome:100000, capitalGrowthPct:5,
+  propertyYearBuilt:2000, buildingValuePct:70, useATODepreciation:true, depreciationAmount:0,
+  conveyancing:2500, buildingInspection:500, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
+  isFirstHomeBuyer:false, address:'', adUrl:'', propertySubtype:'house',
+  bedrooms:3, bathrooms:2, notes:'', taxLaw:'new',
+};
+
+function newSimulation() {
+  if (!confirm('Start a new simulation? Any unsaved inputs will be lost.')) return;
+  Object.assign(s, JSON.parse(JSON.stringify(DEFAULT_STATE)));
+  syncUI();
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function setPurpose(p) {
@@ -1364,8 +1523,9 @@ function calculate() {
   const totalDeductible = cashDeductible + depreciation;         // + non-cash depreciation
   const rentalNetIncome = effectiveRent - totalDeductible;       // negative = loss
 
-  // Negative gearing: ONLY for new investment properties
-  const canNegGear = s.purpose === 'investment' && s.propertyType === 'new';
+  // Negative gearing: new law = new properties only; old law = all investment
+  const canNegGear = s.purpose === 'investment' &&
+    (s.taxLaw === 'old' ? true : s.propertyType === 'new');
   let taxBenefit = 0, gearingStatus = 'neutral';
 
   if (s.purpose === 'investment') {
@@ -1395,8 +1555,18 @@ function calculate() {
     ? calcTax(Math.max(0, annualIncome + rentalNetIncome + depreciation)) - calcTax(Math.max(0, annualIncome + rentalNetIncome))
     : 0;
 
-  // CGT estimate (50% discount method, at various years)
+  // CGT estimate
   const costBase = p + stampDuty + purchaseCosts;
+  // cgtAtYear(n) → estimated CGT payable if sold at year n
+  const cgtAtYear = (yr) => {
+    const salePrice = p * Math.pow(1 + s.capitalGrowthPct/100, yr);
+    const gain = Math.max(0, salePrice - costBase);
+    // New law: no discount; Old law: 50% discount for >12 months
+    const taxableGain = (s.taxLaw === 'old' && yr >= 1) ? gain * 0.5 : gain;
+    const taxWithoutGain = calcTax(annualIncome);
+    const taxWithGain = calcTax(annualIncome + taxableGain);
+    return { salePrice, gain, taxableGain, cgt: taxWithGain - taxWithoutGain, netProceeds: salePrice - (taxWithGain - taxWithoutGain) };
+  };
 
   return {
     p, deposit, loan, monthly, weekly, annual, totalRepay, totalInterest, year1Interest,
@@ -1407,7 +1577,7 @@ function calculate() {
     weeklyCashFlow, annualCashFlow, breakEvenWeekly,
     atoDepreciation, depreciation, cashDeductible, totalDeductible,
     rentalNetIncome, taxBenefit, gearingStatus, taxBenefitWeekly, afterTaxWeekly,
-    depTaxSaving, costBase, canNegGear,
+    depTaxSaving, costBase, canNegGear, cgtAtYear,
   };
 }
 
@@ -1416,6 +1586,27 @@ function calculate() {
 // ═══════════════════════════════════════
 function render() {
   const c = calculate();
+
+  // Tax law chip
+  const lawChip = el('taxLawChip');
+  if (lawChip) {
+    lawChip.textContent = s.taxLaw === 'new' ? 'Current Law' : 'Old Law (pre-reform)';
+    lawChip.className = 'chip ' + (s.taxLaw === 'new' ? 'chip-blue' : 'chip-yellow');
+  }
+
+  // Input formatting hints
+  fmtInput('fmtPurchasePrice', c.p);
+  fmtInput('fmtAnnualIncome', s.annualIncome || 0);
+  fmtInput('fmtCouncil', s.councilRates);
+  fmtInput('fmtWater', s.waterRates);
+  fmtInput('fmtStrata', s.strataFees);
+  fmtInput('fmtBldgIns', s.buildingInsurance);
+  fmtInput('fmtLandlordIns', s.landlordInsurance);
+  fmtInput('fmtMaintenance', s.useMaintenanceEstimate ? c.maintenanceAmt : s.maintenance);
+  fmtInput('fmtLandTax', s.landTax);
+  fmtInput('fmtAccounting', s.accounting);
+  fmtInput('fmtOther', s.otherOutgoings);
+  fmtInput('fmtRent', s.weeklyRent);
 
   // Hero
   set('hLoanAmt', fmt(c.loan));
@@ -1529,8 +1720,27 @@ function render() {
     const chip = el('gearingChip');
     if (c.gearingStatus === 'negative') { chip.textContent = 'Negatively Geared'; chip.className = 'chip chip-red'; }
     else if (c.gearingStatus === 'positive') { chip.textContent = 'Positively Geared'; chip.className = 'chip chip-green'; }
-    else if (c.gearingStatus === 'negative_ringfenced') { chip.textContent = 'Loss Ring-fenced'; chip.className = 'chip chip-yellow'; }
+    else if (c.gearingStatus === 'negative_ringfenced') { chip.textContent = 'Loss Ring-fenced (' + (s.taxLaw==='new'?'Current':'Old') + ' Law)'; chip.className = 'chip chip-yellow'; }
     else { chip.textContent = 'Neutral'; chip.className = 'chip chip-blue'; }
+
+    // CGT estimate
+    const cgt10 = c.cgtAtYear(10), cgt20 = c.cgtAtYear(20);
+    set('cgtGain10', fmt(cgt10.gain));
+    set('cgtTaxable10', fmt(cgt10.taxableGain));
+    set('cgtPayable10', fmt(cgt10.cgt));
+    set('cgtNet10', fmt(cgt10.netProceeds));
+    set('cgtSalePrice10', fmt(cgt10.salePrice));
+    set('cgtGain20', fmt(cgt20.gain));
+    set('cgtTaxable20', fmt(cgt20.taxableGain));
+    set('cgtPayable20', fmt(cgt20.cgt));
+    set('cgtNet20', fmt(cgt20.netProceeds));
+    set('cgtSalePrice20', fmt(cgt20.salePrice));
+    const cgtDiscountNote = s.taxLaw === 'new'
+      ? 'No CGT discount — current law'
+      : '50% discount applied (held >12 months) — old law';
+    set('cgtDiscountNote', cgtDiscountNote);
+    const cgtLawEl = el('cgtLawNote');
+    if (cgtLawEl) { cgtLawEl.textContent = s.taxLaw === 'new' ? 'Current Law' : 'Old Law'; cgtLawEl.className = 'chip ' + (s.taxLaw==='new'?'chip-blue':'chip-yellow'); }
 
     // Tax card
     set('taxInterest', fmt(c.year1Interest));
@@ -1608,7 +1818,6 @@ function render() {
   // Nav counter
   const simCount = getSims().length;
   set('btnSavedCount', 'Saved (' + simCount + ')');
-  el('clearAllBtn').style.display = simCount > 0 ? '' : 'none';
 }
 
 // ═══════════════════════════════════════
@@ -1686,7 +1895,7 @@ function confirmSave() {
       grossYield: c.grossYield, netYield: c.netYield,
       noi: c.noi, weeklyCashFlow: c.weeklyCashFlow,
       afterTaxWeekly: c.afterTaxWeekly, gearingStatus: c.gearingStatus,
-      totalUpfront: c.totalUpfront,
+      totalUpfront: c.totalUpfront, stampDuty: c.stampDuty,
     }
   };
   const sims = getSims(); sims.push(sim); saveSims(sims);
@@ -1713,22 +1922,48 @@ function clearAllSims() {
 
 function scrollToSaved() { el('savedSection').scrollIntoView({behavior:'smooth'}); }
 
+let savedView = 'cards';
+function setSavedView(v) {
+  savedView = v;
+  el('viewCards').classList.toggle('active', v==='cards');
+  el('viewTable').classList.toggle('active', v==='table');
+  el('savedGrid').style.display = v==='cards' ? '' : 'none';
+  el('savedCompare').style.display = v==='table' ? '' : 'none';
+  renderSavedSimulations();
+}
+
 function renderSavedSimulations() {
   const sims = getSims();
+  el('clearAllBtn').style.display = sims.length ? '' : 'none';
+  const count = sims.length;
+  set('btnSavedCount', 'Saved (' + count + ')');
+
+  if (savedView === 'table') {
+    el('savedCompare').innerHTML = renderCompareTable(sims);
+    el('savedGrid').style.display = 'none';
+    return;
+  }
+
   const grid = el('savedGrid');
   if (!sims.length) {
-    grid.innerHTML = '<div class="empty-saved">No simulations saved yet.<br>Use "Save Simulation" to compare different properties side by side.</div>';
+    grid.innerHTML = '<div class="empty-saved">No simulations saved yet.<br>Use "Save" to compare different properties side by side.</div>';
     return;
   }
   grid.innerHTML = sims.map(sim => {
     const cf = sim.results.weeklyCashFlow;
     const atw = sim.results.afterTaxWeekly;
     const isInv = sim.inputs.purpose === 'investment';
-    const gearing = sim.results.gearingStatus === 'negative' ? '🔴 Neg. Geared' : sim.results.gearingStatus === 'positive' ? '🟢 Pos. Geared' : '🔵 Neutral';
+    const gearing = sim.results.gearingStatus === 'negative' ? '🔴 Neg. Geared'
+      : sim.results.gearingStatus === 'negative_ringfenced' ? '🟡 Ring-fenced'
+      : sim.results.gearingStatus === 'positive' ? '🟢 Pos. Geared' : '🔵 Neutral';
+    const meta = [sim.inputs.propertySubtype||'', sim.inputs.bedrooms ? sim.inputs.bedrooms+'bd' : '', sim.inputs.bathrooms ? sim.inputs.bathrooms+'ba' : ''].filter(Boolean).join(' · ');
+    const addrLine = sim.inputs.address ? `<div style="font-size:11px;color:var(--text3);margin-bottom:2px">📍 ${sim.inputs.address}</div>` : '';
+    const urlLine = sim.inputs.adUrl ? `<a href="${sim.inputs.adUrl}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;color:var(--accent);display:block;margin-bottom:6px">View listing ↗</a>` : '';
     return `<div class="sim-card" onclick="loadSim(${sim.id})">
       <button class="btn btn-danger btn-sm sim-del" onclick="event.stopPropagation();deleteSim(${sim.id})">✕</button>
-      <div class="sim-name">${sim.name}</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${sim.ts} · ${sim.inputs.state} · ${sim.inputs.propertyType}</div>
+      <div class="sim-name">${sim.name || 'Untitled'}</div>
+      ${addrLine}${urlLine}
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${sim.ts} · ${sim.inputs.state} · ${meta}</div>
       <div class="sim-meta">
         <div class="sim-stat"><span class="ss-l">Price</span><span class="ss-v">${fmt(sim.inputs.purchasePrice)}</span></div>
         <div class="sim-stat"><span class="ss-l">Weekly Repayment</span><span class="ss-v">${fmt(sim.results.weekly)}/wk</span></div>
@@ -1743,9 +1978,42 @@ function renderSavedSimulations() {
         <div class="sim-stat"><span class="ss-l">Total Upfront</span><span class="ss-v">${fmt(sim.results.totalUpfront)}</span></div>
         `}
       </div>
-      <div style="font-size:11px;color:var(--text3)">Click to load</div>
+      ${sim.inputs.notes ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-style:italic">${sim.inputs.notes}</div>` : ''}
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">Click to load</div>
     </div>`;
   }).join('');
+}
+
+function renderCompareTable(sims) {
+  if (!sims.length) return '<div class="empty-saved" style="margin:0">No simulations saved yet.</div>';
+  const rows = [
+    ['Property / Name', s => `<span style="font-weight:600">${s.name||'Untitled'}</span>${s.inputs.address?`<br><span style="font-size:10px;color:var(--text3)">${s.inputs.address}</span>`:''}${s.inputs.adUrl?`<br><a href="${s.inputs.adUrl}" target="_blank" style="font-size:10px;color:var(--accent)">Listing ↗</a>`:''}`],
+    ['Type / Beds / Baths', s => [s.inputs.propertySubtype||'', s.inputs.bedrooms?s.inputs.bedrooms+'bd':'', s.inputs.bathrooms?s.inputs.bathrooms+'ba':''].filter(Boolean).join(' · ')],
+    ['State', s => s.inputs.state],
+    ['Purpose', s => s.inputs.purpose === 'investment' ? 'Investment' : 'Owner-occupied'],
+    ['Tax Law', s => (s.inputs.taxLaw||'new') === 'new' ? 'Current' : 'Old'],
+    ['─── Purchase ───', null],
+    ['Purchase Price', s => fmt(s.inputs.purchasePrice)],
+    ['Stamp Duty', s => fmt(s.results.stampDuty||0)],
+    ['Total Upfront', s => fmt(s.results.totalUpfront)],
+    ['─── Mortgage ───', null],
+    ['Loan Amount', s => fmt(s.results.loan)],
+    ['Weekly Repayment', s => fmt(s.results.weekly)+'/wk'],
+    ['Interest Rate', s => s.inputs.interestRate+'%'],
+    ['─── Investment ───', null],
+    ['Gross Yield', s => s.results.grossYield != null ? s.results.grossYield.toFixed(2)+'%' : '—'],
+    ['Net Yield (pre-mtg)', s => s.results.netYield != null ? s.results.netYield.toFixed(2)+'%' : '—'],
+    ['Weekly Cash Flow', s => { const cf=s.results.weeklyCashFlow; return cf!=null?`<span style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span>`:'—'; }],
+    ['After-Tax Weekly', s => { const a=s.results.afterTaxWeekly; return a!=null?`<span style="color:${a>=0?'var(--green)':'var(--red)'}">${signedFmt(a)}/wk</span>`:'—'; }],
+    ['Gearing', s => s.results.gearingStatus==='negative'?'🔴 Neg. Geared':s.results.gearingStatus==='positive'?'🟢 Pos. Geared':s.results.gearingStatus==='negative_ringfenced'?'🟡 Ring-fenced':'—'],
+    ['Notes', s => s.inputs.notes ? `<span style="font-style:italic;color:var(--text3)">${s.inputs.notes}</span>` : '—'],
+  ];
+  const header = `<tr><th class="metric-col">Metric</th>${sims.map(sim=>`<th style="text-align:right;cursor:pointer" onclick="loadSim(${sim.id})" title="Click to load">${sim.name||'Untitled'}<br><span style="font-weight:400;color:var(--text3)">${sim.ts}</span></th>`).join('')}</tr>`;
+  const body = rows.map(([label, fn]) => {
+    if (!fn) return `<tr><td colspan="${sims.length+1}" style="background:var(--surface2);font-size:11px;color:var(--text3);font-weight:600;padding:6px 12px;letter-spacing:0.5px">${label}</td></tr>`;
+    return `<tr><td class="metric-col">${label}</td>${sims.map(sim=>`<td class="sim-col" onclick="loadSim(${sim.id})">${fn(sim)}</td>`).join('')}</tr>`;
+  }).join('');
+  return `<div class="compare-wrap"><table class="compare-table"><thead>${header}</thead><tbody>${body}</tbody></table></div><p style="font-size:11px;color:var(--text3);margin-top:8px;padding:0 4px">Click any column to load that simulation.</p>`;
 }
 
 // ═══════════════════════════════════════
@@ -1781,6 +2049,14 @@ function syncUI() {
   el('growthRangeVal').textContent = s.capitalGrowthPct + '%';
   el('stateSelect').value = s.state;
   el('fhbCheck').checked = s.isFirstHomeBuyer || false;
+  el('addressField').value = s.address || '';
+  el('adUrlField').value = s.adUrl || '';
+  el('propertySubtype').value = s.propertySubtype || 'house';
+  el('bedroomsField').value = s.bedrooms || 3;
+  el('bathroomsField').value = s.bathrooms || 2;
+  el('notesField').value = s.notes || '';
+  el('togLawNew').classList.toggle('active', s.taxLaw !== 'old');
+  el('togLawOld').classList.toggle('active', s.taxLaw === 'old');
   el('propertyYearBuilt').value = s.propertyYearBuilt;
   el('buildingValueSlider').value = s.buildingValuePct;
   el('buildingValLabel').textContent = s.buildingValuePct + '%';
