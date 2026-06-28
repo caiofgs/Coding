@@ -358,13 +358,19 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 .scheme-name.maybe{color:var(--yellow)}
 .scheme-name.ineligible{color:var(--text3)}
 
-/* CF GRID (step 4 four-column) */
-.cf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
-@media(max-width:900px){.cf-grid{grid-template-columns:repeat(2,1fr)}}
-.cf-grid-col{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 10px;text-align:center;border:1px solid var(--border2)}
-.cf-grid-col .cg-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;min-height:28px;display:flex;align-items:center;justify-content:center;line-height:1.3}
-.cf-grid-col .cg-main{font-size:14px;font-weight:700;margin-bottom:4px}
-.cf-grid-col .cg-sub{font-size:10px;color:var(--text3);line-height:1.6}
+/* CF TABLE (step 4) */
+.cf-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.cf-table thead th{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:6px 12px;text-align:right;border-bottom:2px solid var(--border2)}
+.cf-table thead th:first-child{text-align:left}
+.cf-table td{padding:9px 12px;border-bottom:1px solid rgba(30,45,71,0.4)}
+.cf-table .cf-label{color:var(--text2);font-size:13px}
+.cf-table .cf-label .cf-sub-label{font-size:10px;color:var(--text3);display:block;margin-top:1px}
+.cf-table .cf-val{text-align:right;font-weight:600;white-space:nowrap}
+.cf-table .cf-sep td{border-bottom:2px solid var(--border2);padding:0}
+.cf-row-total td{background:var(--surface2);border-bottom:none;padding-top:10px;padding-bottom:10px}
+.cf-row-total .cf-label{color:var(--text);font-weight:700}
+.cf-row-total .cf-val{font-weight:700;font-size:14px}
+.cf-breakeven{font-size:12px;color:var(--text3);margin-top:10px;padding:8px 0 0;border-top:1px solid var(--border)}
 
 /* PROFILE DROPDOWN */
 .profile-wrap{position:relative}
@@ -1172,36 +1178,44 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <div class="step-num" style="background:var(--red)">4</div>
             <span class="step-title">After Mortgage — Pre-Tax Cash Flow</span>
           </div>
-          <!-- 4-COLUMN BREAKDOWN -->
-          <div class="cf-grid">
-            <div class="cf-grid-col">
-              <div class="cg-label">Outgoings<br>(rates &amp; fees)</div>
-              <div class="cg-main val-red" id="cfOutWk">—</div>
-              <div class="cg-sub" id="cfOutMo">—</div>
-              <div class="cg-sub" id="cfOutYr">—</div>
-            </div>
-            <div class="cf-grid-col">
-              <div class="cg-label">Mortgage<br>repayments</div>
-              <div class="cg-main val-red" id="cfMortWk">—</div>
-              <div class="cg-sub" id="cfMortMo">—</div>
-              <div class="cg-sub" id="cfMortYr">—</div>
-            </div>
-            <div class="cf-grid-col">
-              <div class="cg-label">Rental Income<br>(after vacancy &amp; PM)</div>
-              <div class="cg-main val-green" id="cfIncWk">—</div>
-              <div class="cg-sub" id="cfIncMo">—</div>
-              <div class="cg-sub" id="cfIncYr">—</div>
-            </div>
-            <div class="cf-grid-col" id="cfTotalCol">
-              <div class="cg-label">Out of Pocket<br>(pre-tax total)</div>
-              <div class="cg-main" id="cfTotWk">—</div>
-              <div class="cg-sub" id="cfTotMo">—</div>
-              <div class="cg-sub" id="cfTotYr">—</div>
-            </div>
-          </div>
-          <div class="metric-row" style="margin-top:10px">
-            <span class="metric-label" style="font-size:12px;color:var(--text3)">Break-even rent (to cover mortgage + outgoings)</span>
-            <span class="metric-val" style="font-size:12px;color:var(--text2)" id="breakEvenRent">—</span>
+          <table class="cf-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Weekly</th>
+                <th>Monthly</th>
+                <th>Yearly</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cf-label">↑ Rental income<span class="cf-sub-label">after vacancy &amp; PM</span></td>
+                <td class="cf-val val-green" id="cfIncWk">—</td>
+                <td class="cf-val val-green" id="cfIncMo">—</td>
+                <td class="cf-val val-green" id="cfIncYr">—</td>
+              </tr>
+              <tr>
+                <td class="cf-label">↓ Outgoings<span class="cf-sub-label">rates, insurance &amp; fees</span></td>
+                <td class="cf-val val-red" id="cfOutWk">—</td>
+                <td class="cf-val val-red" id="cfOutMo">—</td>
+                <td class="cf-val val-red" id="cfOutYr">—</td>
+              </tr>
+              <tr>
+                <td class="cf-label">↓ Mortgage repayments</td>
+                <td class="cf-val val-red" id="cfMortWk">—</td>
+                <td class="cf-val val-red" id="cfMortMo">—</td>
+                <td class="cf-val val-red" id="cfMortYr">—</td>
+              </tr>
+              <tr class="cf-row-total" id="cfTotalCol">
+                <td class="cf-label">Net cash flow<span class="cf-sub-label">pre-tax</span></td>
+                <td class="cf-val" id="cfTotWk">—</td>
+                <td class="cf-val" id="cfTotMo">—</td>
+                <td class="cf-val" id="cfTotYr">—</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="cf-breakeven">
+            Break-even rent: <span id="breakEvenRent" style="font-weight:600;color:var(--text2)">—</span> to cover mortgage + outgoings
           </div>
         </div>
 
@@ -2419,19 +2433,20 @@ function render() {
     set('s3YieldBadge', pct(c.netYield) + ' net yield');
     el('s3YieldBadge').style.color = c.netYield >= 0 ? 'var(--teal)' : 'var(--red)';
 
-    // STEP 4 — 4-column breakdown
+    // STEP 4 — table breakdown
     const cfOutWk = c.totalOutgoings / 52, cfOutMo = c.totalOutgoings / 12;
     const cfMortWk = c.annual / 52, cfMortMo = c.annual / 12;
     const cfIncWk = c.netEffectiveRent / 52, cfIncMo = c.netEffectiveRent / 12;
     const cfTotWk = c.weeklyCashFlow, cfTotMo = c.weeklyCashFlow * 52 / 12;
     const cfColor = c.weeklyCashFlow >= 0 ? 'var(--green)' : 'var(--red)';
-    set('cfOutWk', neg(cfOutWk) + '/wk'); set('cfOutMo', neg(cfOutMo) + '/mo'); set('cfOutYr', neg(c.totalOutgoings) + '/yr');
-    set('cfMortWk', neg(cfMortWk) + '/wk'); set('cfMortMo', neg(cfMortMo) + '/mo'); set('cfMortYr', neg(c.annual) + '/yr');
-    set('cfIncWk', '+' + fmt(cfIncWk) + '/wk'); set('cfIncMo', '+' + fmt(cfIncMo) + '/mo'); set('cfIncYr', '+' + fmt(c.netEffectiveRent) + '/yr');
-    el('cfTotWk').textContent = signedFmt(cfTotWk) + '/wk'; el('cfTotWk').style.color = cfColor;
-    el('cfTotMo').textContent = signedFmt(cfTotMo) + '/mo'; el('cfTotMo').style.color = cfColor;
-    el('cfTotYr').textContent = signedFmt(c.annualCashFlow) + '/yr'; el('cfTotYr').style.color = cfColor;
-    el('cfTotalCol').style.borderColor = c.weeklyCashFlow >= 0 ? 'rgba(52,211,153,0.4)' : 'rgba(251,113,133,0.4)';
+    set('cfOutWk', neg(cfOutWk)); set('cfOutMo', neg(cfOutMo)); set('cfOutYr', neg(c.totalOutgoings));
+    set('cfMortWk', neg(cfMortWk)); set('cfMortMo', neg(cfMortMo)); set('cfMortYr', neg(c.annual));
+    set('cfIncWk', '+' + fmt(cfIncWk)); set('cfIncMo', '+' + fmt(cfIncMo)); set('cfIncYr', '+' + fmt(c.netEffectiveRent));
+    el('cfTotWk').textContent = signedFmt(cfTotWk); el('cfTotWk').style.color = cfColor;
+    el('cfTotMo').textContent = signedFmt(cfTotMo); el('cfTotMo').style.color = cfColor;
+    el('cfTotYr').textContent = signedFmt(c.annualCashFlow); el('cfTotYr').style.color = cfColor;
+    const cfTotalRow = el('cfTotalCol');
+    if (cfTotalRow) cfTotalRow.style.background = c.weeklyCashFlow >= 0 ? 'rgba(52,211,153,0.06)' : 'rgba(251,113,133,0.06)';
     set('breakEvenRent', '$' + Math.round(c.breakEvenWeekly).toLocaleString('en-AU') + '/wk');
 
     // Investment hero strip
