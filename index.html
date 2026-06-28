@@ -472,7 +472,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <select id="propertySubtype" onchange="s.propertySubtype=this.value">
             <option value="house">House</option>
             <option value="townhouse">Townhouse</option>
-            <option value="apartment">Apartment</option>
+            <option value="apartment" selected>Apartment</option>
             <option value="unit">Unit</option>
             <option value="villa">Villa</option>
             <option value="duplex">Duplex</option>
@@ -484,17 +484,18 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <label>Beds / Baths</label>
           <div style="display:flex;gap:6px">
             <select id="bedroomsField" onchange="s.bedrooms=+this.value" style="flex:1;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
-              <option value="0">0 bed</option>
+              <option value="0" selected>0 bed</option>
               <option value="1">1 bed</option>
               <option value="2">2 beds</option>
-              <option value="3" selected>3 beds</option>
+              <option value="3">3 beds</option>
               <option value="4">4 beds</option>
               <option value="5">5 beds</option>
               <option value="6">6+ beds</option>
             </select>
             <select id="bathroomsField" onchange="s.bathrooms=+this.value" style="flex:1;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+              <option value="0" selected>0 baths</option>
               <option value="1">1 bath</option>
-              <option value="2" selected>2 baths</option>
+              <option value="2">2 baths</option>
               <option value="3">3 baths</option>
               <option value="4">4+ baths</option>
             </select>
@@ -550,7 +551,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <label>State / Territory</label>
         <select id="stateSelect" onchange="update('state',this.value)">
           <option value="NSW">New South Wales (NSW)</option>
-          <option value="VIC">Victoria (VIC)</option>
+          <option value="VIC" selected>Victoria (VIC)</option>
           <option value="QLD">Queensland (QLD)</option>
           <option value="WA">Western Australia (WA)</option>
           <option value="SA">South Australia (SA)</option>
@@ -581,14 +582,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <span class="outgoing-label">Conveyancing / Legal</span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
-          <input type="number" id="conveyancing" value="2500" min="0" step="100" oninput="update('conveyancing',+this.value)">
+          <input type="number" id="conveyancing" value="0" min="0" step="100" oninput="update('conveyancing',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
         <span class="outgoing-label">Building Inspection</span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
-          <input type="number" id="buildingInspection" value="500" min="0" step="50" oninput="update('buildingInspection',+this.value)">
+          <input type="number" id="buildingInspection" value="0" min="0" step="50" oninput="update('buildingInspection',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
@@ -614,7 +615,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       </div>
       <div class="outgoing-total">
         <span>Total Purchase Costs</span>
-        <span style="color:var(--green);font-size:15px" id="totalPurchaseCostsDisplay">$3,000</span>
+        <span style="color:var(--green);font-size:15px" id="totalPurchaseCostsDisplay">$0</span>
       </div>
     </div>
   </div>
@@ -682,10 +683,10 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <p class="hint">2–4 weeks is typical. This is the time the property sits empty between tenants.</p>
       </div>
       <div class="field">
-        <label>Property Management Fee — <span id="pmLabel">8.5%</span> of rent</label>
+        <label>Property Management Fee — <span id="pmLabel">0%</span> of rent</label>
         <div class="range-row">
-          <input type="range" id="pmSlider" min="0" max="15" value="8.5" step="0.5" oninput="update('pmFeePct',+this.value);document.getElementById('pmLabel').textContent=this.value+'%';document.getElementById('pmRangeVal').textContent=this.value+'%'">
-          <span class="range-val" id="pmRangeVal">8.5%</span>
+          <input type="range" id="pmSlider" min="0" max="15" value="0" step="0.5" oninput="update('pmFeePct',+this.value);document.getElementById('pmLabel').textContent=this.value+'%';document.getElementById('pmRangeVal').textContent=this.value+'%'">
+          <span class="range-val" id="pmRangeVal">0%</span>
         </div>
         <p class="hint">Set to 0% if self-managing. Typical: 7–10% in major cities. Applied to rent actually collected.</p>
       </div>
@@ -703,14 +704,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <span class="outgoing-label">Council Rates<br><span class="fmt-hint" id="fmtCouncil"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
-          <input type="number" id="councilRates" value="1800" min="0" step="50" oninput="update('councilRates',+this.value)">
+          <input type="number" id="councilRates" value="0" min="0" step="50" oninput="update('councilRates',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
         <span class="outgoing-label">Water Rates<br><span class="fmt-hint" id="fmtWater"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
-          <input type="number" id="waterRates" value="1200" min="0" step="50" oninput="update('waterRates',+this.value)">
+          <input type="number" id="waterRates" value="0" min="0" step="50" oninput="update('waterRates',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
@@ -724,14 +725,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <span class="outgoing-label">Building Insurance<br><span class="fmt-hint" id="fmtBldgIns"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
-          <input type="number" id="buildingInsurance" value="1500" min="0" step="50" oninput="update('buildingInsurance',+this.value)">
+          <input type="number" id="buildingInsurance" value="0" min="0" step="50" oninput="update('buildingInsurance',+this.value)">
         </div>
       </div>
       <div class="outgoing-row" id="rowLandlordIns" style="display:none">
         <span class="outgoing-label">Landlord Insurance<br><span class="fmt-hint" id="fmtLandlordIns"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
-          <input type="number" id="landlordInsurance" value="1000" min="0" step="50" oninput="update('landlordInsurance',+this.value)">
+          <input type="number" id="landlordInsurance" value="0" min="0" step="50" oninput="update('landlordInsurance',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
@@ -758,7 +759,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <span class="outgoing-label">Accountant / Tax Advice<br><span class="fmt-hint" id="fmtAccounting"></span></span>
         <div class="input-wrap has-pre outgoing-input">
           <span class="input-pre">$</span>
-          <input type="number" id="accounting" value="500" min="0" step="50" oninput="update('accounting',+this.value)">
+          <input type="number" id="accounting" value="0" min="0" step="50" oninput="update('accounting',+this.value)">
         </div>
       </div>
       <div class="outgoing-row">
@@ -802,7 +803,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <div class="field">
         <label>Approx. Year Built</label>
         <div class="input-wrap">
-          <input type="number" id="propertyYearBuilt" value="2000" min="1900" max="2030" step="1" oninput="update('propertyYearBuilt',+this.value)">
+          <input type="number" id="propertyYearBuilt" value="1970" min="1900" max="2030" step="1" oninput="update('propertyYearBuilt',+this.value)">
         </div>
         <p class="hint" id="depEligNote">Post-1987: Div 43 at 2.5%/yr applies</p>
       </div>
@@ -819,11 +820,11 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <div class="field">
           <label>Depreciation Amount</label>
           <div class="toggle-group" style="margin-bottom:8px">
-            <button class="tog" id="togDepNone" onclick="setDepMode('none')">No Depreciation</button>
-            <button class="tog active" id="togDepATO" onclick="setDepMode('ato')">ATO Estimate</button>
+            <button class="tog active" id="togDepNone" onclick="setDepMode('none')">No Depreciation</button>
+            <button class="tog" id="togDepATO" onclick="setDepMode('ato')">ATO Estimate</button>
             <button class="tog" id="togDepCustom" onclick="setDepMode('custom')">Custom Amount</button>
           </div>
-          <div id="depAtoRow" style="background:var(--purple-bg);border:1px solid rgba(167,139,250,0.25);border-radius:var(--radius-sm);padding:10px 12px">
+          <div id="depAtoRow" style="background:var(--purple-bg);border:1px solid rgba(167,139,250,0.25);border-radius:var(--radius-sm);padding:10px 12px;display:none">
             <div style="font-size:13px;font-weight:600;color:var(--purple)">Estimated: <span id="depEstimateDisplay">$14,000/yr</span></div>
             <div style="font-size:11px;color:var(--text3);margin-top:3px" id="depEstimateFormula">= $800,000 × 70% × 2.5%</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Get a Quantity Surveyor schedule for exact figures — typically more than this estimate.</div>
@@ -854,9 +855,9 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <label>Your Annual Income (before property)</label>
         <div class="input-wrap has-pre">
           <span class="input-pre">$</span>
-          <input type="number" id="annualIncome" value="100000" min="0" max="5000000" step="1000" oninput="update('annualIncome',+this.value)">
+          <input type="number" id="annualIncome" value="200000" min="0" max="5000000" step="1000" oninput="update('annualIncome',+this.value)">
         </div>
-        <span style="font-size:11px;color:var(--accent);font-weight:600" id="fmtAnnualIncome">$100,000</span>
+        <span style="font-size:11px;color:var(--accent);font-weight:600" id="fmtAnnualIncome">$200,000</span>
         <p class="hint" style="margin-top:4px">Used to calculate exact tax impact — accounts for bracket boundaries. 2024-25 Stage 3 rates apply.</p>
       </div>
       <div class="field">
@@ -876,10 +877,10 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <p class="hint">Used for CGT indexation under new law. RBA target band is 2–3%.</p>
       </div>
       <div class="field">
-        <label>S&amp;P 500 Comparison Return — <span id="sp500Label">10.0%</span>/year</label>
+        <label>S&amp;P 500 Comparison Return — <span id="sp500Label">12.0%</span>/year</label>
         <div class="range-row">
-          <input type="range" id="sp500Slider" min="4" max="15" value="10" step="0.5" oninput="update('sp500Rate',+this.value);document.getElementById('sp500Label').textContent=(+this.value).toFixed(1)+'%';document.getElementById('sp500RangeVal').textContent=(+this.value).toFixed(1)+'%'">
-          <span class="range-val" id="sp500RangeVal">10%</span>
+          <input type="range" id="sp500Slider" min="4" max="15" value="12" step="0.5" oninput="update('sp500Rate',+this.value);document.getElementById('sp500Label').textContent=(+this.value).toFixed(1)+'%';document.getElementById('sp500RangeVal').textContent=(+this.value).toFixed(1)+'%'">
+          <span class="range-val" id="sp500RangeVal">12%</span>
         </div>
         <p class="hint">Historical long-run average ~10% nominal/yr. Used for chart comparison line only — not financial advice.</p>
       </div>
@@ -1464,35 +1465,35 @@ const s = {
   purchasePrice: 800000,
   purpose: 'investment',
   propertyType: 'established',
-  state: 'NSW',
+  state: 'VIC',
   depositPct: 20,
   loanYears: 30,
   interestRate: 6.50,
   loanType: 'pi',
   weeklyRent: 600,
   vacancyWeeks: 2,
-  pmFeePct: 8.5,
-  councilRates: 1800,
-  waterRates: 1200,
+  pmFeePct: 0,
+  councilRates: 0,
+  waterRates: 0,
   strataFees: 0,
-  buildingInsurance: 1500,
-  landlordInsurance: 1000,
+  buildingInsurance: 0,
+  landlordInsurance: 0,
   maintenance: 0,
   useMaintenanceEstimate: false,
   landTax: 0,
-  accounting: 500,
+  accounting: 0,
   otherOutgoings: 0,
-  annualIncome: 100000,
+  annualIncome: 200000,
   capitalGrowthPct: 5,
   // Depreciation
-  propertyYearBuilt: 2000,
+  propertyYearBuilt: 1970,
   buildingValuePct: 70,
-  useATODepreciation: true,
-  depreciationMode: 'ato',  // 'none' | 'ato' | 'custom'
+  useATODepreciation: false,
+  depreciationMode: 'none',  // 'none' | 'ato' | 'custom'
   depreciationAmount: 0,
   // Purchase costs
-  conveyancing: 2500,
-  buildingInspection: 500,
+  conveyancing: 0,
+  buildingInspection: 0,
   pestInspection: 0,
   loanFee: 0,
   otherPurchaseCosts: 0,
@@ -1503,9 +1504,9 @@ const s = {
   adUrl: '',         // kept for backward compat with saved sims
   adUrls: ['','',''], // up to 3 listing URLs
   suburb: '',
-  propertySubtype: 'house',
-  bedrooms: 3,
-  bathrooms: 2,
+  propertySubtype: 'apartment',
+  bedrooms: 0,
+  bathrooms: 0,
   notes: '',
   // Tax law: 'new' = no CGT discount, NG new-only | 'old' = 50% CGT discount, NG all investment
   taxLaw: 'new',
@@ -1517,7 +1518,7 @@ const s = {
   // CGT inflation assumption
   expectedInflation: 2.5,
   // Chart comparison
-  sp500Rate: 10,
+  sp500Rate: 12,
   // Stamp duty toggle
   includeStampDuty: true,
 };
@@ -1598,16 +1599,16 @@ function renderAssumptions() {
 
 const DEFAULT_STATE = {
   simName:'', purchasePrice:800000, purpose:'investment', propertyType:'established',
-  state:'NSW', depositPct:20, loanYears:30, interestRate:6.50, loanType:'pi',
-  weeklyRent:600, vacancyWeeks:2, pmFeePct:8.5,
-  councilRates:1800, waterRates:1200, strataFees:0, buildingInsurance:1500,
-  landlordInsurance:1000, maintenance:0, useMaintenanceEstimate:false,
-  landTax:0, accounting:500, otherOutgoings:0, annualIncome:100000, capitalGrowthPct:5,
-  propertyYearBuilt:2000, buildingValuePct:70, useATODepreciation:true, depreciationMode:'ato', depreciationAmount:0,
-  conveyancing:2500, buildingInspection:500, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
-  isFirstHomeBuyer:false, address:'', adUrl:'', adUrls:['','',''], suburb:'', propertySubtype:'house',
-  bedrooms:3, bathrooms:2, notes:'', taxLaw:'new',
-  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, sp500Rate:10, includeStampDuty:true,
+  state:'VIC', depositPct:20, loanYears:30, interestRate:6.50, loanType:'pi',
+  weeklyRent:600, vacancyWeeks:2, pmFeePct:0,
+  councilRates:0, waterRates:0, strataFees:0, buildingInsurance:0,
+  landlordInsurance:0, maintenance:0, useMaintenanceEstimate:false,
+  landTax:0, accounting:0, otherOutgoings:0, annualIncome:200000, capitalGrowthPct:5,
+  propertyYearBuilt:1970, buildingValuePct:70, useATODepreciation:false, depreciationMode:'none', depreciationAmount:0,
+  conveyancing:0, buildingInspection:0, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
+  isFirstHomeBuyer:false, address:'', adUrl:'', adUrls:['','',''], suburb:'', propertySubtype:'apartment',
+  bedrooms:0, bathrooms:0, notes:'', taxLaw:'new',
+  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, sp500Rate:12, includeStampDuty:true,
 };
 
 function newSimulation() {
@@ -2985,8 +2986,8 @@ function syncUI() {
   el('fhbCheck').checked = s.isFirstHomeBuyer || false;
   el('addressField').value = s.address || '';
   el('propertySubtype').value = s.propertySubtype || 'house';
-  el('bedroomsField').value = Math.min(s.bedrooms || 3, 6);
-  el('bathroomsField').value = Math.min(s.bathrooms || 2, 4);
+  el('bedroomsField').value = Math.min(s.bedrooms ?? 0, 6);
+  el('bathroomsField').value = Math.min(s.bathrooms ?? 0, 4);
   el('notesField').value = s.notes || '';
   el('suburbField').value = s.suburb || '';
   // Restore URLs
