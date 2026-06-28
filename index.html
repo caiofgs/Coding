@@ -2394,7 +2394,9 @@ function yearlyAfterTaxCFWithGrowth(yr, c) {
   const growthRate = (s.rentalGrowthPct || 0) / 100;
   const growthFactor = Math.pow(1 + growthRate, yr - 1);
   const scaledNetRent = c.netEffectiveRent * growthFactor;
-  const outgoings = c.totalOutgoings;
+  // Levy drops off after levyYears — remove it from outgoings for post-levy years
+  const levyActive = s.levyYears >= 1 && yr <= s.levyYears;
+  const outgoings = levyActive ? c.totalOutgoings : c.totalOutgoings - c.levyAmt;
   const mortgageThisYear = yr > s.loanYears ? 0 : c.annual;
   let interestThisYear;
   if (yr > s.loanYears) {
