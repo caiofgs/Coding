@@ -305,6 +305,40 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 /* SPACER */
 .mt16{margin-top:16px}
 
+/* URL FETCH */
+.url-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.url-row input{flex:1;padding:8px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:12px;outline:none}
+.url-row input:focus{border-color:var(--accent)}
+.btn-fetch{padding:6px 10px;font-size:11px;font-weight:600;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius-sm);cursor:pointer;white-space:nowrap;transition:.15s}
+.btn-fetch:hover{background:var(--accent);color:#fff}
+.btn-fetch.loading{opacity:0.6;cursor:wait}
+.fetch-status{font-size:11px;padding:6px 10px;border-radius:var(--radius-sm);margin-top:4px;display:none}
+.fetch-status.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);display:block}
+.fetch-status.err{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);display:block}
+
+/* NEW SIM MODAL */
+.new-sim-modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;width:360px;max-width:90vw}
+.new-sim-modal h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.new-sim-modal p{font-size:13px;color:var(--text2);margin-bottom:16px}
+.nsm-actions{display:flex;flex-direction:column;gap:8px}
+.nsm-actions button{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;text-align:left;transition:.15s}
+.nsm-save-btn{background:var(--accent);color:#fff}
+.nsm-save-btn:hover{background:#6b9ff8}
+.nsm-nosave-btn{background:var(--surface2);color:var(--text);border:1px solid var(--border2)!important}
+.nsm-nosave-btn:hover{background:var(--surface3)}
+.nsm-cancel-btn{background:transparent;color:var(--text3);font-size:12px!important;text-align:center!important}
+
+/* FHB SCHEMES */
+.scheme-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.scheme-item{border-radius:var(--radius-sm);padding:10px 12px;font-size:12px}
+.scheme-item.eligible{background:var(--green-bg);border:1px solid var(--green-border)}
+.scheme-item.maybe{background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.3)}
+.scheme-item.ineligible{background:var(--surface2);border:1px solid var(--border2);opacity:0.6}
+.scheme-name{font-weight:600;margin-bottom:2px}
+.scheme-name.eligible{color:var(--green)}
+.scheme-name.maybe{color:var(--yellow)}
+.scheme-name.ineligible{color:var(--text3)}
+
 /* CF GRID (step 4 four-column) */
 .cf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
 @media(max-width:900px){.cf-grid{grid-template-columns:repeat(2,1fr)}}
@@ -367,11 +401,26 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <input type="text" id="addressField" placeholder="e.g. 12 Smith St, Fitzroy VIC 3065" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.address=this.value">
       </div>
       <div class="field">
-        <label>Listing URL (advertisement link)</label>
-        <div style="display:flex;gap:6px;align-items:center">
-          <input type="url" id="adUrlField" placeholder="https://www.realestate.com.au/..." style="flex:1;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;" oninput="s.adUrl=this.value;el('adUrlLink').style.display=this.value?'':'none'">
-          <a id="adUrlLink" href="#" target="_blank" style="display:none;font-size:12px;color:var(--accent);white-space:nowrap" onclick="this.href=s.adUrl">Open ↗</a>
+        <label>Listing URLs — paste realestate.com.au or domain.com.au links to auto-fill property info</label>
+        <div id="urlRows">
+          <div class="url-row">
+            <input type="url" id="adUrlField0" placeholder="https://www.realestate.com.au/…" oninput="s.adUrls[0]=this.value">
+            <button class="btn-fetch" onclick="fetchListing(0)">Fetch ↓</button>
+            <a id="adUrlLink0" href="#" target="_blank" style="display:none;font-size:12px;color:var(--accent);white-space:nowrap">Open ↗</a>
+          </div>
+          <div class="url-row" id="urlRow1" style="display:none">
+            <input type="url" id="adUrlField1" placeholder="Second listing URL…" oninput="s.adUrls[1]=this.value">
+            <button class="btn-fetch" onclick="fetchListing(1)">Fetch ↓</button>
+            <a id="adUrlLink1" href="#" target="_blank" style="display:none;font-size:12px;color:var(--accent);white-space:nowrap">Open ↗</a>
+          </div>
+          <div class="url-row" id="urlRow2" style="display:none">
+            <input type="url" id="adUrlField2" placeholder="Third listing URL…" oninput="s.adUrls[2]=this.value">
+            <button class="btn-fetch" onclick="fetchListing(2)">Fetch ↓</button>
+            <a id="adUrlLink2" href="#" target="_blank" style="display:none;font-size:12px;color:var(--accent);white-space:nowrap">Open ↗</a>
+          </div>
         </div>
+        <div id="fetchStatus" class="fetch-status"></div>
+        <button onclick="addUrlRow()" id="btnAddUrl" style="margin-top:4px;font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0">+ Add another listing URL</button>
       </div>
       <div class="two-col">
         <div class="field">
@@ -408,17 +457,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           </div>
         </div>
         <div class="field">
-          <label>Neighborhood</label>
-          <select id="neighborhood" onchange="s.neighborhood=this.value">
-            <option value="">— select —</option>
-            <option value="CBD">CBD</option>
-            <option value="Inner City">Inner City</option>
-            <option value="Inner Suburb">Inner Suburb</option>
-            <option value="Middle Ring">Middle Ring</option>
-            <option value="Outer Suburb">Outer Suburb</option>
-            <option value="Regional">Regional</option>
-            <option value="Rural">Rural</option>
-          </select>
+          <label>Suburb</label>
+          <input type="text" id="suburbField" placeholder="e.g. Fitzroy" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.suburb=this.value">
         </div>
       </div>
       <div class="field">
@@ -874,7 +914,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         </div>
         <div class="divider"></div>
         <div class="metric-row">
-          <span class="metric-label">Stamp Duty <span id="fhbBadge" style="display:none;font-size:10px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:10px;padding:1px 6px;margin-left:4px">FHB</span></span>
+          <span class="metric-label">
+            Stamp Duty
+            <span id="fhbBadge" style="display:none;font-size:10px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:10px;padding:1px 6px;margin-left:4px">FHB</span>
+            <label style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);margin-left:6px;cursor:pointer">
+              <input type="checkbox" id="includeStampDuty" checked style="width:auto;accent-color:var(--accent)" onchange="update('includeStampDuty',this.checked)">
+              include
+            </label>
+          </span>
           <span class="metric-val val-red" id="rStampDuty">—</span>
         </div>
         <div class="metric-row">
@@ -930,6 +977,18 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       </div>
     </div>
   </div><!-- end purchase+mortgage grid -->
+
+  <!-- FHB SCHEMES HELPER — only shown for owner-occupied FHB -->
+  <div class="card mt16" id="fhbSchemesCard" style="display:none">
+    <div class="card-head">
+      <span class="card-title">First Home Buyer Schemes</span>
+      <span class="chip chip-green" style="font-size:11px">You may qualify</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:4px">Based on your state, purchase price and property type. Verify eligibility with the relevant authority before relying on these figures.</p>
+      <div id="schemesList" class="scheme-list"></div>
+    </div>
+  </div>
 
   <!-- ═══ INVESTMENT SECTION (hidden for owner-occupied) ═══ -->
   <div id="investmentResults" style="display:none">
@@ -1024,7 +1083,17 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <span class="metric-label">Less: Special levy <span id="s3LevyDuration" style="font-size:11px;color:var(--text3)"></span></span>
             <span class="metric-val val-red" id="s3Levy">−$0</span>
           </div>
-          <div class="step-total" style="margin-top:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+            <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:8px 12px">
+              <div style="font-size:10px;color:var(--red);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px">Total Outgoings</div>
+              <div style="font-size:16px;font-weight:700;color:var(--red)" id="s3TotalOutgoings">—</div>
+            </div>
+            <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius-sm);padding:8px 12px">
+              <div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px">Effective Rent In</div>
+              <div style="font-size:16px;font-weight:700;color:var(--green)" id="s3EffectiveRent">—</div>
+            </div>
+          </div>
+          <div class="step-total" style="margin-top:8px">
             <span class="st-label">Net Operating Income</span>
             <span class="st-val" id="s3Total" style="font-size:18px">$13,848/yr</span>
           </div>
@@ -1275,6 +1344,19 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
   <div id="savedCompare" style="display:none"></div>
 </div>
 
+<!-- NEW SIMULATION MODAL -->
+<div class="modal-overlay" id="newSimModal">
+  <div class="new-sim-modal">
+    <h3>Start a New Simulation?</h3>
+    <p>Do you want to save the current simulation before starting fresh?</p>
+    <div class="nsm-actions">
+      <button class="nsm-save-btn" onclick="newSimSaveFirst()">💾 Save this simulation, then start new</button>
+      <button class="nsm-nosave-btn" onclick="newSimConfirm()">🗑 Start new without saving</button>
+      <button class="nsm-cancel-btn" onclick="closeNewSimModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- SAVE MODAL -->
 <div class="modal-overlay" id="saveModal">
   <div class="modal">
@@ -1332,7 +1414,9 @@ const s = {
   isFirstHomeBuyer: false,
   // Property metadata
   address: '',
-  adUrl: '',
+  adUrl: '',         // kept for backward compat with saved sims
+  adUrls: ['','',''], // up to 3 listing URLs
+  suburb: '',
   propertySubtype: 'house',
   bedrooms: 3,
   bathrooms: 2,
@@ -1344,9 +1428,10 @@ const s = {
   levyYears: 0,
   // Property extras
   parkingSpots: 0,
-  neighborhood: '',
   // CGT inflation assumption
   expectedInflation: 2.5,
+  // Stamp duty toggle
+  includeStampDuty: true,
 };
 
 // ═══════════════════════════════════════
@@ -1432,21 +1517,39 @@ const DEFAULT_STATE = {
   landTax:0, accounting:500, otherOutgoings:0, annualIncome:100000, capitalGrowthPct:5,
   propertyYearBuilt:2000, buildingValuePct:70, useATODepreciation:true, depreciationAmount:0,
   conveyancing:2500, buildingInspection:500, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
-  isFirstHomeBuyer:false, address:'', adUrl:'', propertySubtype:'house',
+  isFirstHomeBuyer:false, address:'', adUrl:'', adUrls:['','',''], suburb:'', propertySubtype:'house',
   bedrooms:3, bathrooms:2, notes:'', taxLaw:'new',
-  levyAmount:0, levyYears:0, parkingSpots:0, neighborhood:'', expectedInflation:2.5,
+  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, includeStampDuty:true,
 };
 
 function newSimulation() {
-  const choice = window.confirm(
-    'Start a new simulation?\n\nClick OK to continue without saving.\nClick Cancel to abort (you can then use "Save" to save first).'
-  );
-  if (!choice) return;
+  el('newSimModal').classList.add('open');
+}
+function closeNewSimModal() {
+  el('newSimModal').classList.remove('open');
+}
+function newSimSaveFirst() {
+  closeNewSimModal();
+  // After save, trigger new sim — set flag
+  window._pendingNew = true;
+  openSaveModal();
+}
+function newSimConfirm() {
+  closeNewSimModal();
+  doNewSim();
+}
+function doNewSim() {
   Object.assign(s, JSON.parse(JSON.stringify(DEFAULT_STATE)));
+  urlRowsVisible = 1;
+  el('urlRow1').style.display = 'none';
+  el('urlRow2').style.display = 'none';
+  el('btnAddUrl').style.display = '';
+  el('fetchStatus').className = 'fetch-status';
   syncUI();
   render();
   window.scrollTo({top:0, behavior:'smooth'});
 }
+el('newSimModal').addEventListener('click', e => { if (e.target === el('newSimModal')) closeNewSimModal(); });
 
 function setPurpose(p) {
   s.purpose = p;
@@ -1580,6 +1683,239 @@ function calcStampDuty(price, state, fhb) {
 }
 
 // ═══════════════════════════════════════
+//  FHB SCHEMES CHECKER
+// ═══════════════════════════════════════
+function calcFHBSchemes(price, state, propertyType, isNewBuild, annualIncome, depositPct) {
+  const schemes = [];
+  const isNew = isNewBuild || propertyType === 'new';
+
+  // First Home Guarantee (FHBG) — federal, 5% deposit, no LMI
+  const fhbgCaps = { NSW:900000, ACT:900000, VIC:800000, QLD:800000, WA:650000, SA:650000, TAS:650000, NT:650000 };
+  const fhbgCap = fhbgCaps[state] || 650000;
+  const deposit5pct = price * 0.05;
+  if (depositPct <= 20 && price <= fhbgCap) {
+    schemes.push({ name:'First Home Guarantee (FHBG)', status:'eligible',
+      detail:`Buy with 5% deposit — government guarantees the remaining 15% so you avoid LMI. Property cap for ${state}: ${fmt(fhbgCap)}. Income limits: $125k single / $200k couple. Limited places each FY.` });
+  } else if (price <= fhbgCap) {
+    schemes.push({ name:'First Home Guarantee (FHBG)', status:'maybe',
+      detail:`You may be eligible if deposit is ≤ 20%. Cap for ${state}: ${fmt(fhbgCap)}. Income limits apply.` });
+  } else {
+    schemes.push({ name:'First Home Guarantee (FHBG)', status:'ineligible',
+      detail:`Purchase price ${fmt(price)} exceeds cap of ${fmt(fhbgCap)} for ${state}.` });
+  }
+
+  // First Home Owner Grant (FHOG) — new builds only, state-specific
+  const fhogAmts = { NSW:0, VIC:10000, QLD:30000, WA:10000, SA:15000, ACT:0, TAS:10000, NT:10000 };
+  const fhogAmt = fhogAmts[state] || 0;
+  if (fhogAmt > 0) {
+    const fhogCaps = { VIC:750000, QLD:750000, WA:750000, SA:650000, TAS:750000, NT:750000 };
+    const fhogCap = fhogCaps[state] || 750000;
+    if (isNew && price <= fhogCap) {
+      schemes.push({ name:`First Home Owner Grant — ${fmt(fhogAmt)}`, status:'eligible',
+        detail:`${state} offers ${fmt(fhogAmt)} grant for eligible new or substantially renovated homes up to ${fmt(fhogCap)}. Verify with ${state} Revenue Office.` });
+    } else if (isNew && price > fhogCap) {
+      schemes.push({ name:`First Home Owner Grant — ${fmt(fhogAmt)}`, status:'ineligible',
+        detail:`Property price ${fmt(price)} exceeds ${state} cap of ${fmt(fhogCap)}.` });
+    } else {
+      schemes.push({ name:`First Home Owner Grant — ${fmt(fhogAmt)}`, status:'ineligible',
+        detail:`FHOG applies to new/substantially renovated homes only in ${state}. Your property is established.` });
+    }
+  }
+
+  // Help to Buy (shared equity — ALP scheme)
+  const htbIncomeCap = 90000, htbPriceCaps = { NSW:950000, VIC:850000, QLD:700000, WA:600000, SA:600000, ACT:1000000, TAS:600000, NT:600000 };
+  const htbCap = htbPriceCaps[state] || 600000;
+  if (price <= htbCap && annualIncome <= htbIncomeCap) {
+    schemes.push({ name:'Help to Buy (shared equity)', status:'maybe',
+      detail:`Government co-purchases up to 40% (new) or 30% (existing) of the property. Income cap ~$90k single. Cap for ${state}: ${fmt(htbCap)}. Limited places — check housing.gov.au for availability.` });
+  } else {
+    schemes.push({ name:'Help to Buy (shared equity)', status:'ineligible',
+      detail:`${price > htbCap ? 'Price exceeds cap of '+fmt(htbCap) : 'Income '+fmt(annualIncome)+' may exceed ~$90k cap'} for ${state}.` });
+  }
+
+  // FHB Stamp Duty concession (state-specific, already in calculator)
+  const sdCaps = { NSW:800000, VIC:600000, QLD:500000, WA:430000 };
+  const sdCap = sdCaps[state];
+  if (sdCap) {
+    if (price <= sdCap) {
+      schemes.push({ name:`${state} FHB Stamp Duty Exemption`, status:'eligible',
+        detail:`Full stamp duty exemption — already applied in the calculator. Verify eligibility with ${state} Revenue Office.` });
+    } else {
+      schemes.push({ name:`${state} FHB Stamp Duty Concession`, status:'maybe',
+        detail:`Partial concession may apply for prices between ${fmt(sdCap)} and higher threshold. Check ${state} Revenue Office.` });
+    }
+  }
+
+  return schemes;
+}
+
+// ═══════════════════════════════════════
+//  LISTING FETCH & PARSE
+// ═══════════════════════════════════════
+let urlRowsVisible = 1;
+function addUrlRow() {
+  if (urlRowsVisible >= 3) return;
+  urlRowsVisible++;
+  el('urlRow' + (urlRowsVisible - 1)).style.display = '';
+  if (urlRowsVisible >= 3) el('btnAddUrl').style.display = 'none';
+}
+
+async function fetchListing(idx) {
+  const input = el('adUrlField' + idx);
+  const url = input ? input.value.trim() : '';
+  if (!url) return;
+  s.adUrls[idx] = url;
+  const statusEl = el('fetchStatus');
+  statusEl.className = 'fetch-status';
+  statusEl.textContent = 'Fetching listing…';
+  statusEl.style.display = 'block';
+  const btn = el('adUrlField' + idx).parentElement.querySelector('.btn-fetch');
+  if (btn) { btn.classList.add('loading'); btn.textContent = '…'; }
+  try {
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const html = await resp.text();
+    const data = parseListing(html, url, idx);
+    applyListingData(data, idx);
+    const filled = Object.keys(data).filter(k => data[k] !== undefined && data[k] !== null && data[k] !== '').length;
+    statusEl.className = 'fetch-status ok';
+    statusEl.textContent = `✓ Fetched — ${filled} field${filled !== 1 ? 's' : ''} filled. Scroll up to review.`;
+  } catch(e) {
+    statusEl.className = 'fetch-status err';
+    statusEl.textContent = '⚠ Could not auto-fetch this listing (the site blocks external requests). Copy-paste the address, beds, baths etc. manually.';
+  } finally {
+    if (btn) { btn.classList.remove('loading'); btn.textContent = 'Fetch ↓'; }
+  }
+}
+
+function parseListing(html, url, idx) {
+  const result = {};
+  // Try JSON-LD structured data
+  const ldMatches = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const m of ldMatches) {
+    try {
+      const data = JSON.parse(m[1].trim());
+      const items = Array.isArray(data) ? data : [data];
+      for (const item of items) {
+        if (!result.bedrooms && item.numberOfRooms) result.bedrooms = parseInt(item.numberOfRooms);
+        if (!result.bedrooms && item.numberOfBedrooms) result.bedrooms = parseInt(item.numberOfBedrooms);
+        if (!result.bathrooms && item.numberOfBathroomsTotal) result.bathrooms = parseFloat(item.numberOfBathroomsTotal);
+        if (!result.bathrooms && item.numberOfBathrooms) result.bathrooms = parseFloat(item.numberOfBathrooms);
+        if (!result.parkingSpots && item.numberOfParkingSpaces) result.parkingSpots = parseInt(item.numberOfParkingSpaces);
+        if (!result.address && item.address) {
+          const a = item.address;
+          result.address = [a.streetAddress, a.addressLocality, a.addressRegion, a.postalCode].filter(Boolean).join(', ');
+          result.suburb = a.addressLocality || '';
+          if (a.addressRegion) result.state = a.addressRegion.replace(/^AU-/, '').substring(0,3).toUpperCase();
+        }
+        if (!result.propertyType && item['@type']) {
+          const t = item['@type'].toLowerCase();
+          if (t.includes('apartment') || t.includes('flat')) result.propertySubtype = 'apartment';
+          else if (t.includes('townhouse')) result.propertySubtype = 'townhouse';
+          else if (t.includes('unit')) result.propertySubtype = 'unit';
+          else if (t.includes('house') || t.includes('residence')) result.propertySubtype = 'house';
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Try Next.js __NEXT_DATA__ (domain.com.au, realestate.com.au)
+  const nextDataMatch = html.match(/id="__NEXT_DATA__"[^>]*type="application\/json"[^>]*>([\s\S]*?)<\/script>/i)
+    || html.match(/<script id="__NEXT_DATA__">([\s\S]*?)<\/script>/i);
+  if (nextDataMatch) {
+    try {
+      const nd = JSON.parse(nextDataMatch[1]);
+      // Domain.com.au path
+      const listing = nd?.props?.pageProps?.listing
+        || nd?.props?.pageProps?.data?.listing
+        || nd?.props?.pageProps?.componentData?.listing;
+      if (listing) {
+        const pd = listing.propertyDetails || listing;
+        if (!result.bedrooms && pd.bedrooms) result.bedrooms = pd.bedrooms;
+        if (!result.bathrooms && pd.bathrooms) result.bathrooms = pd.bathrooms;
+        if (!result.parkingSpots && pd.carspaces !== undefined) result.parkingSpots = pd.carspaces;
+        if (!result.address && pd.address) {
+          const a = pd.address;
+          result.address = [a.street, a.suburb, a.state, a.postcode].filter(Boolean).join(', ');
+          result.suburb = a.suburb || a.locality || '';
+          if (a.state) result.state = a.state;
+        }
+        if (!result.propertySubtype && pd.propertyType) {
+          const t = (pd.propertyType || '').toLowerCase();
+          if (t.includes('apartment')) result.propertySubtype = 'apartment';
+          else if (t.includes('townhouse')) result.propertySubtype = 'townhouse';
+          else if (t.includes('unit')) result.propertySubtype = 'unit';
+          else if (t.includes('house')) result.propertySubtype = 'house';
+        }
+        // Domain: previous sales history
+        const sales = listing.salesHistory || pd.salesHistory || listing.priceHistory;
+        if (sales && sales.length) {
+          const hist = sales.slice(0,3).map(s => {
+            const date = s.date || s.saleDate || s.year || '';
+            const price = s.price || s.salePrice;
+            return price ? `Sold ${date}: ${fmt(price)}` : null;
+          }).filter(Boolean);
+          if (hist.length) result.salesNote = hist.join(' · ');
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Regex fallbacks for beds/baths from HTML text
+  if (!result.bedrooms) {
+    const m = html.match(/(\d+)\s*(?:bed(?:room)?s?|Bed(?:room)?s?)\b/);
+    if (m) result.bedrooms = parseInt(m[1]);
+  }
+  if (!result.bathrooms) {
+    const m = html.match(/(\d+(?:\.\d)?)\s*(?:bath(?:room)?s?|Bath(?:room)?s?)\b/);
+    if (m) result.bathrooms = parseFloat(m[1]);
+  }
+  if (!result.parkingSpots) {
+    const m = html.match(/(\d+)\s*(?:car(?:\s*space)?s?|parking)\b/i);
+    if (m && parseInt(m[1]) <= 10) result.parkingSpots = parseInt(m[1]);
+  }
+  // Suburb from title/og tags
+  if (!result.suburb) {
+    const og = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i)
+      || html.match(/<title>([^<]{5,80})<\/title>/i);
+    if (og) {
+      // Try to find suburb (often "3 bed house in Fitzroy VIC 3065")
+      const sub = og[1].match(/\bin\s+([\w\s]+)\s+[A-Z]{2,3}\s*\d{4}/i);
+      if (sub) result.suburb = sub[1].trim();
+    }
+  }
+
+  return result;
+}
+
+function applyListingData(data, idx) {
+  if (data.bedrooms !== undefined) { s.bedrooms = data.bedrooms; el('bedroomsField').value = data.bedrooms; }
+  if (data.bathrooms !== undefined) { s.bathrooms = data.bathrooms; el('bathroomsField').value = data.bathrooms; }
+  if (data.parkingSpots !== undefined) { s.parkingSpots = data.parkingSpots; el('parkingSpots').value = data.parkingSpots; }
+  if (data.address) { s.address = data.address; el('addressField').value = data.address; }
+  if (data.suburb) { s.suburb = data.suburb; el('suburbField').value = data.suburb; }
+  if (data.state) {
+    const stateMap = { QLD:'QLD', NSW:'NSW', VIC:'VIC', WA:'WA', SA:'SA', ACT:'ACT', TAS:'TAS', NT:'NT' };
+    const st = stateMap[data.state.toUpperCase()];
+    if (st) { s.state = st; el('stateSelect').value = st; }
+  }
+  if (data.propertySubtype) { s.propertySubtype = data.propertySubtype; el('propertySubtype').value = data.propertySubtype; }
+  // Append sales note to existing notes
+  if (data.salesNote) {
+    const existing = s.notes ? s.notes.trim() : '';
+    const note = (existing ? existing + '\n\n' : '') + 'Previous sales (from Domain): ' + data.salesNote;
+    s.notes = note;
+    el('notesField').value = note;
+  }
+  // Update URL open links
+  const url = s.adUrls[idx];
+  const link = el('adUrlLink' + idx);
+  if (link && url) { link.style.display = ''; link.href = url; }
+  render();
+}
+
+// ═══════════════════════════════════════
 //  EXACT TAX CALCULATION (Stage 3, 2024-25+)
 // ═══════════════════════════════════════
 function calcTax(income) {
@@ -1646,7 +1982,7 @@ function calculate() {
   // Purchase costs (all editable)
   const purchaseCosts = s.conveyancing + s.buildingInspection + s.pestInspection + s.loanFee + s.otherPurchaseCosts;
   const fhb = s.isFirstHomeBuyer && s.purpose === 'owner'; // FHB only for owner-occupied
-  const stampDuty = calcStampDuty(p, s.state, fhb);
+  const stampDuty = (s.includeStampDuty !== false) ? calcStampDuty(p, s.state, fhb) : 0;
   const totalUpfront = deposit + stampDuty + purchaseCosts;
 
   // Outgoings
@@ -1833,7 +2169,8 @@ function render() {
   set('rDepositPct', s.depositPct);
   set('rDeposit', fmt(c.deposit));
   set('rLoanAmt', fmt(c.loan));
-  set('rStampDuty', fmt(c.stampDuty));
+  set('rStampDuty', s.includeStampDuty !== false ? fmt(c.stampDuty) : '$0 (excluded)');
+  el('includeStampDuty').checked = s.includeStampDuty !== false;
   set('rPurchaseCosts', fmt(c.purchaseCosts));
   set('rTotalUpfront', fmt(c.totalUpfront));
   el('fhbBadge').style.display = (s.isFirstHomeBuyer && s.purpose === 'owner') ? '' : 'none';
@@ -1917,6 +2254,9 @@ function render() {
     set('s3Levy', neg(c.out.levy));
     el('s3LevyRow').style.display = c.out.levy > 0 ? '' : 'none';
     set('s3LevyDuration', c.out.levy > 0 && s.levyYears > 0 ? '(' + s.levyYears + ' yr' + (s.levyYears > 1 ? 's' : '') + ')' : '');
+    // Step 3 subtotals
+    set('s3TotalOutgoings', neg(c.totalOutgoings) + '/yr');
+    set('s3EffectiveRent', '+' + fmt(c.netEffectiveRent) + '/yr');
     const noiColor = c.noi >= 0 ? 'var(--green)' : 'var(--red)';
     el('s3Total').textContent = (c.noi >= 0 ? '+' : '') + fmt(c.noi) + '/yr';
     el('s3Total').style.color = noiColor;
@@ -2059,6 +2399,18 @@ function render() {
     set(pId, pv > 0 ? Math.round(eq/pv*100)+'%' : '—');
   });
 
+  // FHB schemes
+  const showFHB = s.isFirstHomeBuyer && s.purpose === 'owner';
+  el('fhbSchemesCard').style.display = showFHB ? '' : 'none';
+  if (showFHB) {
+    const schemes = calcFHBSchemes(c.p, s.state, s.propertySubtype, s.propertyType === 'new', s.annualIncome || 0, s.depositPct);
+    el('schemesList').innerHTML = schemes.map(sch => `
+      <div class="scheme-item ${sch.status}">
+        <div class="scheme-name ${sch.status}">${sch.name}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">${sch.detail}</div>
+      </div>`).join('');
+  }
+
   drawChart(loanBal, propVal, equity);
 
   // Nav counter
@@ -2148,6 +2500,7 @@ function confirmSave() {
   };
   const sims = getSims(); sims.push(sim); saveSims(sims);
   closeModal(); renderSavedSimulations(); render();
+  if (window._pendingNew) { window._pendingNew = false; doNewSim(); }
 }
 
 function deleteSim(id) {
@@ -2206,12 +2559,14 @@ function renderSavedSimulations() {
       : sim.results.gearingStatus === 'positive' ? '🟢 Pos. Geared' : '🔵 Neutral';
     const meta = [sim.inputs.propertySubtype||'', sim.inputs.bedrooms ? sim.inputs.bedrooms+'bd' : '', sim.inputs.bathrooms ? sim.inputs.bathrooms+'ba' : ''].filter(Boolean).join(' · ');
     const addrLine = sim.inputs.address ? `<div style="font-size:11px;color:var(--text3);margin-bottom:2px">📍 ${sim.inputs.address}</div>` : '';
-    const urlLine = sim.inputs.adUrl ? `<a href="${sim.inputs.adUrl}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;color:var(--accent);display:block;margin-bottom:6px">View listing ↗</a>` : '';
+    const allUrls = (sim.inputs.adUrls || []).filter(u => u).concat(sim.inputs.adUrl ? [sim.inputs.adUrl] : []).filter((v,i,a)=>a.indexOf(v)===i);
+    const urlLine = allUrls.length ? allUrls.map((u,i) => `<a href="${u}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;color:var(--accent);display:block;margin-bottom:2px">View listing ${allUrls.length>1?i+1:''} ↗</a>`).join('') : '';
+    const suburbLine = (sim.inputs.suburb || '') ? `<span style="font-size:11px;color:var(--text3)">📍 ${sim.inputs.suburb}</span> · ` : '';
     return `<div class="sim-card" onclick="loadSim(${sim.id})">
       <button class="btn btn-danger btn-sm sim-del" onclick="event.stopPropagation();deleteSim(${sim.id})">✕</button>
       <div class="sim-name">${sim.name || 'Untitled'}</div>
       ${addrLine}${urlLine}
-      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${sim.ts} · ${sim.inputs.state} · ${meta}</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${sim.ts} · ${suburbLine}${sim.inputs.state} · ${meta}</div>
       <div class="sim-meta">
         <div class="sim-stat"><span class="ss-l">Price</span><span class="ss-v">${fmt(sim.inputs.purchasePrice)}</span></div>
         <div class="sim-stat"><span class="ss-l">Weekly Repayment</span><span class="ss-v">${fmt(sim.results.weekly)}/wk</span></div>
@@ -2298,18 +2653,27 @@ function syncUI() {
   el('stateSelect').value = s.state;
   el('fhbCheck').checked = s.isFirstHomeBuyer || false;
   el('addressField').value = s.address || '';
-  el('adUrlField').value = s.adUrl || '';
   el('propertySubtype').value = s.propertySubtype || 'house';
   el('bedroomsField').value = s.bedrooms || 3;
   el('bathroomsField').value = s.bathrooms || 2;
   el('notesField').value = s.notes || '';
+  el('suburbField').value = s.suburb || '';
+  // Restore URLs
+  const urls = s.adUrls || ['','',''];
+  urls.forEach((u, i) => {
+    const inp = el('adUrlField' + i);
+    if (inp) inp.value = u || '';
+    const link = el('adUrlLink' + i);
+    if (link) { link.href = u || '#'; link.style.display = u ? '' : 'none'; }
+    if (i > 0 && u) { el('urlRow' + i).style.display = ''; urlRowsVisible = Math.max(urlRowsVisible, i + 1); }
+  });
+  el('includeStampDuty').checked = s.includeStampDuty !== false;
   el('togLawNew').classList.toggle('active', s.taxLaw !== 'old');
   el('togLawOld').classList.toggle('active', s.taxLaw === 'old');
   // New fields
   el('levyAmount').value = s.levyAmount || 0;
   el('levyYears').value = s.levyYears || 0;
   el('parkingSpots').value = s.parkingSpots || 0;
-  el('neighborhood').value = s.neighborhood || '';
   el('inflationSlider').value = s.expectedInflation || 2.5;
   el('inflationLabel').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
   el('inflationRangeVal').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
