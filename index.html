@@ -892,6 +892,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <p class="hint">Used to convert future returns to today's purchasing power. Default is approximately the RBA cash rate — represents what you could earn risk-free.</p>
       </div>
       <div class="field">
+        <label>Projected Rental Growth — <span id="rentalGrowthLabel">3.0%</span>/year</label>
+        <div class="range-row">
+          <input type="range" id="rentalGrowthSlider" min="0" max="10" value="3" step="0.5" oninput="update('rentalGrowthPct',+this.value);document.getElementById('rentalGrowthLabel').textContent=(+this.value).toFixed(1)+'%';document.getElementById('rentalGrowthRangeVal').textContent=(+this.value).toFixed(1)+'%'">
+          <span class="range-val" id="rentalGrowthRangeVal">3.0%</span>
+        </div>
+        <p class="hint">Annual rent increase used in the cash flow projection chart only. Australian average historically ~3–5%/yr. Does not affect Year 1 calculations.</p>
+      </div>
+      <div class="field">
         <label>S&amp;P 500 Comparison Return — <span id="sp500Label">12.0%</span>/year</label>
         <div class="range-row">
           <input type="range" id="sp500Slider" min="4" max="15" value="12" step="0.5" oninput="update('sp500Rate',+this.value);document.getElementById('sp500Label').textContent=(+this.value).toFixed(1)+'%';document.getElementById('sp500RangeVal').textContent=(+this.value).toFixed(1)+'%'">
@@ -1456,6 +1464,26 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <canvas id="projChart" height="200"></canvas>
   </div>
 
+  <!-- CASH FLOW PROJECTION (investment only) -->
+  <div id="cfProjCard" style="display:none">
+    <div class="card mt16">
+      <div class="card-head">
+        <span class="card-title"><span class="sec-num">8</span>Cash Flow Projection</span>
+        <span style="font-size:11px;color:var(--text3)" id="cfProjSubtitle">with rental growth</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px">After-tax cash flow per year, with rent growing at your projected rate. Green = cash positive, red = cash negative. The dashed line marks when the mortgage is fully repaid — cash flow jumps significantly after that point.</p>
+        <div class="chart-legend" style="margin-bottom:10px">
+          <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Cash positive year</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fb7185"></div>Cash negative year</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(251,191,36,0.7)"></div>Mortgage paid off</div>
+        </div>
+        <canvas id="cfProjChart" height="240"></canvas>
+        <p style="font-size:11px;color:var(--text3);margin-top:8px">Rental growth rate: <strong id="cfProjGrowthNote">3.0%/yr</strong> — adjust in Assumptions &amp; Settings. Outgoings held constant. Tax recalculated each year as loan amortises.</p>
+      </div>
+    </div>
+  </div>
+
   <p style="font-size:11px;color:var(--text3);margin-top:12px;margin-bottom:24px;line-height:1.7">
     Projections are estimates only and not financial advice. Stamp duty figures are estimates — verify with your state revenue office. Consult a licensed financial advisor before making investment decisions.
   </p>
@@ -1572,6 +1600,8 @@ const s = {
   discountRate: 4.1,
   // Chart comparison
   sp500Rate: 12,
+  // Cash flow projection chart
+  rentalGrowthPct: 3,
   // Stamp duty toggle
   includeStampDuty: true,
 };
@@ -1661,7 +1691,7 @@ const DEFAULT_STATE = {
   conveyancing:0, buildingInspection:0, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
   isFirstHomeBuyer:false, address:'', adUrl:'', adUrls:['','',''], suburb:'', propertySubtype:'apartment',
   bedrooms:0, bathrooms:0, notes:'', taxLaw:'new',
-  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, discountRate:4.1, sp500Rate:12, includeStampDuty:true,
+  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, discountRate:4.1, sp500Rate:12, rentalGrowthPct:3, includeStampDuty:true,
 };
 
 function newSimulation() {
@@ -2337,6 +2367,97 @@ function calcLoanBalAtYear(yr, c) {
   return Math.max(0, c.loan * (Math.pow(1 + r, n) - Math.pow(1 + r, m)) / (Math.pow(1 + r, n) - 1));
 }
 
+// Returns after-tax cash flow for year yr, applying annual rental growth and
+// dropping mortgage payments once the loan term ends.
+function yearlyAfterTaxCFWithGrowth(yr, c) {
+  const growthRate = (s.rentalGrowthPct || 0) / 100;
+  const growthFactor = Math.pow(1 + growthRate, yr - 1);
+  const scaledNetRent = c.netEffectiveRent * growthFactor;
+  const outgoings = c.totalOutgoings;
+  const mortgageThisYear = yr > s.loanYears ? 0 : c.annual;
+  let interestThisYear;
+  if (yr > s.loanYears) {
+    interestThisYear = 0;
+  } else if (s.loanType === 'io') {
+    interestThisYear = c.loan * (s.interestRate / 100);
+  } else {
+    const balStart = calcLoanBalAtYear(yr - 1, c);
+    const balEnd   = calcLoanBalAtYear(yr, c);
+    interestThisYear = c.annual - (balStart - balEnd);
+  }
+  const rni = scaledNetRent - outgoings - interestThisYear - c.depreciation;
+  let taxEffect;
+  if (c.canNegGear) {
+    if (rni < 0) {
+      taxEffect = calcTax(s.annualIncome) - calcTax(Math.max(0, s.annualIncome + rni));
+    } else {
+      taxEffect = -(calcTax(s.annualIncome + rni) - calcTax(s.annualIncome));
+    }
+  } else {
+    taxEffect = 0;
+  }
+  return (scaledNetRent - outgoings - mortgageThisYear) + taxEffect;
+}
+
+function drawCashFlowChart(c) {
+  const canvas = el('cfProjChart');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const totalYears = Math.max(40, s.loanYears + 10);
+  const W = canvas.parentElement.clientWidth - 32;
+  const H = 240;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const pad = {t:20, r:16, b:36, l:72};
+  const gW = W - pad.l - pad.r, gH = H - pad.t - pad.b;
+  ctx.clearRect(0, 0, W, H);
+
+  const cfVals = Array.from({length: totalYears}, (_, i) => yearlyAfterTaxCFWithGrowth(i + 1, c));
+  const maxPos = Math.max(0, ...cfVals);
+  const minNeg = Math.min(0, ...cfVals);
+  const range = (maxPos - minNeg) || 1;
+  const yOf = v => pad.t + gH * (maxPos - v) / range;
+  const barW = Math.max(2, gW / totalYears - 1);
+  const xOf = i => pad.l + (i / totalYears) * gW + barW / 2;
+
+  // Grid lines + Y-axis labels
+  ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(74,93,122,0.9)';
+  const ticks = [maxPos, maxPos/2, 0, minNeg/2, minNeg].filter((v, i, a) => a.indexOf(v) === i && isFinite(v));
+  ticks.forEach(v => {
+    const yy = yOf(v);
+    ctx.fillText(fmtShort(v), pad.l - 6, yy + 4);
+    ctx.strokeStyle = v === 0 ? 'rgba(100,130,170,0.7)' : 'rgba(30,45,71,0.35)';
+    ctx.lineWidth = v === 0 ? 1.2 : 0.5;
+    ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(pad.l + gW, yy); ctx.stroke();
+  });
+
+  // X-axis labels
+  ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(74,93,122,0.9)';
+  const xLabels = [1, 5, 10, 15, 20, 25, 30, 35, 40].filter(y => y <= totalYears);
+  xLabels.forEach(yr => ctx.fillText('Yr' + yr, xOf(yr - 1), pad.t + gH + 20));
+
+  // Bars
+  cfVals.forEach((v, i) => {
+    const yr = i + 1;
+    const yTop = yOf(Math.max(0, v)), yBot = yOf(Math.min(0, v));
+    ctx.fillStyle = v >= 0 ? 'rgba(52,211,153,0.75)' : 'rgba(251,113,133,0.75)';
+    ctx.fillRect(xOf(i) - barW / 2, yTop, barW, Math.max(1, yBot - yTop));
+  });
+
+  // Mortgage payoff marker
+  if (s.loanYears <= totalYears && s.loanType !== 'io') {
+    const x = xOf(s.loanYears);
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = 'rgba(251,191,36,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + gH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(251,191,36,0.85)'; ctx.textAlign = 'left'; ctx.font = '10px system-ui';
+    ctx.fillText('Mortgage paid', x + 3, pad.t + 12);
+  }
+}
+
 // ═══════════════════════════════════════
 //  RENDER
 // ═══════════════════════════════════════
@@ -2691,6 +2812,20 @@ function render() {
   const twLegend = el('trueWealthLegend');
   if (twLegend) twLegend.style.display = s.purpose === 'investment' ? '' : 'none';
   drawChart(loanBal, propVal, equity, c.totalUpfront, s.expectedInflation || 2.5, s.sp500Rate || 10, cumulCFByYear);
+
+  // Cash flow projection chart (investment only)
+  const cfProjCard = el('cfProjCard');
+  if (cfProjCard) {
+    const showCF = s.purpose === 'investment';
+    cfProjCard.style.display = showCF ? '' : 'none';
+    if (showCF) {
+      const growthNote = el('cfProjGrowthNote');
+      if (growthNote) growthNote.textContent = (s.rentalGrowthPct ?? 3).toFixed(1) + '%/yr';
+      const subEl = el('cfProjSubtitle');
+      if (subEl) subEl.textContent = 'rental growth ' + (s.rentalGrowthPct ?? 3).toFixed(1) + '%/yr · ' + Math.max(40, s.loanYears + 10) + '-year view';
+      drawCashFlowChart(c);
+    }
+  }
 
   // Nav counter
   const simCount = getSims().length;
@@ -3097,6 +3232,9 @@ function syncUI() {
   el('sp500Slider').value = s.sp500Rate || 10;
   el('sp500Label').textContent = (s.sp500Rate || 10).toFixed(1) + '%';
   el('sp500RangeVal').textContent = (s.sp500Rate || 10).toFixed(1) + '%';
+  el('rentalGrowthSlider').value = s.rentalGrowthPct ?? 3;
+  el('rentalGrowthLabel').textContent = (s.rentalGrowthPct ?? 3).toFixed(1) + '%';
+  el('rentalGrowthRangeVal').textContent = (s.rentalGrowthPct ?? 3).toFixed(1) + '%';
   el('propertyYearBuilt').value = s.propertyYearBuilt;
   el('buildingValueSlider').value = s.buildingValuePct;
   el('buildingValLabel').textContent = s.buildingValuePct + '%';
