@@ -142,6 +142,7 @@ select:focus{border-color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .card-title{font-size:13px;font-weight:600;color:var(--text2)}
+.sec-num{font-size:10px;font-weight:700;background:var(--accent);color:#fff;width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:6px;vertical-align:middle}
 .card-badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
@@ -977,7 +978,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
   <div class="results-grid">
     <div class="card">
       <div class="card-head">
-        <span class="card-title">Purchase Summary</span>
+        <span class="card-title"><span class="sec-num">1</span>Purchase Summary</span>
         <span class="chip chip-blue" id="stateLabel">NSW</span>
       </div>
       <div class="card-body">
@@ -1026,7 +1027,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 
     <div class="card">
       <div class="card-head">
-        <span class="card-title">Mortgage</span>
+        <span class="card-title"><span class="sec-num">2</span>Mortgage</span>
         <span class="chip" id="loanTypeBadge" style="background:var(--accent-dim);color:var(--accent);border:1px solid rgba(79,142,247,0.25)">P&amp;I</span>
       </div>
       <div class="card-body">
@@ -1062,7 +1063,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
   <!-- FHB SCHEMES HELPER — only shown for owner-occupied FHB -->
   <div class="card mt16" id="fhbSchemesCard" style="display:none">
     <div class="card-head">
-      <span class="card-title">First Home Buyer Schemes</span>
+      <span class="card-title"><span class="sec-num">3</span>First Home Buyer Schemes</span>
       <span class="chip chip-green" style="font-size:11px">You may qualify</span>
     </div>
     <div class="card-body">
@@ -1077,7 +1078,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <!-- STEPPED YIELD CARD -->
     <div class="card mt16">
       <div class="card-head">
-        <span class="card-title">Yield Analysis — Step by Step</span>
+        <span class="card-title"><span class="sec-num">4</span>Yield Analysis — Step by Step</span>
         <span id="gearingChip" class="chip chip-red">Negatively Geared</span>
       </div>
       <div class="card-body">
@@ -1233,7 +1234,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <!-- TAX ANALYSIS CARD -->
     <div class="card mt16">
       <div class="card-head">
-        <span class="card-title">Tax Analysis</span>
+        <span class="card-title"><span class="sec-num">5</span>Tax Analysis</span>
         <span id="taxStatusBadge" class="chip chip-green">Loss Claimable</span>
       </div>
       <div class="card-body">
@@ -1279,22 +1280,34 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             </div>
           </div>
         </div>
-        <div style="margin-top:16px;background:var(--surface2);border-radius:var(--radius-sm);padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center">
-          <div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Tax Saving/wk</div>
-            <div style="font-size:18px;font-weight:700" id="taxBenefitWeekly">+$173</div>
+        <div style="margin-top:16px;background:var(--surface2);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Tax Impact Summary</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:12px">
+            <div style="background:var(--surface);border-radius:6px;padding:10px 6px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Tax without property</div>
+              <div style="font-size:15px;font-weight:700" id="taxWithout">—</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px">salary only</div>
+            </div>
+            <div style="background:var(--surface);border-radius:6px;padding:10px 6px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Tax with property</div>
+              <div style="font-size:15px;font-weight:700" id="taxWith">—</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px">after deductions</div>
+            </div>
+            <div style="background:var(--green-bg);border:1px solid rgba(52,211,153,0.2);border-radius:6px;padding:10px 6px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Annual tax saving</div>
+              <div style="font-size:15px;font-weight:700;color:var(--green)" id="taxBenefit2">—</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px" id="taxBenefitWeekly">—</div>
+            </div>
           </div>
-          <div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax / wk</div>
-            <div style="font-size:18px;font-weight:700" id="afterTaxWeekly">−$557</div>
-          </div>
-          <div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax / mo</div>
-            <div style="font-size:18px;font-weight:700" id="afterTaxMonthly">−$2,414</div>
-          </div>
-          <div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax / yr</div>
-            <div style="font-size:18px;font-weight:700" id="afterTaxYearly">—</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center">
+            <div style="border-top:1px solid var(--border2);padding-top:10px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">After-tax cash flow / mo</div>
+              <div style="font-size:18px;font-weight:700" id="afterTaxMonthly">—</div>
+            </div>
+            <div style="border-top:1px solid var(--border2);padding-top:10px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">After-tax cash flow / yr</div>
+              <div style="font-size:18px;font-weight:700" id="afterTaxYearly">—</div>
+            </div>
           </div>
         </div>
         <div class="dep-note" id="depNote" style="margin-top:12px;display:none">
@@ -1307,7 +1320,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <!-- CGT ESTIMATE CARD -->
     <div class="card mt16">
       <div class="card-head">
-        <span class="card-title">Capital Gains Tax Estimate</span>
+        <span class="card-title"><span class="sec-num">6</span>Capital Gains Tax Estimate</span>
         <span id="cgtLawNote" class="chip chip-blue" style="font-size:11px">Current Law</span>
       </div>
       <div class="card-body">
@@ -1395,7 +1408,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
   <!-- EQUITY & GROWTH — always visible -->
   <div class="card mt16">
     <div class="card-head">
-      <span class="card-title">Equity &amp; Growth Projection</span>
+      <span class="card-title"><span class="sec-num">7</span>Equity &amp; Growth Projection</span>
       <span style="font-size:12px;color:var(--text3)" id="growthRateLabel">@ 5.0% growth/yr</span>
     </div>
     <div class="card-body">
@@ -2620,11 +2633,17 @@ function render() {
       el('depNote').style.display = 'none';
     }
 
-    const tbw = c.taxBenefitWeekly;
-    el('taxBenefitWeekly').textContent = signedFmt(tbw) + '/wk';
-    el('taxBenefitWeekly').style.color = tbw > 0 ? 'var(--green)' : tbw < 0 ? 'var(--red)' : 'var(--text2)';
-    el('afterTaxWeekly').textContent = signedFmt(c.afterTaxWeekly) + '/wk';
-    el('afterTaxWeekly').style.color = c.afterTaxWeekly >= 0 ? 'var(--green)' : 'var(--red)';
+    // Tax Impact Summary — before/after comparison
+    const taxWO = calcTax(s.annualIncome);
+    const taxW  = Math.max(0, taxWO - c.taxBenefit);
+    const taxWOEl = el('taxWithout');
+    const taxWEl  = el('taxWith');
+    const taxB2El = el('taxBenefit2');
+    const tbwEl   = el('taxBenefitWeekly');
+    if (taxWOEl) taxWOEl.textContent = fmt(taxWO) + '/yr';
+    if (taxWEl)  taxWEl.textContent  = fmt(taxW)  + '/yr';
+    if (taxB2El) { taxB2El.textContent = signedFmt(c.taxBenefit) + '/yr'; taxB2El.style.color = c.taxBenefit > 0 ? 'var(--green)' : 'var(--red)'; }
+    if (tbwEl)   tbwEl.textContent   = '(' + signedFmt(c.taxBenefitWeekly) + '/wk)';
     const atm = c.afterTaxWeekly * 52 / 12;
     el('afterTaxMonthly').textContent = signedFmt(atm) + '/mo';
     el('afterTaxMonthly').style.color = atm >= 0 ? 'var(--green)' : 'var(--red)';
