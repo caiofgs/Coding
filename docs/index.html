@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conveyancer Co-pilot</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e2e0db;
+    --primary: #1a4a6b;
+    --primary-light: #e8f0f7;
+    --accent: #c8861a;
+    --accent-light: #fdf4e7;
+    --danger: #b32020;
+    --danger-light: #fdf0f0;
+    --success: #1a6b3a;
+    --success-light: #edf7f2;
+    --text: #1c1c1c;
+    --text-muted: #6b6b6b;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header .logo { font-size: 28px; }
+  header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; }
+  header p { font-size: 0.85rem; opacity: 0.75; }
+
+  .disclaimer {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    color: #5a4010;
+  }
+  .disclaimer strong { display: block; margin-bottom: 2px; }
+
+  main { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+  /* API Key card */
+  .apikey-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .apikey-card h3 { font-size: 0.95rem; margin-bottom: 4px; color: var(--primary); }
+  .apikey-card p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px; }
+  .apikey-row { display: flex; gap: 8px; }
+  .apikey-row input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-family: monospace;
+    outline: none;
+  }
+  .apikey-row input:focus { border-color: var(--primary); }
+  .apikey-row button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .apikey-row button:hover { opacity: 0.88; }
+  .apikey-set {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--success-light);
+    border: 1px solid #a8d8b9;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.875rem;
+    color: var(--success);
+  }
+  .apikey-set button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* Upload area */
+  .upload-card {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 24px;
+  }
+  .upload-card:hover, .upload-card.dragover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .upload-card .icon { font-size: 48px; margin-bottom: 12px; }
+  .upload-card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 6px; }
+  .upload-card p { color: var(--text-muted); font-size: 0.9rem; }
+  .upload-card input[type="file"] { display: none; }
+
+  .file-selected {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: var(--primary);
+  }
+  .file-selected .filename { font-weight: 600; flex: 1; }
+  .file-selected .remove-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    opacity: 0.6;
+  }
+  .file-selected .remove-btn:hover { opacity: 1; }
+
+  .analyse-btn {
+    display: block;
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 24px;
+  }
+  .analyse-btn:hover:not(:disabled) { opacity: 0.88; }
+  .analyse-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Loading */
+  .loading {
+    display: none;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .loading.visible { display: block; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading h3 { color: var(--primary); margin-bottom: 6px; }
+  .loading p { color: var(--text-muted); font-size: 0.9rem; }
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin: 16px auto 0;
+    max-width: 320px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  .token-count { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
+
+  /* Error */
+  .error-box {
+    display: none;
+    background: var(--danger-light);
+    border: 1px solid #f0b0b0;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    color: var(--danger);
+    margin-bottom: 24px;
+  }
+  .error-box.visible { display: block; }
+  .error-box strong { display: block; margin-bottom: 4px; }
+
+  /* Results */
+  #results { display: none; }
+  #results.visible { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .results-header h2 { font-size: 1.2rem; color: var(--primary); }
+
+  .export-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .export-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .export-btn:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  .copy-all-btn {
+    background: var(--primary);
+    color: white;
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .copy-all-btn:hover { opacity: 0.88; }
+
+  /* Section cards */
+  .section-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .section-card-header:hover { background: var(--bg); }
+  .section-card.open .section-card-header { border-bottom-color: var(--border); }
+  .section-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .section-num {
+    background: var(--primary);
+    color: white;
+    border-radius: 4px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-card-actions { display: flex; align-items: center; gap: 8px; }
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .copy-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); }
+  .chevron { color: var(--text-muted); transition: transform 0.2s; font-size: 14px; }
+  .section-card.open .chevron { transform: rotate(180deg); }
+  .section-card-body { display: none; padding: 20px; }
+  .section-card.open .section-card-body { display: block; }
+
+  /* Content styles */
+  .prose p { margin-bottom: 12px; }
+  .prose p:last-child { margin-bottom: 0; }
+
+  .risk-item, .condition-item {
+    border-left: 3px solid var(--danger);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    background: var(--danger-light);
+    border-radius: 0 6px 6px 0;
+  }
+  .risk-item-small {
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    background: var(--accent-light);
+    border-radius: 0 6px 6px 0;
+  }
+  .risk-item strong, .condition-item strong { display: block; margin-bottom: 4px; color: var(--danger); }
+  .risk-item-small strong { display: block; margin-bottom: 4px; color: var(--accent); }
+
+  .title-item {
+    border-left: 3px solid var(--primary);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    background: var(--primary-light);
+    border-radius: 0 6px 6px 0;
+  }
+  .title-item .badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .na-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .fd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .fd-grid { grid-template-columns: 1fr; } }
+  .fd-cell {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+  }
+  .fd-cell label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .fd-cell span { font-weight: 500; }
+
+  .dates-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .dates-table th { text-align: left; padding: 8px 12px; background: var(--bg); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  .dates-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .dates-table tr:last-child td { border-bottom: none; }
+
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .checklist-item:last-child { border-bottom: none; }
+  .status-badge {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .status-badge.before { background: #fde8e8; color: #991b1b; }
+  .status-badge.confirm { background: var(--accent-light); color: #78450a; }
+  .status-badge.review { background: var(--primary-light); color: var(--primary); }
+  .status-badge.na { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .checklist-content strong { display: block; margin-bottom: 2px; }
+  .checklist-content span { color: var(--text-muted); }
+
+  .question-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .question-item:last-child { border-bottom: none; }
+  .question-item .q-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+  .question-item .q-context { margin-top: 5px; color: var(--text-muted); font-size: 0.875rem; padding-left: 30px; }
+
+  .deal-memo { display: grid; gap: 14px; }
+  .deal-headline { font-size: 1.1rem; font-weight: 700; color: var(--primary); line-height: 1.4; }
+  .recommendation-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+  }
+  .recommendation-chip.proceed { background: #d1fae5; color: #065f46; }
+  .recommendation-chip.caution { background: #fef3c7; color: #92400e; }
+  .recommendation-chip.high-risk { background: #fee2e2; color: #991b1b; }
+
+  .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .deal-grid { grid-template-columns: 1fr; } }
+  .deal-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+  .deal-cell label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .kn-table { width: 100%; border-collapse: collapse; }
+  .kn-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .kn-table td:first-child { color: var(--text-muted); width: 50%; }
+  .kn-table td:last-child { font-weight: 600; }
+  .kn-table tr:last-child td { border-bottom: none; }
+
+  .next-steps { list-style: none; counter-reset: steps; }
+  .next-steps li {
+    counter-increment: steps;
+    padding: 8px 0 8px 36px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .next-steps li:last-child { border-bottom: none; }
+  .next-steps li::before {
+    content: counter(steps);
+    position: absolute;
+    left: 0; top: 9px;
+    background: var(--primary);
+    color: white;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: #1a1a1a;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚖️</div>
+  <div>
+    <h1>Conveyancer Co-pilot</h1>
+    <p>Personal contract review assistant — for preparation purposes only</p>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <strong>Not legal advice.</strong>
+  This tool is a personal aid to help you prepare questions and spot potential issues before speaking with your licensed conveyancer. It does not constitute legal advice and should not be relied upon as such.
+</div>
+
+<main>
+
+  <!-- API Key -->
+  <div class="apikey-card" id="apikeyCard">
+    <h3>🔑 Anthropic API Key</h3>
+    <p>Your key is saved only in this browser and never sent anywhere except directly to Anthropic. Get yours at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</p>
+    <div id="apikeyInput">
+      <div class="apikey-row">
+        <input type="password" id="apikeyField" placeholder="sk-ant-..." autocomplete="off">
+        <button onclick="saveApiKey()">Save key</button>
+      </div>
+    </div>
+    <div id="apikeySet" style="display:none">
+      <div class="apikey-set">
+        <span>✓ API key saved</span>
+        <button onclick="clearApiKey()">Change key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload area -->
+  <div class="upload-card" id="dropZone">
+    <div class="icon">📄</div>
+    <h2>Upload your Contract of Sale</h2>
+    <p>Drag and drop a PDF here, or click to browse</p>
+    <p style="margin-top:6px; font-size:0.8rem; color:#999;">Text-based PDFs only (not scanned images)</p>
+    <input type="file" id="fileInput" accept=".pdf">
+  </div>
+
+  <div id="fileSelectedBar" style="display:none" class="file-selected">
+    <span>📎</span>
+    <span class="filename" id="fileNameDisplay"></span>
+    <button class="remove-btn" id="removeFileBtn" title="Remove file">✕</button>
+  </div>
+
+  <button class="analyse-btn" id="analyseBtn" disabled>Analyse Contract</button>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingBox">
+    <div class="spinner"></div>
+    <h3>Analysing your contract…</h3>
+    <p>Claude is reading the full document. This usually takes 30–90 seconds.</p>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="token-count" id="tokenCount"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox">
+    <strong>Analysis failed</strong>
+    <span id="errorMsg"></span>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="results-header">
+      <h2>Analysis complete</h2>
+      <div class="export-bar">
+        <button class="copy-all-btn" id="copyAllBtn">📋 Copy all</button>
+        <button class="export-btn" id="exportMdBtn">⬇ Markdown</button>
+      </div>
+    </div>
+    <div id="sectionContainer"></div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const MAX_CHARS = 150000;
+let selectedFile = null;
+let currentAnalysis = null;
+
+// --- API key ---
+function saveApiKey() {
+  const key = document.getElementById('apikeyField').value.trim();
+  if (!key.startsWith('sk-ant-')) { showToast('Key should start with sk-ant-'); return; }
+  localStorage.setItem('anthropic_api_key', key);
+  showKeyState(true);
+  updateAnalyseBtn();
+}
+function clearApiKey() {
+  localStorage.removeItem('anthropic_api_key');
+  document.getElementById('apikeyField').value = '';
+  showKeyState(false);
+  updateAnalyseBtn();
+}
+function getApiKey() { return localStorage.getItem('anthropic_api_key'); }
+function showKeyState(saved) {
+  document.getElementById('apikeyInput').style.display = saved ? 'none' : 'block';
+  document.getElementById('apikeySet').style.display = saved ? 'block' : 'none';
+}
+document.getElementById('apikeyField').addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
+showKeyState(!!getApiKey());
+
+// --- File selection ---
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.toLowerCase().endsWith('.pdf')) setFile(f);
+  else showToast('Please drop a PDF file');
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('fileNameDisplay').textContent = f.name + ' (' + (f.size/1024/1024).toFixed(1) + ' MB)';
+  document.getElementById('fileSelectedBar').style.display = 'flex';
+  dropZone.style.display = 'none';
+  updateAnalyseBtn();
+}
+document.getElementById('removeFileBtn').addEventListener('click', () => {
+  selectedFile = null;
+  fileInput.value = '';
+  document.getElementById('fileSelectedBar').style.display = 'none';
+  dropZone.style.display = 'block';
+  updateAnalyseBtn();
+});
+function updateAnalyseBtn() {
+  document.getElementById('analyseBtn').disabled = !(selectedFile && getApiKey());
+}
+
+// --- PDF extraction ---
+async function extractText(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const text = content.items.map(item => item.str).join(' ');
+    if (text.trim()) pages.push(text);
+  }
+  return pages.join('\n\n');
+}
+
+// --- Anthropic API call (streaming) ---
+const PROMPT_TEMPLATE = `You are an expert Australian conveyancing analyst. You have been given the text of a Contract of Sale for a residential property in Australia.
+
+Your task is to analyse this contract thoroughly and return a structured JSON response. Do not provide legal advice — frame your analysis as things to be aware of and discuss with a licensed conveyancer.
+
+Analyse the following contract text and return ONLY a valid JSON object with exactly these keys:
+
+{
+  "summary": "A plain-English summary of the property, parties, purchase price, settlement date, and overall deal structure. 3-5 paragraphs.",
+  "key_risks": [
+    {"risk": "Short title of risk", "detail": "Detailed explanation of the risk and why it matters"}
+  ],
+  "special_conditions": [
+    {"condition": "Title or summary of special condition", "detail": "What it means in plain English and any concerns"}
+  ],
+  "title_issues": {
+    "overview": "Summary of title, easements, covenants, caveats, and encumbrances",
+    "items": [
+      {"type": "Easement|Covenant|Caveat|Restriction|Other", "description": "What it is and how it may affect the buyer"}
+    ]
+  },
+  "owners_corporation": {
+    "applicable": true or false,
+    "overview": "Summary of owners corporation situation, fees, and any known issues. Set to null if not applicable.",
+    "issues": ["List of specific concerns if any"]
+  },
+  "settlement_risks": [
+    {"risk": "Risk title", "detail": "Explanation"}
+  ],
+  "finance_deposit": {
+    "deposit_amount": "Deposit amount and when due",
+    "deposit_holder": "Who holds the deposit",
+    "finance_clause": "Details of any finance clause — date, amount, lender if specified",
+    "cooling_off": "Cooling off period details",
+    "key_dates": [
+      {"date_type": "Label", "date": "Date or timeframe"}
+    ]
+  },
+  "due_diligence": [
+    {"item": "Checklist item", "status": "Do before settlement|Confirm with conveyancer|Review carefully|Not applicable", "detail": "What to check and why"}
+  ],
+  "conveyancer_questions": [
+    {"question": "Specific question to ask your conveyancer", "context": "Why this matters"}
+  ],
+  "deal_memo": {
+    "headline": "One-sentence deal verdict",
+    "situation": "What is being purchased, from whom, and at what price",
+    "complication": "The key issues or risks in this contract",
+    "resolution": "What needs to happen for this deal to proceed safely",
+    "recommendation": "Overall recommendation: PROCEED WITH CAUTION | CLARIFY BEFORE PROCEEDING | HIGH RISK — SEEK ADVICE",
+    "key_numbers": [
+      {"label": "Metric or number", "value": "Value"}
+    ],
+    "next_steps": ["Ordered list of immediate actions to take"]
+  }
+}
+
+Contract text to analyse:
+
+{{CONTRACT}}
+
+Return ONLY the JSON object. No preamble, no explanation, no markdown code blocks.`;
+
+async function callClaude(apiKey, contractText) {
+  const prompt = PROMPT_TEMPLATE.replace('{{CONTRACT}}', contractText);
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-opus-4-8',
+      max_tokens: 8000,
+      stream: true,
+      thinking: { type: 'adaptive' },
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${resp.status}`);
+  }
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let fullText = '';
+  let chunkCount = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const raw = line.slice(6).trim();
+      if (!raw || raw === '[DONE]') continue;
+      try {
+        const evt = JSON.parse(raw);
+        if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+          fullText += evt.delta.text;
+          chunkCount++;
+          // Update progress bar heuristically
+          const pct = Math.min(95, 10 + chunkCount * 0.8);
+          document.getElementById('progressBar').style.width = pct + '%';
+          document.getElementById('tokenCount').textContent = fullText.length.toLocaleString() + ' characters received…';
+        }
+      } catch (_) {}
+    }
+  }
+  return fullText;
+}
+
+function parseJSON(raw) {
+  raw = raw.trim();
+  if (raw.startsWith('```')) {
+    raw = raw.replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '');
+  }
+  const start = raw.indexOf('{');
+  const end = raw.lastIndexOf('}') + 1;
+  if (start === -1 || end === 0) throw new Error('No JSON found in response');
+  return JSON.parse(raw.slice(start, end));
+}
+
+// --- Main flow ---
+document.getElementById('analyseBtn').addEventListener('click', runAnalysis);
+
+async function runAnalysis() {
+  if (!selectedFile || !getApiKey()) return;
+
+  hideError();
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('sectionContainer').innerHTML = '';
+  currentAnalysis = null;
+
+  document.getElementById('loadingBox').classList.add('visible');
+  document.getElementById('progressBar').style.width = '5%';
+  document.getElementById('tokenCount').textContent = 'Extracting text from PDF…';
+  document.getElementById('analyseBtn').disabled = true;
+
+  try {
+    const contractText = await extractText(selectedFile);
+    if (!contractText.trim()) throw new Error('No text could be extracted. The PDF may be a scanned image.');
+
+    const truncated = contractText.length > MAX_CHARS
+      ? contractText.slice(0, MAX_CHARS) + '\n\n[Truncated — first 150,000 characters analysed]'
+      : contractText;
+
+    document.getElementById('tokenCount').textContent = 'Sending to Claude AI…';
+    document.getElementById('progressBar').style.width = '10%';
+
+    const raw = await callClaude(getApiKey(), truncated);
+    document.getElementById('progressBar').style.width = '100%';
+
+    const analysis = parseJSON(raw);
+    currentAnalysis = analysis;
+    renderResults(analysis);
+
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    document.getElementById('loadingBox').classList.remove('visible');
+    document.getElementById('analyseBtn').disabled = false;
+    updateAnalyseBtn();
+  }
+}
+
+// --- Render ---
+function renderResults(a) {
+  const container = document.getElementById('sectionContainer');
+  container.innerHTML = '';
+
+  const sections = [
+    { num: 1, title: 'Plain-English Summary', fn: renderSummary, data: a.summary },
+    { num: 2, title: 'Key Risks & Red Flags', fn: renderRisks, data: a.key_risks },
+    { num: 3, title: 'Special Conditions Review', fn: renderSpecial, data: a.special_conditions },
+    { num: 4, title: 'Title, Easements & Covenants', fn: renderTitle, data: a.title_issues },
+    { num: 5, title: 'Owners Corporation', fn: renderOC, data: a.owners_corporation },
+    { num: 6, title: 'Settlement & Default Risks', fn: renderSettlement, data: a.settlement_risks },
+    { num: 7, title: 'Finance & Deposit Obligations', fn: renderFinance, data: a.finance_deposit },
+    { num: 8, title: 'Due Diligence Checklist', fn: renderChecklist, data: a.due_diligence },
+    { num: 9, title: 'Questions for Your Conveyancer', fn: renderQuestions, data: a.conveyancer_questions },
+    { num: 10, title: 'Deal Memo', fn: renderDealMemo, data: a.deal_memo },
+  ];
+
+  for (const sec of sections) {
+    const card = createCard(sec.num, sec.title);
+    sec.fn(card.querySelector('.section-card-body'), sec.data);
+    container.appendChild(card);
+    if (sec.num === 1 || sec.num === 10) card.classList.add('open');
+  }
+
+  const results = document.getElementById('results');
+  results.style.display = 'block';
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function createCard(num, title) {
+  const card = document.createElement('div');
+  card.className = 'section-card';
+  const header = document.createElement('div');
+  header.className = 'section-card-header';
+  header.innerHTML = `
+    <div class="section-card-title">
+      <div class="section-num">${num}</div>
+      <span>${title}</span>
+    </div>
+    <div class="section-card-actions">
+      <button class="copy-btn">Copy</button>
+      <span class="chevron">▾</span>
+    </div>`;
+  const body = document.createElement('div');
+  body.className = 'section-card-body';
+  card.appendChild(header);
+  card.appendChild(body);
+  header.addEventListener('click', e => {
+    if (e.target.classList.contains('copy-btn')) return;
+    card.classList.toggle('open');
+  });
+  header.querySelector('.copy-btn').addEventListener('click', async e => {
+    e.stopPropagation();
+    await copyText(body.innerText);
+    const btn = e.target;
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+  return card;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+function naBox(msg) { return `<div class="na-box">${esc(msg)}</div>`; }
+
+function renderSummary(el, data) {
+  el.innerHTML = `<div class="prose">${(data||'').split('\n').filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}</div>`;
+}
+function renderRisks(el, data) {
+  if (!data?.length) { el.innerHTML = naBox('No significant risks identified'); return; }
+  el.innerHTML = data.map(r=>`<div class="risk-item"><strong>${esc(r.risk)}</strong>${esc(r.detail)}</div>`).join('');
+}
+function renderSpecial(el, data) {
+  if (!data?.length) { el.innerHTML = naBox('No special conditions identified'); return; }
+  el.innerHTML = data.map(r=>`<div class="condition-item"><strong>${esc(r.condition)}</strong>${esc(r.detail)}</div>`).join('');
+}
+function renderTitle(el, data) {
+  if (!data) { el.innerHTML = naBox('No title information available'); return; }
+  let html = `<div class="prose" style="margin-bottom:14px"><p>${esc(data.overview||'')}</p></div>`;
+  if (data.items?.length) html += data.items.map(i=>`<div class="title-item"><span class="badge">${esc(i.type||'')}</span><div>${esc(i.description||'')}</div></div>`).join('');
+  el.innerHTML = html;
+}
+function renderOC(el, data) {
+  if (!data?.applicable) { el.innerHTML = naBox('Owners Corporation does not appear to apply to this property.'); return; }
+  let html = `<div class="prose" style="margin-bottom:12px"><p>${esc(data.overview||'')}</p></div>`;
+  if (data.issues?.length) html += data.issues.map(i=>`<div class="title-item">${esc(i)}</div>`).join('');
+  el.innerHTML = html;
+}
+function renderSettlement(el, data) {
+  if (!data?.length) { el.innerHTML = naBox('No specific settlement risks identified'); return; }
+  el.innerHTML = data.map(r=>`<div class="risk-item-small"><strong>${esc(r.risk)}</strong>${esc(r.detail)}</div>`).join('');
+}
+function renderFinance(el, data) {
+  if (!data) { el.innerHTML = naBox('No finance or deposit information available'); return; }
+  let html = `<div class="fd-grid">
+    <div class="fd-cell"><label>Deposit</label><span>${esc(data.deposit_amount||'—')}</span></div>
+    <div class="fd-cell"><label>Deposit Holder</label><span>${esc(data.deposit_holder||'—')}</span></div>
+    <div class="fd-cell"><label>Finance Clause</label><span>${esc(data.finance_clause||'None')}</span></div>
+    <div class="fd-cell"><label>Cooling Off</label><span>${esc(data.cooling_off||'—')}</span></div>
+  </div>`;
+  if (data.key_dates?.length) {
+    html += `<table class="dates-table"><thead><tr><th>Date Type</th><th>Date / Timeframe</th></tr></thead><tbody>`;
+    html += data.key_dates.map(d=>`<tr><td>${esc(d.date_type||'')}</td><td>${esc(d.date||'')}</td></tr>`).join('');
+    html += '</tbody></table>';
+  }
+  el.innerHTML = html;
+}
+function renderChecklist(el, data) {
+  if (!data?.length) { el.innerHTML = naBox('No checklist items'); return; }
+  el.innerHTML = data.map(item => {
+    const s = (item.status||'').toLowerCase();
+    const cls = s.includes('before') ? 'before' : s.includes('confirm') ? 'confirm' : s.includes('review') ? 'review' : 'na';
+    return `<div class="checklist-item"><span class="status-badge ${cls}">${esc(item.status)}</span><div class="checklist-content"><strong>${esc(item.item)}</strong><span>${esc(item.detail)}</span></div></div>`;
+  }).join('');
+}
+function renderQuestions(el, data) {
+  if (!data?.length) { el.innerHTML = naBox('No questions generated'); return; }
+  el.innerHTML = data.map((q,i)=>`<div class="question-item"><div style="display:flex;align-items:flex-start;gap:8px"><span class="q-num">${i+1}</span><strong>${esc(q.question)}</strong></div><div class="q-context">${esc(q.context)}</div></div>`).join('');
+}
+function renderDealMemo(el, data) {
+  if (!data) { el.innerHTML = naBox('No deal memo available'); return; }
+  const rec = (data.recommendation||'').toLowerCase();
+  const chipClass = rec.includes('high risk') ? 'high-risk' : rec.includes('proceed with caution') ? 'caution' : 'proceed';
+  const chipIcon = rec.includes('high risk') ? '🚨' : rec.includes('caution') ? '⚠️' : '✅';
+  let html = `<div class="deal-memo">`;
+  html += `<div class="deal-headline">${esc(data.headline)}</div>`;
+  html += `<span class="recommendation-chip ${chipClass}">${chipIcon} ${esc(data.recommendation)}</span>`;
+  html += `<div class="deal-grid">
+    <div class="deal-cell"><label>Situation</label><div>${esc(data.situation)}</div></div>
+    <div class="deal-cell"><label>Complication</label><div>${esc(data.complication)}</div></div>
+    <div class="deal-cell" style="grid-column:span 2"><label>Resolution</label><div>${esc(data.resolution)}</div></div>
+  </div>`;
+  if (data.key_numbers?.length) {
+    html += `<div><strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted)">Key Numbers</strong><table class="kn-table" style="margin-top:8px">`;
+    html += data.key_numbers.map(k=>`<tr><td>${esc(k.label)}</td><td>${esc(k.value)}</td></tr>`).join('');
+    html += '</table></div>';
+  }
+  if (data.next_steps?.length) {
+    html += `<div><strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted)">Next Steps</strong><ol class="next-steps" style="margin-top:8px">`;
+    html += data.next_steps.map(s=>`<li>${esc(s)}</li>`).join('');
+    html += '</ol></div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// --- Export ---
+document.getElementById('copyAllBtn').addEventListener('click', async () => {
+  if (!currentAnalysis) return;
+  await copyText(document.getElementById('sectionContainer').innerText);
+  showToast('All sections copied to clipboard');
+});
+
+document.getElementById('exportMdBtn').addEventListener('click', () => {
+  if (!currentAnalysis) return;
+  const md = buildMarkdown(currentAnalysis);
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'contract-analysis.md';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+function buildMarkdown(a) {
+  const lines = [];
+  lines.push('# Conveyancer Co-pilot — Contract Analysis Report');
+  lines.push('> **Disclaimer:** This analysis is not legal advice. Please discuss all findings with a licensed conveyancer before proceeding.');
+  lines.push('');
+  lines.push('## 1. Plain-English Summary');
+  lines.push(a.summary || ''); lines.push('');
+  lines.push('## 2. Key Risks & Red Flags');
+  for (const r of a.key_risks||[]) { lines.push(`### ${r.risk}`); lines.push(r.detail||''); lines.push(''); }
+  lines.push('## 3. Special Conditions Review');
+  for (const r of a.special_conditions||[]) { lines.push(`### ${r.condition}`); lines.push(r.detail||''); lines.push(''); }
+  lines.push('## 4. Title, Easements & Covenants');
+  lines.push((a.title_issues||{}).overview||'');
+  for (const i of (a.title_issues||{}).items||[]) lines.push(`- **${i.type}:** ${i.description}`);
+  lines.push('');
+  lines.push('## 5. Owners Corporation');
+  const oc = a.owners_corporation||{};
+  lines.push(oc.applicable ? (oc.overview||'') : 'Not applicable to this property.');
+  for (const i of oc.issues||[]) lines.push(`- ${i}`);
+  lines.push('');
+  lines.push('## 6. Settlement & Default Risks');
+  for (const r of a.settlement_risks||[]) { lines.push(`### ${r.risk}`); lines.push(r.detail||''); lines.push(''); }
+  lines.push('## 7. Finance & Deposit Obligations');
+  const fd = a.finance_deposit||{};
+  lines.push(`**Deposit:** ${fd.deposit_amount||''}`);
+  lines.push(`**Deposit Holder:** ${fd.deposit_holder||''}`);
+  lines.push(`**Finance Clause:** ${fd.finance_clause||''}`);
+  lines.push(`**Cooling Off:** ${fd.cooling_off||''}`);
+  lines.push(''); lines.push('### Key Dates');
+  for (const d of fd.key_dates||[]) lines.push(`- **${d.date_type}:** ${d.date}`);
+  lines.push('');
+  lines.push('## 8. Due Diligence Checklist');
+  for (const i of a.due_diligence||[]) lines.push(`- [${i.status}] **${i.item}** — ${i.detail}`);
+  lines.push('');
+  lines.push('## 9. Questions for Your Conveyancer');
+  (a.conveyancer_questions||[]).forEach((q,i) => { lines.push(`${i+1}. **${q.question}**`); lines.push(`   _${q.context}_`); lines.push(''); });
+  lines.push('## 10. Deal Memo');
+  const dm = a.deal_memo||{};
+  lines.push(`**${dm.headline||''}**`); lines.push('');
+  lines.push(`**Situation:** ${dm.situation||''}`); lines.push('');
+  lines.push(`**Complication:** ${dm.complication||''}`); lines.push('');
+  lines.push(`**Resolution:** ${dm.resolution||''}`); lines.push('');
+  lines.push(`**Recommendation:** \`${dm.recommendation||''}\``); lines.push('');
+  lines.push('### Key Numbers');
+  for (const k of dm.key_numbers||[]) lines.push(`| ${k.label} | ${k.value} |`);
+  lines.push('');
+  lines.push('### Next Steps');
+  for (const s of dm.next_steps||[]) lines.push(`1. ${s}`);
+  return lines.join('\n');
+}
+
+// --- Utilities ---
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function showError(msg) {
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('errorBox').classList.add('visible');
+}
+function hideError() {
+  document.getElementById('errorBox').classList.remove('visible');
+}
+</script>
+</body>
+</html>
