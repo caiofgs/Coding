@@ -304,6 +304,26 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 
 /* SPACER */
 .mt16{margin-top:16px}
+
+/* CF GRID (step 4 four-column) */
+.cf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+@media(max-width:900px){.cf-grid{grid-template-columns:repeat(2,1fr)}}
+.cf-grid-col{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 10px;text-align:center;border:1px solid var(--border2)}
+.cf-grid-col .cg-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;min-height:28px;display:flex;align-items:center;justify-content:center;line-height:1.3}
+.cf-grid-col .cg-main{font-size:14px;font-weight:700;margin-bottom:4px}
+.cf-grid-col .cg-sub{font-size:10px;color:var(--text3);line-height:1.6}
+
+/* CGT YEAR SELECTOR */
+.cgt-years{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.cgt-yr-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.cgt-yr-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cgt-yr-btn:hover:not(.active){background:var(--surface3);color:var(--text)}
+.cgt-4col{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:900px){.cgt-4col{grid-template-columns:repeat(2,1fr)}}
+
+/* INVESTMENT HERO STRIP */
+.inv-hero-strip{background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.2);border-radius:0 0 var(--radius) var(--radius);border-top:none;margin-bottom:16px;grid-template-columns:repeat(3,1fr);gap:1px}
+.inv-hero-strip .hero-item:not(:last-child){border-right:1px solid rgba(45,212,191,0.2)}
 </style>
 </head>
 <body>
@@ -378,6 +398,27 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             </div>
           </div>
           <p class="hint">Bedrooms · Bathrooms</p>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Parking Spots</label>
+          <div class="input-wrap">
+            <input type="number" id="parkingSpots" value="0" min="0" max="10" step="1" oninput="s.parkingSpots=+this.value" style="text-align:center">
+          </div>
+        </div>
+        <div class="field">
+          <label>Neighborhood</label>
+          <select id="neighborhood" onchange="s.neighborhood=this.value">
+            <option value="">— select —</option>
+            <option value="CBD">CBD</option>
+            <option value="Inner City">Inner City</option>
+            <option value="Inner Suburb">Inner Suburb</option>
+            <option value="Middle Ring">Middle Ring</option>
+            <option value="Outer Suburb">Outer Suburb</option>
+            <option value="Regional">Regional</option>
+            <option value="Rural">Rural</option>
+          </select>
         </div>
       </div>
       <div class="field">
@@ -630,6 +671,20 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <input type="number" id="otherOutgoings" value="0" min="0" step="100" oninput="update('otherOutgoings',+this.value)">
         </div>
       </div>
+      <div class="outgoing-row">
+        <span class="outgoing-label">Special Levy / Sinking Fund<br><span class="fmt-hint" id="fmtLevy"></span></span>
+        <div class="input-wrap has-pre outgoing-input">
+          <span class="input-pre">$</span>
+          <input type="number" id="levyAmount" value="0" min="0" step="100" oninput="update('levyAmount',+this.value)">
+        </div>
+      </div>
+      <div style="margin-top:-6px;margin-bottom:6px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text3)">
+          Duration:
+          <input type="number" id="levyYears" value="0" min="0" max="50" step="1" style="width:52px;padding:4px 6px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:12px;outline:none;text-align:center" oninput="update('levyYears',+this.value)">
+          years (0 = not applicable)
+        </label>
+      </div>
       <div class="outgoing-total">
         <span>Total Annual Outgoings</span>
         <span style="color:var(--orange);font-size:15px" id="totalOutgoingsDisplay">—</span>
@@ -715,33 +770,42 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <p class="hint">Only used for the 30-year projection chart. Does not affect cash flow calculations.</p>
       </div>
       <div class="field">
+        <label>Expected Annual Inflation — <span id="inflationLabel">2.5%</span>/year</label>
+        <div class="range-row">
+          <input type="range" id="inflationSlider" min="0" max="6" value="2.5" step="0.1" oninput="update('expectedInflation',+this.value);document.getElementById('inflationLabel').textContent=(+this.value).toFixed(1)+'%';document.getElementById('inflationRangeVal').textContent=(+this.value).toFixed(1)+'%'">
+          <span class="range-val" id="inflationRangeVal">2.5%</span>
+        </div>
+        <p class="hint">Used for CGT indexation under new law. RBA target band is 2–3%.</p>
+      </div>
+      <div class="field">
         <label style="display:flex;align-items:center;gap:8px">
           Tax Law Scenario
           <span id="taxLawChip" class="chip chip-blue" style="font-size:11px">Current Law</span>
         </label>
         <div class="toggle-group">
-          <button class="tog active" id="togLawNew" onclick="setTaxLaw('new')">Current Law</button>
-          <button class="tog" id="togLawOld" onclick="setTaxLaw('old')">Old Law</button>
+          <button class="tog active" id="togLawNew" onclick="setTaxLaw('new')">Post 12 May 2026</button>
+          <button class="tog" id="togLawOld" onclick="setTaxLaw('old')">Grandfathered</button>
         </div>
-        <div style="margin-top:6px;font-size:11px;color:var(--text3);background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;line-height:1.6">
-          <strong style="color:var(--text2)">Current Law:</strong> No CGT discount · Negative gearing only for new properties<br>
-          <strong style="color:var(--text2)">Old Law:</strong> 50% CGT discount (held &gt;12m) · Negative gearing for all investment properties
+        <div style="margin-top:6px;font-size:11px;color:var(--text3);background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;line-height:1.6" id="taxLawExplain">
+          <strong style="color:var(--text2)">Post 12 May 2026 (new law):</strong><br>
+          • Established: NG ring-fenced, CPI-indexed CGT + 30% min tax<br>
+          • New build: NG allowed, best of 50% discount or CPI indexation<br>
+          <strong style="color:var(--text2)">Grandfathered (acquired ≤ 12 May 2026):</strong><br>
+          • All types: NG allowed, 50% CGT discount (held &gt;12m)
         </div>
       </div>
 
       <!-- HOW WE CALCULATE -->
       <details class="assumption-box">
         <summary>How calculations work &amp; assumptions</summary>
-        <ul>
+        <ul id="assumptionsList">
           <li>Tax calculation<span>Exact ATO formula: Stage 3 brackets + LITO + Medicare levy</span></li>
-          <li>Negative gearing<span>NEW LAW: applies to new properties only — established losses are ring-fenced</span></li>
-          <li>Depreciation (Div 43)<span>Post-1987 buildings: 2.5%/yr of building value. 1985-87: 4%/yr. Pre-1985: not available</span></li>
-          <li>Depreciation (cash)<span>Non-cash deduction — reduces taxable income but no actual cash outflow</span></li>
-          <li>PM fee<span>0–15% of rent actually collected (after vacancy). Set to 0 for self-managed.</span></li>
-          <li>Maintenance<span>Enter actual or apply 1% ATO estimate using the checkbox</span></li>
+          <li>Negative gearing<span>NEW LAW: new properties only — established losses are ring-fenced</span></li>
+          <li>CGT<span>NEW LAW: no 50% discount. Inflation-indexed cost base reduces taxable gain.</span></li>
+          <li>Depreciation (Div 43)<span>Post-1987: 2.5%/yr of building value. 1985–87: 4%/yr. Pre-1985: not available</span></li>
+          <li>PM fee<span>0–15% of rent collected (after vacancy). Set to 0 for self-managed.</span></li>
           <li>Stamp duty<span>State-specific rates. FHB concessions apply for owner-occupied only.</span></li>
           <li>Year 1 interest<span>Exact month-by-month amortisation</span></li>
-          <li>CGT<span>50% discount for individuals holding &gt;12 months — verify current rules with ATO</span></li>
           <li>Capital growth<span>Compounding annually for chart only — not guaranteed</span></li>
         </ul>
       </details>
@@ -766,6 +830,25 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
     <div class="hero-item">
       <div class="hero-label">Total Cash Needed</div>
       <div class="hero-val" id="hUpfront" style="color:var(--purple)">$194,235</div>
+    </div>
+  </div>
+
+  <!-- INVESTMENT HERO STRIP (shown for investment only) -->
+  <div class="inv-hero-strip" id="invHeroStrip" style="display:none">
+    <div class="hero-item">
+      <div class="hero-label">Gross Rental Yield</div>
+      <div class="hero-val" id="hGrossYield" style="color:var(--green)">—</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">after vacancy &amp; PM fees</div>
+    </div>
+    <div class="hero-item">
+      <div class="hero-label">Net Rental Yield</div>
+      <div class="hero-val" id="hNetYield" style="color:var(--teal)">—</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">pre-mortgage (after all outgoings)</div>
+    </div>
+    <div class="hero-item">
+      <div class="hero-label">Pre-Tax Cash Flow</div>
+      <div class="hero-val" id="hCashFlowWk" style="font-size:18px">—</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px" id="hCashFlowSubHero">—/mo · —/yr</div>
     </div>
   </div>
 
@@ -859,15 +942,15 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       </div>
       <div class="card-body">
 
-        <!-- STEP 1: GROSS INCOME -->
+        <!-- STEP 1: GROSS INCOME (true gross, no vacancy) -->
         <div class="step-block">
           <div class="step-heading">
             <div class="step-num">1</div>
-            <span class="step-title">Gross Rental Income</span>
-            <span class="step-yield" id="s1YieldBadge" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)">3.90% gross yield</span>
+            <span class="step-title">Gross Rental Income (before vacancy)</span>
+            <span class="step-yield" id="s1YieldBadge" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)">3.90% true gross yield</span>
           </div>
           <div class="metric-row">
-            <span class="metric-label">Weekly rent × 52 weeks</span>
+            <span class="metric-label">Weekly rent × 52 weeks (100% occupancy)</span>
             <span class="metric-val" id="s1GrossDesc">$600 × 52 = $31,200</span>
           </div>
           <div class="step-total">
@@ -881,7 +964,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <div class="step-heading">
             <div class="step-num" style="background:var(--yellow)">2</div>
             <span class="step-title">After Vacancy &amp; Management Fees</span>
-            <span class="step-yield" id="s2YieldBadge" style="background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)">3.42% effective yield</span>
+            <span class="step-yield" id="s2YieldBadge" style="background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)">3.42% Gross Rental Yield</span>
           </div>
           <div class="metric-row">
             <span class="metric-label">Less: Vacancy (<span id="s2VacWks">2</span> wks × $<span id="s2VacRent">600</span>)</span>
@@ -937,6 +1020,10 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <span class="metric-label">Less: Other</span>
             <span class="metric-val val-red" id="s3Other">−$0</span>
           </div>
+          <div class="metric-row" id="s3LevyRow">
+            <span class="metric-label">Less: Special levy <span id="s3LevyDuration" style="font-size:11px;color:var(--text3)"></span></span>
+            <span class="metric-val val-red" id="s3Levy">−$0</span>
+          </div>
           <div class="step-total" style="margin-top:10px">
             <span class="st-label">Net Operating Income</span>
             <span class="st-val" id="s3Total" style="font-size:18px">$13,848/yr</span>
@@ -949,19 +1036,36 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <div class="step-num" style="background:var(--red)">4</div>
             <span class="step-title">After Mortgage — Pre-Tax Cash Flow</span>
           </div>
-          <div class="metric-row">
-            <span class="metric-label">Less: Annual mortgage repayments</span>
-            <span class="metric-val val-red" id="s4Mortgage">−$51,852</span>
+          <!-- 4-COLUMN BREAKDOWN -->
+          <div class="cf-grid">
+            <div class="cf-grid-col">
+              <div class="cg-label">Outgoings<br>(rates &amp; fees)</div>
+              <div class="cg-main val-red" id="cfOutWk">—</div>
+              <div class="cg-sub" id="cfOutMo">—</div>
+              <div class="cg-sub" id="cfOutYr">—</div>
+            </div>
+            <div class="cf-grid-col">
+              <div class="cg-label">Mortgage<br>repayments</div>
+              <div class="cg-main val-red" id="cfMortWk">—</div>
+              <div class="cg-sub" id="cfMortMo">—</div>
+              <div class="cg-sub" id="cfMortYr">—</div>
+            </div>
+            <div class="cf-grid-col">
+              <div class="cg-label">Rental Income<br>(after vacancy &amp; PM)</div>
+              <div class="cg-main val-green" id="cfIncWk">—</div>
+              <div class="cg-sub" id="cfIncMo">—</div>
+              <div class="cg-sub" id="cfIncYr">—</div>
+            </div>
+            <div class="cf-grid-col" id="cfTotalCol">
+              <div class="cg-label">Out of Pocket<br>(pre-tax total)</div>
+              <div class="cg-main" id="cfTotWk">—</div>
+              <div class="cg-sub" id="cfTotMo">—</div>
+              <div class="cg-sub" id="cfTotYr">—</div>
+            </div>
           </div>
-          <div class="metric-row">
+          <div class="metric-row" style="margin-top:10px">
             <span class="metric-label" style="font-size:12px;color:var(--text3)">Break-even rent (to cover mortgage + outgoings)</span>
             <span class="metric-val" style="font-size:12px;color:var(--text2)" id="breakEvenRent">—</span>
-          </div>
-          <!-- BIG CASHFLOW NUMBER -->
-          <div class="cf-hero negative" id="cfHero">
-            <div class="cf-label">Weekly Out of Pocket (Pre-Tax)</div>
-            <div class="cf-val" id="cfWeeklyVal">−$730/wk</div>
-            <div class="cf-sub" id="cfMonthlyVal">−$3,167/month · −$38,004/year</div>
           </div>
         </div>
 
@@ -1008,7 +1112,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
                 <span class="tv val-red" id="taxNetLoss">−$26,109</span>
               </div>
               <div id="ringFencedNote" style="display:none;background:var(--yellow-bg);border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:6px 8px;margin:6px 0;font-size:11px;color:var(--yellow)">
-                ⚠ Established property: this loss is ring-fenced — it cannot reduce your salary tax this year. It carries forward to offset future rental income or capital gains from this property.
+                ⚠ Post-12-May-2026 established property: this rental loss is quarantined — it cannot reduce your salary income. It carries forward to offset future rental income or capital gains from residential property only.
               </div>
               <div class="tax-row" style="background:var(--green-bg);padding:4px 6px;border-radius:4px;margin-top:4px">
                 <span class="tl" style="font-weight:600">Annual Tax Effect</span>
@@ -1017,24 +1121,28 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             </div>
           </div>
         </div>
-        <div style="margin-top:16px;background:var(--surface2);border-radius:var(--radius-sm);padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+        <div style="margin-top:16px;background:var(--surface2);border-radius:var(--radius-sm);padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center">
           <div>
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Tax Saving / week</div>
-            <div style="font-size:20px;font-weight:700" id="taxBenefitWeekly">+$173</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Tax Saving/wk</div>
+            <div style="font-size:18px;font-weight:700" id="taxBenefitWeekly">+$173</div>
           </div>
           <div>
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax Weekly</div>
-            <div style="font-size:20px;font-weight:700" id="afterTaxWeekly">−$557</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax / wk</div>
+            <div style="font-size:18px;font-weight:700" id="afterTaxWeekly">−$557</div>
           </div>
           <div>
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax Monthly</div>
-            <div style="font-size:20px;font-weight:700" id="afterTaxMonthly">−$2,414</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax / mo</div>
+            <div style="font-size:18px;font-weight:700" id="afterTaxMonthly">−$2,414</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">After-Tax / yr</div>
+            <div style="font-size:18px;font-weight:700" id="afterTaxYearly">—</div>
           </div>
         </div>
         <div class="dep-note" id="depNote" style="margin-top:12px;display:none">
           🏗 <strong>Depreciation benefit (non-cash):</strong> The <span id="depNoteAmt">$0</span>/yr depreciation deduction saves you <strong id="depNoteSaving">$0</strong>/yr in tax — without spending a cent. This is a paper deduction only.
         </div>
-        <p style="margin-top:12px;font-size:11px;color:var(--text3)">⚖ CGT: 50% discount for individuals holding &gt;12 months (verify current rules with ATO — rules may have changed since this calculator was last updated).</p>
+        <p style="margin-top:12px;font-size:11px;color:var(--text3)" id="taxCgtNote">⚖ CGT method depends on property type and acquisition date. See Capital Gains Tax Estimate section below. Switch law scenario in Settings.</p>
       </div>
     </div>
 
@@ -1045,30 +1153,50 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <span id="cgtLawNote" class="chip chip-blue" style="font-size:11px">Current Law</span>
       </div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--text3);margin-bottom:12px" id="cgtDiscountNote">No CGT discount — current law</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px" id="cgtDiscountNote">No CGT discount — current law (inflation-indexed cost base)</p>
+        <div class="cgt-4col">
           <div>
-            <div class="section-label">If sold at Year 10</div>
+            <div class="section-label">Year 5</div>
             <div class="tax-breakdown">
-              <div class="tax-row"><span class="tl">Projected sale price</span><span class="tv" id="cgtSalePrice10">—</span></div>
+              <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice5">—</span></div>
+              <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain5">—</span></div>
+              <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable5">—</span></div>
+              <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable5">—</span></div>
+              <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet5">—</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="section-label">Year 10</div>
+            <div class="tax-breakdown">
+              <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice10">—</span></div>
               <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain10">—</span></div>
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable10">—</span></div>
-              <div class="tax-row" style="background:var(--red-bg);padding:4px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable10">—</span></div>
+              <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable10">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet10">—</span></div>
             </div>
           </div>
           <div>
-            <div class="section-label">If sold at Year 20</div>
+            <div class="section-label">Year 15</div>
             <div class="tax-breakdown">
-              <div class="tax-row"><span class="tl">Projected sale price</span><span class="tv" id="cgtSalePrice20">—</span></div>
+              <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice15">—</span></div>
+              <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain15">—</span></div>
+              <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable15">—</span></div>
+              <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable15">—</span></div>
+              <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet15">—</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="section-label">Year 20</div>
+            <div class="tax-breakdown">
+              <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice20">—</span></div>
               <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain20">—</span></div>
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable20">—</span></div>
-              <div class="tax-row" style="background:var(--red-bg);padding:4px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable20">—</span></div>
+              <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable20">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet20">—</span></div>
             </div>
           </div>
         </div>
-        <p style="margin-top:10px;font-size:11px;color:var(--text3)">Cost base = purchase price + stamp duty + purchase costs. Taxable gain uses your marginal rate at time of sale (estimated using current income). Switch between Current / Old law in Settings.</p>
+        <p style="margin-top:10px;font-size:11px;color:var(--text3)" id="cgtMethodNote">Cost base = purchase price + stamp duty + purchase costs. New law: cost base is inflation-indexed. Old law: 50% discount applied for >12 months. Tax calculated at your marginal rate. Switch law in Settings.</p>
       </div>
     </div>
 
@@ -1211,6 +1339,14 @@ const s = {
   notes: '',
   // Tax law: 'new' = no CGT discount, NG new-only | 'old' = 50% CGT discount, NG all investment
   taxLaw: 'new',
+  // Special levy
+  levyAmount: 0,
+  levyYears: 0,
+  // Property extras
+  parkingSpots: 0,
+  neighborhood: '',
+  // CGT inflation assumption
+  expectedInflation: 2.5,
 };
 
 // ═══════════════════════════════════════
@@ -1253,7 +1389,38 @@ function setTaxLaw(law) {
   s.taxLaw = law;
   el('togLawNew').classList.toggle('active', law === 'new');
   el('togLawOld').classList.toggle('active', law === 'old');
+  renderAssumptions();
   render();
+}
+
+function renderAssumptions() {
+  const box = el('assumptionsList');
+  if (!box) return;
+  const isGrandfathered = s.taxLaw === 'old';
+  const isNew = s.taxLaw === 'new' && s.propertyType === 'new';
+  let ngNote, cgtNote;
+  if (isGrandfathered) {
+    ngNote = 'GRANDFATHERED (≤ 12 May 2026): full negative gearing allowed for all investment properties';
+    cgtNote = 'GRANDFATHERED: 50% CGT discount applies for individuals holding > 12 months';
+  } else if (isNew) {
+    ngNote = 'NEW BUILD: negative gearing allowed even under new law';
+    cgtNote = 'NEW BUILD: chooses best of 50% discount or CPI indexation method — lower tax wins';
+  } else {
+    ngNote = 'POST-12-MAY-2026 ESTABLISHED: rental losses are ring-fenced (quarantined) — cannot offset salary income';
+    cgtNote = 'POST-12-MAY-2026 ESTABLISHED: CPI-indexed cost base, 30% minimum tax rate applies to taxable gain';
+  }
+  box.innerHTML = [
+    ['Tax calculation', 'Exact ATO formula: Stage 3 brackets + LITO + Medicare levy (2024-25)'],
+    ['Negative gearing', ngNote],
+    ['CGT (Capital Gains Tax)', cgtNote],
+    ['Inflation (CGT)', `Expected inflation: ${(s.expectedInflation||2.5).toFixed(1)}%/yr — used to index cost base under new law`],
+    ['Depreciation (Div 43)', 'Post-1987: 2.5%/yr of building value. 1985–87: 4%/yr. Pre-1985: not available'],
+    ['PM fee', '0–15% of rent collected (after vacancy). Set to 0 for self-managed.'],
+    ['Stamp duty', 'State-specific rates. FHB concessions apply for owner-occupied only.'],
+    ['Year 1 interest', 'Exact month-by-month P&amp;I amortisation'],
+    ['Special levy', 'Included in outgoings for the duration specified (years)'],
+    ['Capital growth', 'Compounding annually — used for equity projection and CGT estimate only. Not guaranteed.'],
+  ].map(([l, v]) => `<li>${l}<span>${v}</span></li>`).join('');
 }
 
 const DEFAULT_STATE = {
@@ -1267,10 +1434,14 @@ const DEFAULT_STATE = {
   conveyancing:2500, buildingInspection:500, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
   isFirstHomeBuyer:false, address:'', adUrl:'', propertySubtype:'house',
   bedrooms:3, bathrooms:2, notes:'', taxLaw:'new',
+  levyAmount:0, levyYears:0, parkingSpots:0, neighborhood:'', expectedInflation:2.5,
 };
 
 function newSimulation() {
-  if (!confirm('Start a new simulation? Any unsaved inputs will be lost.')) return;
+  const choice = window.confirm(
+    'Start a new simulation?\n\nClick OK to continue without saving.\nClick Cancel to abort (you can then use "Save" to save first).'
+  );
+  if (!choice) return;
   Object.assign(s, JSON.parse(JSON.stringify(DEFAULT_STATE)));
   syncUI();
   render();
@@ -1285,6 +1456,7 @@ function setPurpose(p) {
   el('panelRental').style.display = isInv ? '' : 'none';
   el('panelDepreciation').style.display = isInv ? '' : 'none';
   el('investmentResults').style.display = isInv ? '' : 'none';
+  el('invHeroStrip').style.display = isInv ? 'grid' : 'none';
   el('rowLandlordIns').style.display = isInv ? '' : 'none';
   el('rowAccounting').style.display = isInv ? '' : 'none';
   el('rowFHB').style.display = isInv ? 'none' : '';
@@ -1482,6 +1654,7 @@ function calculate() {
   const landlordIns = s.purpose === 'investment' ? s.landlordInsurance : 0;
   const acctFee = s.purpose === 'investment' ? s.accounting : 0;
   const insurance = s.buildingInsurance + landlordIns;
+  const levyAmt = s.levyYears >= 1 ? s.levyAmount : 0; // levy applies if duration >= 1 yr
   const out = {
     council: s.councilRates,
     water: s.waterRates,
@@ -1491,6 +1664,7 @@ function calculate() {
     landTax: s.landTax,
     accounting: acctFee,
     other: s.otherOutgoings,
+    levy: levyAmt,
   };
   const totalOutgoings = Object.values(out).reduce((a,b) => a+b, 0);
 
@@ -1501,7 +1675,10 @@ function calculate() {
   const pmFee = effectiveRent * s.pmFeePct / 100;
   const netEffectiveRent = effectiveRent - pmFee;
   const noi = netEffectiveRent - totalOutgoings;
-  const grossYield = p > 0 ? (effectiveRent / p) * 100 : 0;
+  // trueGrossYield: weeklyRent × 52 / price (no vacancy), for Step 1 badge
+  const trueGrossYield = p > 0 ? (grossAnnualRent / p) * 100 : 0;
+  // grossYield: after vacancy + PM, used as "Gross Rental Yield" in Step 2
+  const grossYield = p > 0 ? (netEffectiveRent / p) * 100 : 0;
   const netYield = p > 0 ? (noi / p) * 100 : 0;
 
   const weeklyCashFlow = noi / 52 - weekly;
@@ -1523,9 +1700,12 @@ function calculate() {
   const totalDeductible = cashDeductible + depreciation;         // + non-cash depreciation
   const rentalNetIncome = effectiveRent - totalDeductible;       // negative = loss
 
-  // Negative gearing: new law = new properties only; old law = all investment
+  // Negative gearing rules (2026 budget):
+  //   Grandfathered (old law): all investment properties
+  //   New build (new law): allowed
+  //   Established post-12-May-2026 (new law): ring-fenced (quarantined)
   const canNegGear = s.purpose === 'investment' &&
-    (s.taxLaw === 'old' ? true : s.propertyType === 'new');
+    (s.taxLaw === 'old' || s.propertyType === 'new');
   let taxBenefit = 0, gearingStatus = 'neutral';
 
   if (s.purpose === 'investment') {
@@ -1558,22 +1738,53 @@ function calculate() {
   // CGT estimate
   const costBase = p + stampDuty + purchaseCosts;
   // cgtAtYear(n) → estimated CGT payable if sold at year n
+  // Implements 2026 budget rules:
+  //   Grandfathered (old law): 50% discount, NG for all
+  //   New build (new law): best of 50% discount OR CPI indexation; NG allowed
+  //   Established post-12-May-2026 (new law): CPI indexation + 30% min tax; NG ring-fenced
   const cgtAtYear = (yr) => {
     const salePrice = p * Math.pow(1 + s.capitalGrowthPct/100, yr);
-    const gain = Math.max(0, salePrice - costBase);
-    // New law: no discount; Old law: 50% discount for >12 months
-    const taxableGain = (s.taxLaw === 'old' && yr >= 1) ? gain * 0.5 : gain;
+    const rawGain = Math.max(0, salePrice - costBase);
+    const inflation = (s.expectedInflation || 2.5) / 100;
+    const indexedCostBase = costBase * Math.pow(1 + inflation, yr);
+    const indexedGain = Math.max(0, salePrice - indexedCostBase);
+
+    let taxableGain, cgtNote = '';
+    if (s.taxLaw === 'old') {
+      // Grandfathered: 50% discount (held > 12m)
+      taxableGain = yr >= 1 ? rawGain * 0.5 : rawGain;
+      cgtNote = '50% discount (grandfathered)';
+    } else if (s.propertyType === 'new') {
+      // New build: choose best of 50% discount vs CPI indexation
+      const by50pct = yr >= 1 ? rawGain * 0.5 : rawGain;
+      taxableGain = Math.min(by50pct, indexedGain);
+      cgtNote = taxableGain === by50pct ? '50% discount (better)' : 'CPI indexation (better)';
+    } else {
+      // Established post-12-May-2026: CPI indexation only
+      taxableGain = indexedGain;
+      cgtNote = 'CPI indexation, 30% min tax';
+    }
+
     const taxWithoutGain = calcTax(annualIncome);
-    const taxWithGain = calcTax(annualIncome + taxableGain);
-    return { salePrice, gain, taxableGain, cgt: taxWithGain - taxWithoutGain, netProceeds: salePrice - (taxWithGain - taxWithoutGain) };
+    let cgt;
+    if (s.taxLaw === 'new' && s.propertyType !== 'new') {
+      // 30% minimum tax applies to established non-grandfathered CGT
+      const marginalCgt = calcTax(annualIncome + taxableGain) - taxWithoutGain;
+      const minCgt = taxableGain * 0.30;
+      cgt = Math.max(marginalCgt, minCgt);
+    } else {
+      cgt = calcTax(annualIncome + taxableGain) - taxWithoutGain;
+    }
+    cgt = Math.max(0, cgt);
+    return { salePrice, gain: rawGain, taxableGain, cgt, netProceeds: salePrice - cgt, cgtNote };
   };
 
   return {
     p, deposit, loan, monthly, weekly, annual, totalRepay, totalInterest, year1Interest,
     purchaseCosts, stampDuty, totalUpfront,
-    out, totalOutgoings, maintenanceAmt,
+    out, totalOutgoings, maintenanceAmt, levyAmt,
     grossAnnualRent, vacancyLoss, effectiveRent, pmFee, netEffectiveRent,
-    noi, grossYield, netYield,
+    noi, trueGrossYield, grossYield, netYield,
     weeklyCashFlow, annualCashFlow, breakEvenWeekly,
     atoDepreciation, depreciation, cashDeductible, totalDeductible,
     rentalNetIncome, taxBenefit, gearingStatus, taxBenefitWeekly, afterTaxWeekly,
@@ -1590,8 +1801,9 @@ function render() {
   // Tax law chip
   const lawChip = el('taxLawChip');
   if (lawChip) {
-    lawChip.textContent = s.taxLaw === 'new' ? 'Current Law' : 'Old Law (pre-reform)';
-    lawChip.className = 'chip ' + (s.taxLaw === 'new' ? 'chip-blue' : 'chip-yellow');
+    if (s.taxLaw === 'old') { lawChip.textContent = 'Grandfathered'; lawChip.className = 'chip chip-yellow'; }
+    else if (s.propertyType === 'new') { lawChip.textContent = 'New Build'; lawChip.className = 'chip chip-green'; }
+    else { lawChip.textContent = 'Post 12 May 2026'; lawChip.className = 'chip chip-blue'; }
   }
 
   // Input formatting hints
@@ -1607,6 +1819,9 @@ function render() {
   fmtInput('fmtAccounting', s.accounting);
   fmtInput('fmtOther', s.otherOutgoings);
   fmtInput('fmtRent', s.weeklyRent);
+  if (s.levyAmount > 0 && s.levyYears >= 1) {
+    const le = el('fmtLevy'); if (le) le.textContent = '$' + s.levyAmount.toLocaleString('en-AU') + '/yr for ' + s.levyYears + ' yr' + (s.levyYears > 1 ? 's' : '');
+  } else { const le = el('fmtLevy'); if (le) le.textContent = ''; }
 
   // Hero
   set('hLoanAmt', fmt(c.loan));
@@ -1673,20 +1888,19 @@ function render() {
   // === INVESTMENT-ONLY RESULTS ===
   if (s.purpose === 'investment') {
 
-    // STEP 1
-    const effYield = c.p > 0 ? (c.effectiveRent / c.p) * 100 : 0;
+    // STEP 1 — true gross yield (no vacancy)
     set('s1GrossDesc', '$' + s.weeklyRent.toLocaleString('en-AU') + ' × 52 = ' + fmt(c.grossAnnualRent));
     set('s1Total', fmt(c.grossAnnualRent) + '/yr');
-    set('s1YieldBadge', pct(c.grossYield) + ' gross yield');
+    set('s1YieldBadge', pct(c.trueGrossYield) + ' true gross yield');
 
-    // STEP 2
+    // STEP 2 — gross rental yield (after vacancy + PM fees)
     set('s2VacWks', s.vacancyWeeks);
     set('s2VacRent', s.weeklyRent.toLocaleString('en-AU'));
     set('s2Vacancy', neg(c.vacancyLoss));
     set('s2PmPct', s.pmFeePct);
     set('s2PmFees', neg(c.pmFee));
     set('s2Total', fmt(c.netEffectiveRent) + '/yr');
-    set('s2YieldBadge', pct(effYield) + ' effective yield');
+    set('s2YieldBadge', pct(c.grossYield) + ' Gross Rental Yield');
 
     // STEP 3
     set('s3Council', neg(c.out.council));
@@ -1700,47 +1914,76 @@ function render() {
     set('s3Accounting', neg(c.out.accounting));
     set('s3Other', neg(c.out.other));
     el('s3OtherRow').style.display = c.out.other > 0 ? '' : 'none';
+    set('s3Levy', neg(c.out.levy));
+    el('s3LevyRow').style.display = c.out.levy > 0 ? '' : 'none';
+    set('s3LevyDuration', c.out.levy > 0 && s.levyYears > 0 ? '(' + s.levyYears + ' yr' + (s.levyYears > 1 ? 's' : '') + ')' : '');
     const noiColor = c.noi >= 0 ? 'var(--green)' : 'var(--red)';
     el('s3Total').textContent = (c.noi >= 0 ? '+' : '') + fmt(c.noi) + '/yr';
     el('s3Total').style.color = noiColor;
     set('s3YieldBadge', pct(c.netYield) + ' net yield');
     el('s3YieldBadge').style.color = c.netYield >= 0 ? 'var(--teal)' : 'var(--red)';
 
-    // STEP 4
-    set('s4Mortgage', neg(c.annual));
-    const cfHero = el('cfHero');
-    cfHero.className = 'cf-hero ' + (c.weeklyCashFlow >= 0 ? 'positive' : 'negative');
-    el('cfWeeklyVal').textContent = signedFmt(c.weeklyCashFlow) + '/wk';
-    el('cfWeeklyVal').style.color = c.weeklyCashFlow >= 0 ? 'var(--green)' : 'var(--red)';
-    const monthly = c.weeklyCashFlow * 52 / 12;
-    el('cfMonthlyVal').textContent = signedFmt(monthly) + '/month · ' + signedFmt(c.annualCashFlow) + '/year';
+    // STEP 4 — 4-column breakdown
+    const cfOutWk = c.totalOutgoings / 52, cfOutMo = c.totalOutgoings / 12;
+    const cfMortWk = c.annual / 52, cfMortMo = c.annual / 12;
+    const cfIncWk = c.netEffectiveRent / 52, cfIncMo = c.netEffectiveRent / 12;
+    const cfTotWk = c.weeklyCashFlow, cfTotMo = c.weeklyCashFlow * 52 / 12;
+    const cfColor = c.weeklyCashFlow >= 0 ? 'var(--green)' : 'var(--red)';
+    set('cfOutWk', neg(cfOutWk) + '/wk'); set('cfOutMo', neg(cfOutMo) + '/mo'); set('cfOutYr', neg(c.totalOutgoings) + '/yr');
+    set('cfMortWk', neg(cfMortWk) + '/wk'); set('cfMortMo', neg(cfMortMo) + '/mo'); set('cfMortYr', neg(c.annual) + '/yr');
+    set('cfIncWk', '+' + fmt(cfIncWk) + '/wk'); set('cfIncMo', '+' + fmt(cfIncMo) + '/mo'); set('cfIncYr', '+' + fmt(c.netEffectiveRent) + '/yr');
+    el('cfTotWk').textContent = signedFmt(cfTotWk) + '/wk'; el('cfTotWk').style.color = cfColor;
+    el('cfTotMo').textContent = signedFmt(cfTotMo) + '/mo'; el('cfTotMo').style.color = cfColor;
+    el('cfTotYr').textContent = signedFmt(c.annualCashFlow) + '/yr'; el('cfTotYr').style.color = cfColor;
+    el('cfTotalCol').style.borderColor = c.weeklyCashFlow >= 0 ? 'rgba(52,211,153,0.4)' : 'rgba(251,113,133,0.4)';
     set('breakEvenRent', '$' + Math.round(c.breakEvenWeekly).toLocaleString('en-AU') + '/wk');
+
+    // Investment hero strip
+    el('hGrossYield').textContent = pct(c.grossYield);
+    el('hGrossYield').style.color = c.grossYield >= 4 ? 'var(--green)' : c.grossYield >= 2 ? 'var(--yellow)' : 'var(--red)';
+    el('hNetYield').textContent = pct(c.netYield);
+    el('hNetYield').style.color = c.netYield >= 0 ? 'var(--teal)' : 'var(--red)';
+    el('hCashFlowWk').textContent = signedFmt(c.weeklyCashFlow) + '/wk';
+    el('hCashFlowWk').style.color = cfColor;
+    el('hCashFlowSubHero').textContent = signedFmt(cfTotMo) + '/mo · ' + signedFmt(c.annualCashFlow) + '/yr';
 
     // Gearing chip
     const chip = el('gearingChip');
     if (c.gearingStatus === 'negative') { chip.textContent = 'Negatively Geared'; chip.className = 'chip chip-red'; }
     else if (c.gearingStatus === 'positive') { chip.textContent = 'Positively Geared'; chip.className = 'chip chip-green'; }
-    else if (c.gearingStatus === 'negative_ringfenced') { chip.textContent = 'Loss Ring-fenced (' + (s.taxLaw==='new'?'Current':'Old') + ' Law)'; chip.className = 'chip chip-yellow'; }
+    else if (c.gearingStatus === 'negative_ringfenced') {
+      chip.textContent = s.taxLaw === 'new' ? 'Loss Ring-fenced (Post 12 May 2026)' : 'Loss Ring-fenced';
+      chip.className = 'chip chip-yellow';
+    }
     else { chip.textContent = 'Neutral'; chip.className = 'chip chip-blue'; }
 
-    // CGT estimate
-    const cgt10 = c.cgtAtYear(10), cgt20 = c.cgtAtYear(20);
-    set('cgtGain10', fmt(cgt10.gain));
-    set('cgtTaxable10', fmt(cgt10.taxableGain));
-    set('cgtPayable10', fmt(cgt10.cgt));
-    set('cgtNet10', fmt(cgt10.netProceeds));
-    set('cgtSalePrice10', fmt(cgt10.salePrice));
-    set('cgtGain20', fmt(cgt20.gain));
-    set('cgtTaxable20', fmt(cgt20.taxableGain));
-    set('cgtPayable20', fmt(cgt20.cgt));
-    set('cgtNet20', fmt(cgt20.netProceeds));
-    set('cgtSalePrice20', fmt(cgt20.salePrice));
-    const cgtDiscountNote = s.taxLaw === 'new'
-      ? 'No CGT discount — current law'
-      : '50% discount applied (held >12 months) — old law';
+    // CGT estimate — 4 years: 5, 10, 15, 20
+    [5, 10, 15, 20].forEach(yr => {
+      const cgt = c.cgtAtYear(yr);
+      set('cgtSalePrice'+yr, fmt(cgt.salePrice));
+      set('cgtGain'+yr, fmt(cgt.gain));
+      set('cgtTaxable'+yr, fmt(cgt.taxableGain));
+      set('cgtPayable'+yr, fmt(cgt.cgt));
+      set('cgtNet'+yr, fmt(cgt.netProceeds));
+    });
+    let cgtDiscountNote, cgtMethodNote;
+    if (s.taxLaw === 'old') {
+      cgtDiscountNote = 'Grandfathered — 50% CGT discount applies (held > 12 months)';
+      cgtMethodNote = 'Grandfathered property (acquired ≤ 12 May 2026): old rules apply. 50% CGT discount for individuals. Negative gearing allowed.';
+    } else if (s.propertyType === 'new') {
+      cgtDiscountNote = `New build — best of 50% discount or CPI indexation (${(s.expectedInflation||2.5).toFixed(1)}%/yr) used`;
+      cgtMethodNote = 'New build under new law: automatically chooses whichever CGT method (50% discount or CPI indexation) gives a lower tax outcome. Negative gearing allowed.';
+    } else {
+      cgtDiscountNote = `Established post-12-May-2026 — CPI indexation at ${(s.expectedInflation||2.5).toFixed(1)}%/yr, 30% minimum CGT tax applies`;
+      cgtMethodNote = 'Established property acquired after 12 May 2026: no 50% discount. Cost base is CPI-indexed. Minimum 30% tax rate applies to the capital gain. Rental losses are ring-fenced.';
+    }
     set('cgtDiscountNote', cgtDiscountNote);
+    set('cgtMethodNote', cgtMethodNote);
     const cgtLawEl = el('cgtLawNote');
-    if (cgtLawEl) { cgtLawEl.textContent = s.taxLaw === 'new' ? 'Current Law' : 'Old Law'; cgtLawEl.className = 'chip ' + (s.taxLaw==='new'?'chip-blue':'chip-yellow'); }
+    if (cgtLawEl) {
+      cgtLawEl.textContent = s.taxLaw === 'old' ? 'Grandfathered' : s.propertyType === 'new' ? 'New Build' : 'Post 12 May 2026';
+      cgtLawEl.className = 'chip ' + (s.taxLaw==='old' ? 'chip-yellow' : s.propertyType==='new' ? 'chip-green' : 'chip-blue');
+    }
 
     // Tax card
     set('taxInterest', fmt(c.year1Interest));
@@ -1791,6 +2034,9 @@ function render() {
     const atm = c.afterTaxWeekly * 52 / 12;
     el('afterTaxMonthly').textContent = signedFmt(atm) + '/mo';
     el('afterTaxMonthly').style.color = atm >= 0 ? 'var(--green)' : 'var(--red)';
+    const aty = c.afterTaxWeekly * 52;
+    el('afterTaxYearly').textContent = signedFmt(aty) + '/yr';
+    el('afterTaxYearly').style.color = aty >= 0 ? 'var(--green)' : 'var(--red)';
   }
 
   // Equity projection
@@ -1818,6 +2064,8 @@ function render() {
   // Nav counter
   const simCount = getSims().length;
   set('btnSavedCount', 'Saved (' + simCount + ')');
+
+  renderAssumptions();
 }
 
 // ═══════════════════════════════════════
@@ -2057,6 +2305,14 @@ function syncUI() {
   el('notesField').value = s.notes || '';
   el('togLawNew').classList.toggle('active', s.taxLaw !== 'old');
   el('togLawOld').classList.toggle('active', s.taxLaw === 'old');
+  // New fields
+  el('levyAmount').value = s.levyAmount || 0;
+  el('levyYears').value = s.levyYears || 0;
+  el('parkingSpots').value = s.parkingSpots || 0;
+  el('neighborhood').value = s.neighborhood || '';
+  el('inflationSlider').value = s.expectedInflation || 2.5;
+  el('inflationLabel').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
+  el('inflationRangeVal').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
   el('propertyYearBuilt').value = s.propertyYearBuilt;
   el('buildingValueSlider').value = s.buildingValuePct;
   el('buildingValLabel').textContent = s.buildingValuePct + '%';
