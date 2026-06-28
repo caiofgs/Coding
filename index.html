@@ -3181,6 +3181,7 @@ function renderSavedSimulations() {
         <div class="sim-stat"><span class="ss-l">Price</span><span class="ss-v">${fmt(sim.inputs.purchasePrice)}</span></div>
         <div class="sim-stat"><span class="ss-l">Weekly Repayment</span><span class="ss-v">${fmt(r.weekly)}/wk</span></div>
         ${isInv ? `
+        <div class="sim-stat"><span class="ss-l">Weekly Rent</span><span class="ss-v">${fmt(sim.inputs.weeklyRent||0)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">Gross Yield</span><span class="ss-v" style="color:var(--green)">${r.grossYield.toFixed(2)}%</span></div>
         <div class="sim-stat"><span class="ss-l">Net Yield (pre-mortgage)</span><span class="ss-v" style="color:var(--teal)">${r.netYield.toFixed(2)}%</span></div>
         <div class="sim-stat"><span class="ss-l">Weekly Cash Flow</span><span class="ss-v" style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span></div>
@@ -3218,6 +3219,7 @@ function renderCompareTable(sims) {
     ['Weekly Repayment', ({r}) => fmt(r.weekly)+'/wk'],
     ['Interest Rate', ({sim}) => sim.inputs.interestRate+'%'],
     ['─── Investment ───', null],
+    ['Weekly Rent', ({sim}) => sim.inputs.purpose==='investment' ? fmt(sim.inputs.weeklyRent||0)+'/wk' : '—'],
     ['Gross Yield', ({r}) => r.grossYield != null ? r.grossYield.toFixed(2)+'%' : '—'],
     ['Net Yield (pre-mtg)', ({r}) => r.netYield != null ? r.netYield.toFixed(2)+'%' : '—'],
     ['Weekly Cash Flow', ({r}) => { const cf=r.weeklyCashFlow; return cf!=null?`<span style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span>`:'—'; }],
