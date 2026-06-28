@@ -272,11 +272,30 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
   .hero{grid-template-columns:1fr 1fr}
   .hero-item:nth-child(3){display:none}
 }
+@media(max-width:680px){
+  nav{padding:6px 12px;height:auto;flex-wrap:wrap;gap:6px}
+  .nav-actions{flex-wrap:wrap;gap:4px}
+  .nav-logo{font-size:15px}
+  /* Hide saved count in nav — already visible as a section */
+  #btnSavedCount{display:none}
+  /* Profile dropdown: anchor to left on small screens so it doesn't clip */
+  #profileMenu{right:auto;left:0;min-width:180px}
+}
 @media(max-width:580px){
   .hero{grid-template-columns:1fr}
   .hero-item{border-right:none!important;border-bottom:1px solid var(--border)}
   .hero-item:last-child{border-bottom:none}
-  nav{padding:0 12px}
+  /* Share button: icon only */
+  .btn-share-text{display:none}
+  /* Stack CGT and CF grids to 1 column on very small screens */
+  .cgt-4col{grid-template-columns:1fr!important}
+  .cf-grid{grid-template-columns:1fr!important}
+  /* Saved sim cards full width */
+  .saved-grid{grid-template-columns:1fr}
+  /* INV hero strip: 2 columns on mobile */
+  .inv-hero-strip{grid-template-columns:1fr 1fr!important}
+  /* Modal sizing */
+  .nsm-modal,.new-sim-modal{width:95vw!important;max-width:95vw!important}
 }
 
 /* SCROLL */
@@ -347,6 +366,20 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
 .cf-grid-col .cg-main{font-size:14px;font-weight:700;margin-bottom:4px}
 .cf-grid-col .cg-sub{font-size:10px;color:var(--text3);line-height:1.6}
 
+/* PROFILE DROPDOWN */
+.profile-wrap{position:relative}
+#profileMenu{position:absolute;top:calc(100% + 6px);right:0;min-width:200px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:200;overflow:hidden}
+.profile-item{padding:9px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:space-between;transition:.1s}
+.profile-item:hover{background:var(--surface2)}
+.profile-item.active{color:var(--accent);font-weight:600}
+.profile-item.active::before{content:'✓ ';opacity:0.7}
+.profile-divider{border:none;border-top:1px solid var(--border);margin:4px 0}
+.profile-action{padding:8px 14px;cursor:pointer;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;transition:.1s}
+.profile-action:hover{background:var(--surface2);color:var(--text)}
+.profile-action.danger:hover{color:var(--red)}
+/* SHARE TOAST */
+#shareToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;font-size:13px;font-weight:500;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,0.3);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:300}
+
 /* CGT YEAR SELECTOR */
 .cgt-years{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .cgt-yr-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
@@ -374,6 +407,17 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <button class="tog" id="thm-slate" onclick="setTheme('slate')" title="Slate">🌓</button>
       <button class="tog" id="thm-light" onclick="setTheme('light')" title="Light">☀️</button>
     </div>
+    <div class="profile-wrap">
+      <button class="btn btn-ghost btn-sm" id="profileBtn" onclick="toggleProfileMenu()">👤 <span id="profileName">Default</span> ▾</button>
+      <div id="profileMenu" style="display:none">
+        <div id="profileList"></div>
+        <hr class="profile-divider">
+        <div class="profile-action" onclick="createProfile()">＋ New profile</div>
+        <div class="profile-action" onclick="renameCurrentProfile()">✏ Rename</div>
+        <div class="profile-action danger" onclick="deleteCurrentProfile()">🗑 Delete profile</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="shareCurrentSim()" title="Copy shareable link">↗<span class="btn-share-text"> Share</span></button>
     <button class="btn btn-ghost" onclick="newSimulation()">+ New</button>
     <button class="btn btn-ghost" onclick="openSaveModal()">Save</button>
     <button class="btn btn-ghost btn-sm" id="btnSavedCount" onclick="scrollToSaved()">Saved (0)</button>
@@ -830,6 +874,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           <span class="range-val" id="inflationRangeVal">2.5%</span>
         </div>
         <p class="hint">Used for CGT indexation under new law. RBA target band is 2–3%.</p>
+      </div>
+      <div class="field">
+        <label>S&amp;P 500 Comparison Return — <span id="sp500Label">10.0%</span>/year</label>
+        <div class="range-row">
+          <input type="range" id="sp500Slider" min="4" max="15" value="10" step="0.5" oninput="update('sp500Rate',+this.value);document.getElementById('sp500Label').textContent=(+this.value).toFixed(1)+'%';document.getElementById('sp500RangeVal').textContent=(+this.value).toFixed(1)+'%'">
+          <span class="range-val" id="sp500RangeVal">10%</span>
+        </div>
+        <p class="hint">Historical long-run average ~10% nominal/yr. Used for chart comparison line only — not financial advice.</p>
       </div>
       <div class="field">
         <label style="display:flex;align-items:center;gap:8px">
@@ -1333,6 +1385,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Property Value</div>
       <div class="legend-item"><div class="legend-dot" style="background:#fb7185"></div>Loan Balance</div>
       <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>Your Equity</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;opacity:0.8"></div>Cash + Inflation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f97316;opacity:0.8"></div>Cash in S&amp;P 500</div>
     </div>
     <canvas id="projChart" height="200"></canvas>
   </div>
@@ -1449,6 +1503,8 @@ const s = {
   parkingSpots: 0,
   // CGT inflation assumption
   expectedInflation: 2.5,
+  // Chart comparison
+  sp500Rate: 10,
   // Stamp duty toggle
   includeStampDuty: true,
 };
@@ -1538,7 +1594,7 @@ const DEFAULT_STATE = {
   conveyancing:2500, buildingInspection:500, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
   isFirstHomeBuyer:false, address:'', adUrl:'', adUrls:['','',''], suburb:'', propertySubtype:'house',
   bedrooms:3, bathrooms:2, notes:'', taxLaw:'new',
-  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, includeStampDuty:true,
+  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, sp500Rate:10, includeStampDuty:true,
 };
 
 function newSimulation() {
@@ -2448,7 +2504,7 @@ function render() {
       </div>`).join('');
   }
 
-  drawChart(loanBal, propVal, equity);
+  drawChart(loanBal, propVal, equity, c.totalUpfront, s.expectedInflation || 2.5, s.sp500Rate || 10);
 
   // Nav counter
   const simCount = getSims().length;
@@ -2460,11 +2516,11 @@ function render() {
 // ═══════════════════════════════════════
 //  CHART
 // ═══════════════════════════════════════
-function drawChart(loanBalFn, propValFn, equityFn) {
+function drawChart(loanBalFn, propValFn, equityFn, cashInvested, inflationPct, sp500Pct) {
   const canvas = el('projChart');
   const dpr = window.devicePixelRatio || 1;
   const W = canvas.parentElement.clientWidth - 32;
-  const H = 220;
+  const H = 240;
   canvas.width = W * dpr; canvas.height = H * dpr;
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
@@ -2476,9 +2532,12 @@ function drawChart(loanBalFn, propValFn, equityFn) {
   const loanVals = years.map(y => Math.max(0, loanBalFn(y)));
   const propVals = years.map(y => propValFn(y));
   const eqVals = years.map(y => equityFn(y));
-  const maxVal = Math.max(...propVals, 1);
+  const cash = cashInvested || 0;
+  const infVals = years.map(y => cash * Math.pow(1 + inflationPct/100, y));
+  const sp5Vals = years.map(y => cash * Math.pow(1 + sp500Pct/100, y));
+  const maxVal = Math.max(...propVals, ...sp5Vals, 1);
   const xOf = y => pad.l + (y/30)*gW;
-  const yOf = v => pad.t + gH - (v/maxVal)*gH;
+  const yOf = v => pad.t + gH - Math.max(0, Math.min(1, v/maxVal))*gH;
   ctx.strokeStyle = 'rgba(30,45,71,0.8)'; ctx.lineWidth = 1;
   [0,0.25,0.5,0.75,1].forEach(t => {
     const yy = pad.t + gH*(1-t);
@@ -2488,18 +2547,23 @@ function drawChart(loanBalFn, propValFn, equityFn) {
   });
   ctx.fillStyle = 'rgba(74,93,122,0.8)'; ctx.textAlign = 'center';
   [0,5,10,15,20,25,30].forEach(yr => ctx.fillText('Yr '+yr, xOf(yr), pad.t+gH+20));
+  // Equity fill
   ctx.beginPath();
   years.forEach((y,i) => { const x=xOf(y),yy=yOf(eqVals[i]); i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy); });
   ctx.lineTo(xOf(30), pad.t+gH); ctx.lineTo(xOf(0), pad.t+gH); ctx.closePath();
   const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+gH);
   grad.addColorStop(0,'rgba(79,142,247,0.2)'); grad.addColorStop(1,'rgba(79,142,247,0.01)');
   ctx.fillStyle = grad; ctx.fill();
-  const drawLine = (vals, color, dashed) => {
-    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
-    ctx.setLineDash(dashed ? [4,3] : []);
+  const drawLine = (vals, color, dashed, width) => {
+    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width || 2;
+    ctx.setLineDash(dashed ? [5,4] : []);
     years.forEach((y,i) => { const x=xOf(y),yy=yOf(vals[i]); i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy); });
     ctx.stroke(); ctx.setLineDash([]);
   };
+  // Comparison lines (draw first, behind main lines)
+  drawLine(infVals, 'rgba(251,191,36,0.7)', true, 1.5);
+  drawLine(sp5Vals, 'rgba(249,115,22,0.8)', true, 1.5);
+  // Main lines
   drawLine(propVals, '#34d399', false);
   drawLine(loanVals, '#fb7185', true);
   drawLine(eqVals, '#4f8ef7', false);
@@ -2508,8 +2572,112 @@ function drawChart(loanBalFn, propValFn, equityFn) {
 // ═══════════════════════════════════════
 //  SAVED SIMULATIONS
 // ═══════════════════════════════════════
-const getSims = () => { try { return JSON.parse(localStorage.getItem('propanalytics') || '[]'); } catch { return []; } };
-const saveSims = arr => localStorage.setItem('propanalytics', JSON.stringify(arr));
+// ── Profile storage ──────────────────────────────────────
+function getProfileStore() {
+  try { return JSON.parse(localStorage.getItem('propCalcProfiles') || 'null'); } catch { return null; }
+}
+function saveProfileStore(store) { localStorage.setItem('propCalcProfiles', JSON.stringify(store)); }
+
+function initProfiles() {
+  // Migrate old propanalytics sims into a Default profile on first run
+  let oldSims = [];
+  try { oldSims = JSON.parse(localStorage.getItem('propanalytics') || '[]'); } catch {}
+  const id = 'p_' + Date.now();
+  const store = { active: id, profiles: { [id]: { name: 'Default', sims: oldSims } } };
+  saveProfileStore(store);
+  if (oldSims.length) localStorage.removeItem('propanalytics');
+  return store;
+}
+
+function getActiveProfileData() {
+  const store = getProfileStore() || initProfiles();
+  return store.profiles[store.active] || { name: 'Default', sims: [] };
+}
+
+const getSims = () => getActiveProfileData().sims;
+const saveSims = arr => {
+  const store = getProfileStore() || initProfiles();
+  if (!store.profiles[store.active]) store.profiles[store.active] = { name: 'Default', sims: [] };
+  store.profiles[store.active].sims = arr;
+  saveProfileStore(store);
+};
+
+// ── Profile UI ───────────────────────────────────────────
+function renderProfileMenu() {
+  const store = getProfileStore() || initProfiles();
+  set('profileName', (store.profiles[store.active] || {}).name || 'Default');
+  el('profileList').innerHTML = Object.entries(store.profiles).map(([id, p]) =>
+    `<div class="profile-item${id===store.active?' active':''}" onclick="switchProfile('${id}')">
+      ${p.name} <span style="color:var(--text3);font-size:11px">${p.sims.length} sim${p.sims.length!==1?'s':''}</span>
+    </div>`
+  ).join('');
+}
+
+function toggleProfileMenu() {
+  const menu = el('profileMenu');
+  const open = menu.style.display !== 'none';
+  menu.style.display = open ? 'none' : '';
+  if (!open) { renderProfileMenu(); setTimeout(() => document.addEventListener('click', _closeProfileMenu, {once:true}), 0); }
+}
+function _closeProfileMenu(e) {
+  if (!el('profileMenu').contains(e.target) && e.target !== el('profileBtn') && !el('profileBtn').contains(e.target))
+    el('profileMenu').style.display = 'none';
+}
+
+function switchProfile(id) {
+  const store = getProfileStore(); if (!store || !store.profiles[id]) return;
+  store.active = id; saveProfileStore(store);
+  el('profileMenu').style.display = 'none';
+  renderProfileMenu(); renderSavedSimulations(); render();
+}
+
+function createProfile() {
+  const name = prompt('Profile name (e.g. your name or "Friends"):');
+  if (!name || !name.trim()) return;
+  const store = getProfileStore() || initProfiles();
+  const id = 'p_' + Date.now();
+  store.profiles[id] = { name: name.trim(), sims: [] };
+  store.active = id; saveProfileStore(store);
+  el('profileMenu').style.display = 'none';
+  renderProfileMenu(); renderSavedSimulations(); render();
+}
+
+function renameCurrentProfile() {
+  const store = getProfileStore(); if (!store) return;
+  const prof = store.profiles[store.active]; if (!prof) return;
+  const name = prompt('Rename profile:', prof.name);
+  if (!name || !name.trim()) return;
+  prof.name = name.trim(); saveProfileStore(store);
+  el('profileMenu').style.display = 'none'; renderProfileMenu();
+}
+
+function deleteCurrentProfile() {
+  const store = getProfileStore(); if (!store) return;
+  const ids = Object.keys(store.profiles);
+  if (ids.length <= 1) { alert('Cannot delete the only profile. Create another first.'); return; }
+  const prof = store.profiles[store.active];
+  if (!confirm(`Delete profile "${prof.name}" and all its ${prof.sims.length} simulation(s)?`)) return;
+  delete store.profiles[store.active];
+  store.active = Object.keys(store.profiles)[0];
+  saveProfileStore(store);
+  el('profileMenu').style.display = 'none';
+  renderProfileMenu(); renderSavedSimulations(); render();
+}
+
+// ── URL Sharing ──────────────────────────────────────────
+function shareCurrentSim() {
+  try {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(s))));
+    const url = location.href.split('#')[0] + '#sim=' + encoded;
+    navigator.clipboard.writeText(url).then(() => showShareToast('Link copied! Share it with your friends.'));
+  } catch(e) { showShareToast('Could not copy — try manually copying the URL.'); }
+}
+
+function showShareToast(msg) {
+  const t = el('shareToast'); t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(8px)'; }, 3000);
+}
 
 function openSaveModal() {
   el('modalSimName').value = s.simName || '';
@@ -2714,6 +2882,9 @@ function syncUI() {
   el('inflationSlider').value = s.expectedInflation || 2.5;
   el('inflationLabel').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
   el('inflationRangeVal').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
+  el('sp500Slider').value = s.sp500Rate || 10;
+  el('sp500Label').textContent = (s.sp500Rate || 10).toFixed(1) + '%';
+  el('sp500RangeVal').textContent = (s.sp500Rate || 10).toFixed(1) + '%';
   el('propertyYearBuilt').value = s.propertyYearBuilt;
   el('buildingValueSlider').value = s.buildingValuePct;
   el('buildingValLabel').textContent = s.buildingValuePct + '%';
@@ -2758,9 +2929,24 @@ window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer
 const savedTheme = localStorage.getItem('pa_theme') || 'dark';
 setTheme(savedTheme);
 
+// Ensure profiles are initialised (migrates old data if needed)
+if (!getProfileStore()) initProfiles();
+
+// Load shared simulation from URL hash (#sim=base64...)
+if (location.hash.startsWith('#sim=')) {
+  try {
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(5)))));
+    Object.assign(s, decoded);
+    history.replaceState(null, '', location.pathname + location.search);
+    showShareToast('Shared simulation loaded!');
+  } catch(e) {}
+}
+
+renderProfileMenu();
 syncUI();
 render();
 renderSavedSimulations();
 </script>
+<div id="shareToast">Link copied to clipboard!</div>
 </body>
 </html>
