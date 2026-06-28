@@ -1408,6 +1408,11 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
           </div>
         </div>
         <p style="margin-top:10px;font-size:11px;color:var(--text3)" id="cgtMethodNote">Cost base = purchase price + stamp duty + purchase costs. New law: cost base is inflation-indexed. Old law: 50% discount applied for >12 months. Tax calculated at your marginal rate. Switch law in Settings.</p>
+        <div id="cgtLossesExplainer" style="display:none;margin-top:10px;background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:var(--text3);line-height:1.6">
+          <strong style="color:var(--text2);display:block;margin-bottom:6px">Carry-forward losses vs. Cumulative cash flow — what's the difference?</strong>
+          <p style="margin:0 0 6px"><strong style="color:var(--text2)">Carry-forward losses</strong> are a <em>tax asset</em>, not real money. Under the new law, rental losses can't be claimed against your salary each year — they're quarantined. The ATO tracks them and lets you use them to reduce your taxable capital gain when you eventually sell, which lowers your CGT bill. Only the interest portion of your mortgage counts here (principal repayments are not deductible), and depreciation is included even though it's non-cash.</p>
+          <p style="margin:0"><strong style="color:var(--text2)">Cumulative cash flow</strong> is the real money that has moved in and out of your pocket over the years — rent received minus the full mortgage payment (principal + interest), outgoings, and any tax effect. If it's negative, that's how much you've topped up out of your own savings. It feeds directly into your True economic return alongside what you pocket from the sale.</p>
+        </div>
       </div>
     </div>
 
@@ -2716,6 +2721,8 @@ function render() {
     }
     set('cgtDiscountNote', cgtDiscountNote);
     set('cgtMethodNote', cgtMethodNote);
+    const lossExpl = el('cgtLossesExplainer');
+    if (lossExpl) lossExpl.style.display = (s.taxLaw === 'new' && s.propertyType !== 'new' && s.purpose === 'investment') ? '' : 'none';
     const cgtLawEl = el('cgtLawNote');
     if (cgtLawEl) {
       cgtLawEl.textContent = s.taxLaw === 'old' ? 'Grandfathered' : s.propertyType === 'new' ? 'New Build' : 'Post 12 May 2026';
