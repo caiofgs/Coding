@@ -2278,7 +2278,8 @@ function calculate() {
     if (!canNegGear && s.purpose === 'investment') {
       for (let y = 1; y <= yr; y++) {
         const yLevyActive = s.levyYears >= 1 && y <= s.levyYears;
-        const yearRNI = rentalNetIncome + (yLevyActive ? s.levyAmount : 0) - levyAmt;
+        // When levy is active it's already in rentalNetIncome; when it stops, add it back
+        const yearRNI = rentalNetIncome + (yLevyActive ? 0 : levyAmt);
         if (yearRNI < 0) accumulatedLosses += Math.abs(yearRNI);
       }
     }
@@ -2335,7 +2336,8 @@ function calculate() {
 function yearlyAfterTaxCF(yr, c) {
   const yLevyActive = s.levyYears >= 1 && yr >= 1 && yr <= s.levyYears;
   const levyThisYear = yLevyActive ? s.levyAmount : 0;
-  const levyDiff = levyThisYear - c.levyAmt;
+  // levyDiff: positive when levy stops (costs go down → cash flow improves)
+  const levyDiff = c.levyAmt - levyThisYear;
   if (levyDiff === 0) return c.afterTaxWeekly * 52;
   const yearWeeklyCF = c.weeklyCashFlow + levyDiff / 52;
   const yearRNI = c.rentalNetIncome + levyDiff;
@@ -2354,6 +2356,13 @@ function yearlyAfterTaxCF(yr, c) {
 function cumulativeAfterTaxCF(yr, c) {
   let total = 0;
   for (let y = 1; y <= yr; y++) total += yearlyAfterTaxCF(y, c);
+  return total;
+}
+
+// Cumulative after-tax cash flow with rental growth applied each year.
+function cumulativeAfterTaxCFWithGrowth(yr, c) {
+  let total = 0;
+  for (let y = 1; y <= yr; y++) total += yearlyAfterTaxCFWithGrowth(y, c);
   return total;
 }
 
@@ -2671,7 +2680,7 @@ function render() {
       const trueRealEl = el('cgtTrueReturnReal' + yr);
       if (cfRow && s.purpose === 'investment') {
         cfRow.style.display = '';
-        const cumulCF = cumulativeAfterTaxCF(yr, c);
+        const cumulCF = cumulativeAfterTaxCFWithGrowth(yr, c);
         if (cfEl) {
           cfEl.textContent = (cumulCF >= 0 ? '+$' : '−$') + Math.abs(Math.round(cumulCF)).toLocaleString('en-AU');
           cfEl.style.color = cumulCF >= 0 ? 'var(--green)' : 'var(--red)';
@@ -2807,7 +2816,7 @@ function render() {
 
   // Build cumulative after-tax CF array for chart (year 0 = 0)
   const cumulCFByYear = s.purpose === 'investment'
-    ? Array.from({length: 31}, (_, yr) => yr === 0 ? 0 : cumulativeAfterTaxCF(yr, c))
+    ? Array.from({length: 31}, (_, yr) => yr === 0 ? 0 : cumulativeAfterTaxCFWithGrowth(yr, c))
     : null;
   const twLegend = el('trueWealthLegend');
   if (twLegend) twLegend.style.display = s.purpose === 'investment' ? '' : 'none';
