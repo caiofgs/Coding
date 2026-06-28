@@ -2158,12 +2158,12 @@ function calculate() {
   const taxBenefitWeekly = taxBenefit / 52;
   const afterTaxWeekly = weeklyCashFlow + taxBenefitWeekly;
 
-  // Cash flow gearing — based on full P&I mortgage, not interest-only.
-  // gearingStatus drives the TAX calculation (ATO concept: interest vs rent).
-  // cashflowGearing drives the displayed chip (cash actually in/out of pocket).
+  // Gearing classification — uses after-tax weekly (cash flow + tax benefit from deductibles).
+  // gearingStatus: ATO tax concept (interest-only vs rent) → drives taxBenefit calculation.
+  // cashflowGearing: true economic position after full P&I mortgage AND deductible tax benefits.
   const cashflowGearing = s.purpose !== 'investment' ? 'neutral'
-    : weeklyCashFlow > 0.01 ? 'positive'
-    : weeklyCashFlow < -0.01
+    : afterTaxWeekly > 0.01 ? 'positive'
+    : afterTaxWeekly < -0.01
       ? (gearingStatus === 'negative_ringfenced' ? 'negative_ringfenced' : 'negative')
       : 'neutral';
   // Separate: how much of the tax benefit is from depreciation (non-cash)
@@ -2430,10 +2430,10 @@ function render() {
 
     // Gearing chip — based on full cash flow after P&I mortgage
     const chip = el('gearingChip');
-    if (c.cashflowGearing === 'negative') { chip.textContent = 'Negative Cash Flow'; chip.className = 'chip chip-red'; }
-    else if (c.cashflowGearing === 'positive') { chip.textContent = 'Positive Cash Flow'; chip.className = 'chip chip-green'; }
+    if (c.cashflowGearing === 'negative') { chip.textContent = 'Negative after Tax'; chip.className = 'chip chip-red'; }
+    else if (c.cashflowGearing === 'positive') { chip.textContent = 'Positive after Tax'; chip.className = 'chip chip-green'; }
     else if (c.cashflowGearing === 'negative_ringfenced') {
-      chip.textContent = s.taxLaw === 'new' ? 'Ring-fenced · Cash Negative' : 'Ring-fenced · Cash Negative';
+      chip.textContent = 'Ring-fenced · Negative';
       chip.className = 'chip chip-yellow';
     }
     else { chip.textContent = 'Neutral'; chip.className = 'chip chip-blue'; }
@@ -2859,9 +2859,9 @@ function renderSavedSimulations() {
     const atw = r.afterTaxWeekly;
     const isInv = sim.inputs.purpose === 'investment';
     const cfg = r.cashflowGearing;
-    const gearing = cfg === 'negative' ? '🔴 Neg. Cash Flow'
+    const gearing = cfg === 'negative' ? '🔴 Neg. after Tax'
       : cfg === 'negative_ringfenced' ? '🟡 Ring-fenced'
-      : cfg === 'positive' ? '🟢 Pos. Cash Flow' : '🔵 Neutral';
+      : cfg === 'positive' ? '🟢 Pos. after Tax' : '🔵 Neutral';
     const meta = [sim.inputs.propertySubtype||'', sim.inputs.bedrooms ? sim.inputs.bedrooms+'bd' : '', sim.inputs.bathrooms ? sim.inputs.bathrooms+'ba' : ''].filter(Boolean).join(' · ');
     const addrLine = sim.inputs.address ? `<div style="font-size:11px;color:var(--text3);margin-bottom:2px">📍 ${sim.inputs.address}</div>` : '';
     const allUrls = (sim.inputs.adUrls || []).filter(u => u).concat(sim.inputs.adUrl ? [sim.inputs.adUrl] : []).filter((v,i,a)=>a.indexOf(v)===i);
@@ -2915,7 +2915,7 @@ function renderCompareTable(sims) {
     ['Net Yield (pre-mtg)', ({r}) => r.netYield != null ? r.netYield.toFixed(2)+'%' : '—'],
     ['Weekly Cash Flow', ({r}) => { const cf=r.weeklyCashFlow; return cf!=null?`<span style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span>`:'—'; }],
     ['After-Tax Weekly', ({r}) => { const a=r.afterTaxWeekly; return a!=null?`<span style="color:${a>=0?'var(--green)':'var(--red)'}">${signedFmt(a)}/wk</span>`:'—'; }],
-    ['Gearing', ({r}) => r.cashflowGearing==='negative'?'🔴 Neg. Cash Flow':r.cashflowGearing==='positive'?'🟢 Pos. Cash Flow':r.cashflowGearing==='negative_ringfenced'?'🟡 Ring-fenced':'—'],
+    ['Gearing', ({r}) => r.cashflowGearing==='negative'?'🔴 Neg. after Tax':r.cashflowGearing==='positive'?'🟢 Pos. after Tax':r.cashflowGearing==='negative_ringfenced'?'🟡 Ring-fenced':'—'],
     ['Notes', ({sim}) => sim.inputs.notes ? `<span style="font-style:italic;color:var(--text3)">${sim.inputs.notes}</span>` : '—'],
   ];
   const header = `<tr><th class="metric-col">Metric</th>${sims.map(sim=>`<th style="text-align:right;cursor:pointer" onclick="loadSim(${sim.id})" title="Click to load">${sim.name||'Untitled'}<br><span style="font-weight:400;color:var(--text3)">${sim.ts}</span></th>`).join('')}</tr>`;
