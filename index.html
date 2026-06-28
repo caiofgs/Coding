@@ -2482,6 +2482,20 @@ function drawCashFlowChart(c) {
     ctx.fillStyle = 'rgba(251,191,36,0.85)'; ctx.textAlign = 'left'; ctx.font = '10px system-ui';
     ctx.fillText('Mortgage paid', x + 3, pad.t + 12);
   }
+
+  // Levy end marker
+  if (s.levyYears >= 1 && c.levyAmt > 0 && s.levyYears <= totalYears) {
+    const x = xOf(s.levyYears);
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = 'rgba(167,139,250,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + gH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(167,139,250,0.85)'; ctx.font = '10px system-ui';
+    // Place label on the left of the line to avoid overlap with mortgage label
+    const levyLabelRight = x - 3;
+    ctx.textAlign = 'right';
+    ctx.fillText('Levy ends', levyLabelRight, pad.t + 26);
+  }
 }
 
 // ═══════════════════════════════════════
