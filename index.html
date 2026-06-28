@@ -3185,6 +3185,8 @@ function renderSavedSimulations() {
         <div class="sim-stat"><span class="ss-l">Net Yield (pre-mortgage)</span><span class="ss-v" style="color:var(--teal)">${r.netYield.toFixed(2)}%</span></div>
         <div class="sim-stat"><span class="ss-l">Weekly Cash Flow</span><span class="ss-v" style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">After-Tax Weekly</span><span class="ss-v" style="color:${atw>=0?'var(--green)':'var(--red)'}">${signedFmt(atw)}/wk</span></div>
+        <div class="sim-stat"><span class="ss-l">Total Outgoings</span><span class="ss-v" style="color:var(--orange)">${fmt(r.totalOutgoings||0)}/yr</span></div>
+        <div class="sim-stat"><span class="ss-l">Break-even Rent</span><span class="ss-v" style="color:var(--yellow)">${fmt(r.breakEvenWeekly||0)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">Gearing</span><span class="ss-v">${gearing}</span></div>
         ` : `
         <div class="sim-stat"><span class="ss-l">Loan Amount</span><span class="ss-v">${fmt(r.loan)}</span></div>
@@ -3220,6 +3222,8 @@ function renderCompareTable(sims) {
     ['Net Yield (pre-mtg)', ({r}) => r.netYield != null ? r.netYield.toFixed(2)+'%' : '—'],
     ['Weekly Cash Flow', ({r}) => { const cf=r.weeklyCashFlow; return cf!=null?`<span style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span>`:'—'; }],
     ['After-Tax Weekly', ({r}) => { const a=r.afterTaxWeekly; return a!=null?`<span style="color:${a>=0?'var(--green)':'var(--red)'}">${signedFmt(a)}/wk</span>`:'—'; }],
+    ['Total Outgoings', ({r,sim}) => sim.inputs.purpose==='investment' ? `<span style="color:var(--orange)">${fmt(r.totalOutgoings||0)}/yr</span>` : '—'],
+    ['Break-even Rent', ({r,sim}) => sim.inputs.purpose==='investment' ? `<span style="color:var(--yellow)">${fmt(r.breakEvenWeekly||0)}/wk</span>` : '—'],
     ['Gearing', ({r}) => r.cashflowGearing==='negative'?'🔴 Neg. after Tax':r.cashflowGearing==='positive'?'🟢 Pos. after Tax':r.cashflowGearing==='negative_ringfenced'?'🟡 Losses Carried Fwd':'—'],
     ['Notes', ({sim}) => sim.inputs.notes ? `<span style="font-style:italic;color:var(--text3)">${sim.inputs.notes}</span>` : '—'],
   ];
