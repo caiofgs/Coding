@@ -2352,7 +2352,10 @@ function yearlyAfterTaxCF(yr, c) {
   const yearRNI = c.rentalNetIncome + levyDiff;
   let yearTaxBenefit;
   if (!c.canNegGear) {
-    yearTaxBenefit = 0;
+    // Ring-fenced: no deduction benefit when negative, but still taxed when positive
+    yearTaxBenefit = yearRNI > 0
+      ? -(calcTax(s.annualIncome + yearRNI) - calcTax(s.annualIncome))
+      : 0;
   } else if (yearRNI < 0) {
     yearTaxBenefit = calcTax(s.annualIncome) - calcTax(Math.max(0, s.annualIncome + yearRNI));
   } else {
@@ -2412,7 +2415,10 @@ function yearlyAfterTaxCFWithGrowth(yr, c) {
       taxEffect = -(calcTax(s.annualIncome + rni) - calcTax(s.annualIncome));
     }
   } else {
-    taxEffect = 0;
+    // Ring-fenced: no deduction benefit when negative, but still taxed when positive
+    taxEffect = rni > 0
+      ? -(calcTax(s.annualIncome + rni) - calcTax(s.annualIncome))
+      : 0;
   }
   return (scaledNetRent - outgoings - mortgageThisYear) + taxEffect;
 }
