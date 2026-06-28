@@ -1317,6 +1317,18 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div style="font-size:18px;font-weight:700" id="afterTaxYearly">—</div>
             </div>
           </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center;margin-top:8px">
+            <div style="border-top:1px solid var(--border2);padding-top:10px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Regular outgoings / yr</div>
+              <div style="font-size:15px;font-weight:700;color:var(--orange)" id="taxOutgoingsYearly">—</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px">council · strata · insurance · etc</div>
+            </div>
+            <div style="border-top:1px solid var(--border2);padding-top:10px">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Break-even rent / wk</div>
+              <div style="font-size:15px;font-weight:700;color:var(--yellow)" id="taxBreakEvenWk">—</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px">to cover mortgage + outgoings</div>
+            </div>
+          </div>
         </div>
         <div class="dep-note" id="depNote" style="margin-top:12px;display:none">
           🏗 <strong>Depreciation benefit (non-cash):</strong> The <span id="depNoteAmt">$0</span>/yr depreciation deduction saves you <strong id="depNoteSaving">$0</strong>/yr in tax — without spending a cent. This is a paper deduction only.
@@ -2820,6 +2832,8 @@ function render() {
     const aty = c.afterTaxWeekly * 52;
     el('afterTaxYearly').textContent = signedFmt(aty) + '/yr';
     el('afterTaxYearly').style.color = aty >= 0 ? 'var(--green)' : 'var(--red)';
+    set('taxOutgoingsYearly', fmt(c.totalOutgoings) + '/yr');
+    set('taxBreakEvenWk', fmt(c.breakEvenWeekly) + '/wk');
   }
 
   // Equity projection
