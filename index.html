@@ -3183,7 +3183,7 @@ function renderSavedSimulations() {
         ${isInv ? `
         <div class="sim-stat"><span class="ss-l">Weekly Rent</span><span class="ss-v">${fmt(sim.inputs.weeklyRent||0)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">Gross Yield</span><span class="ss-v" style="color:var(--green)">${r.grossYield.toFixed(2)}%</span></div>
-        <div class="sim-stat"><span class="ss-l">Net Yield (pre-mortgage)</span><span class="ss-v" style="color:var(--teal)">${r.netYield.toFixed(2)}%</span></div>
+        <div class="sim-stat"><span class="ss-l">Net Yield (pre-mortgage)</span><span class="ss-v" style="color:var(--teal);font-weight:700;font-size:15px">${r.netYield.toFixed(2)}%</span></div>
         <div class="sim-stat"><span class="ss-l">Weekly Cash Flow</span><span class="ss-v" style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">After-Tax Weekly</span><span class="ss-v" style="color:${atw>=0?'var(--green)':'var(--red)'}">${signedFmt(atw)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">Total Outgoings</span><span class="ss-v" style="color:var(--orange)">${fmt(r.totalOutgoings||0)}/yr</span></div>
@@ -3221,7 +3221,7 @@ function renderCompareTable(sims) {
     ['─── Investment ───', null],
     ['Weekly Rent', ({sim}) => sim.inputs.purpose==='investment' ? fmt(sim.inputs.weeklyRent||0)+'/wk' : '—'],
     ['Gross Yield', ({r}) => r.grossYield != null ? r.grossYield.toFixed(2)+'%' : '—'],
-    ['Net Yield (pre-mtg)', ({r}) => r.netYield != null ? r.netYield.toFixed(2)+'%' : '—'],
+    ['Net Yield (pre-mtg)', ({r}) => r.netYield != null ? `<span style="color:var(--teal);font-weight:700;font-size:13px">${r.netYield.toFixed(2)}%</span>` : '—'],
     ['Weekly Cash Flow', ({r}) => { const cf=r.weeklyCashFlow; return cf!=null?`<span style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span>`:'—'; }],
     ['After-Tax Weekly', ({r}) => { const a=r.afterTaxWeekly; return a!=null?`<span style="color:${a>=0?'var(--green)':'var(--red)'}">${signedFmt(a)}/wk</span>`:'—'; }],
     ['Total Outgoings', ({r,sim}) => sim.inputs.purpose==='investment' ? `<span style="color:var(--orange)">${fmt(r.totalOutgoings||0)}/yr</span>` : '—'],
