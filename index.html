@@ -883,6 +883,14 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <p class="hint">Used for CGT indexation under new law. RBA target band is 2–3%.</p>
       </div>
       <div class="field">
+        <label>Discount Rate (today's money) — <span id="discountRateLabel">4.1%</span>/year</label>
+        <div class="range-row">
+          <input type="range" id="discountRateSlider" min="1" max="12" value="4.1" step="0.1" oninput="update('discountRate',+this.value);document.getElementById('discountRateLabel').textContent=(+this.value).toFixed(1)+'%';document.getElementById('discountRateRangeVal').textContent=(+this.value).toFixed(1)+'%'">
+          <span class="range-val" id="discountRateRangeVal">4.1%</span>
+        </div>
+        <p class="hint">Used to convert future returns to today's purchasing power. Default is approximately the RBA cash rate — represents what you could earn risk-free.</p>
+      </div>
+      <div class="field">
         <label>S&amp;P 500 Comparison Return — <span id="sp500Label">12.0%</span>/year</label>
         <div class="range-row">
           <input type="range" id="sp500Slider" min="4" max="15" value="12" step="0.5" oninput="update('sp500Rate',+this.value);document.getElementById('sp500Label').textContent=(+this.value).toFixed(1)+'%';document.getElementById('sp500RangeVal').textContent=(+this.value).toFixed(1)+'%'">
@@ -1317,6 +1325,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row" style="border-top:1px solid var(--border2)"><span class="tl" style="font-weight:600;color:var(--text)">Net cash from sale</span><span class="tv" id="cgtNet5">—</span></div>
               <div class="tax-row" id="cgtCFRow5"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF5">—</span></div>
               <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn5">—</span></div>
+              <div class="tax-row" style="padding:2px 6px;border-top:1px dashed var(--border2)"><span class="tl" style="font-size:11px;color:var(--text3)">↳ in today's money</span><span class="tv" style="font-size:11px" id="cgtTrueReturnReal5">—</span></div>
             </div>
           </div>
           <div>
@@ -1331,6 +1340,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row" style="border-top:1px solid var(--border2)"><span class="tl" style="font-weight:600;color:var(--text)">Net cash from sale</span><span class="tv" id="cgtNet10">—</span></div>
               <div class="tax-row" id="cgtCFRow10"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF10">—</span></div>
               <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn10">—</span></div>
+              <div class="tax-row" style="padding:2px 6px;border-top:1px dashed var(--border2)"><span class="tl" style="font-size:11px;color:var(--text3)">↳ in today's money</span><span class="tv" style="font-size:11px" id="cgtTrueReturnReal10">—</span></div>
             </div>
           </div>
           <div>
@@ -1345,6 +1355,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row" style="border-top:1px solid var(--border2)"><span class="tl" style="font-weight:600;color:var(--text)">Net cash from sale</span><span class="tv" id="cgtNet15">—</span></div>
               <div class="tax-row" id="cgtCFRow15"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF15">—</span></div>
               <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn15">—</span></div>
+              <div class="tax-row" style="padding:2px 6px;border-top:1px dashed var(--border2)"><span class="tl" style="font-size:11px;color:var(--text3)">↳ in today's money</span><span class="tv" style="font-size:11px" id="cgtTrueReturnReal15">—</span></div>
             </div>
           </div>
           <div>
@@ -1359,6 +1370,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row" style="border-top:1px solid var(--border2)"><span class="tl" style="font-weight:600;color:var(--text)">Net cash from sale</span><span class="tv" id="cgtNet20">—</span></div>
               <div class="tax-row" id="cgtCFRow20"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF20">—</span></div>
               <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn20">—</span></div>
+              <div class="tax-row" style="padding:2px 6px;border-top:1px dashed var(--border2)"><span class="tl" style="font-size:11px;color:var(--text3)">↳ in today's money</span><span class="tv" style="font-size:11px" id="cgtTrueReturnReal20">—</span></div>
             </div>
           </div>
         </div>
@@ -1531,6 +1543,8 @@ const s = {
   parkingSpots: 0,
   // CGT inflation assumption
   expectedInflation: 2.5,
+  // Discount rate for present value ("today's money") — approx. RBA cash rate
+  discountRate: 4.1,
   // Chart comparison
   sp500Rate: 12,
   // Stamp duty toggle
@@ -1622,7 +1636,7 @@ const DEFAULT_STATE = {
   conveyancing:0, buildingInspection:0, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
   isFirstHomeBuyer:false, address:'', adUrl:'', adUrls:['','',''], suburb:'', propertySubtype:'apartment',
   bedrooms:0, bathrooms:0, notes:'', taxLaw:'new',
-  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, sp500Rate:12, includeStampDuty:true,
+  levyAmount:0, levyYears:0, parkingSpots:0, expectedInflation:2.5, discountRate:4.1, sp500Rate:12, includeStampDuty:true,
 };
 
 function newSimulation() {
@@ -2494,6 +2508,7 @@ function render() {
       const cfRow = el('cgtCFRow'+yr);
       const cfEl = el('cgtCumulCF'+yr);
       const trueEl = el('cgtTrueReturn'+yr);
+      const trueRealEl = el('cgtTrueReturnReal' + yr);
       if (cfRow && s.purpose === 'investment') {
         cfRow.style.display = '';
         const cumulCF = cumulativeAfterTaxCF(yr, c);
@@ -2501,15 +2516,22 @@ function render() {
           cfEl.textContent = (cumulCF >= 0 ? '+$' : '−$') + Math.abs(Math.round(cumulCF)).toLocaleString('en-AU');
           cfEl.style.color = cumulCF >= 0 ? 'var(--green)' : 'var(--red)';
         }
+        const trueReturn = netCashFromSale + cumulCF;
         if (trueEl) {
-          // True economic return = net cash from sale + all running cash flows during ownership
-          const trueReturn = netCashFromSale + cumulCF;
           trueEl.textContent = fmt(trueReturn);
           trueEl.style.color = trueReturn >= 0 ? 'var(--green)' : 'var(--red)';
+        }
+        // Inflation-adjusted: discount the whole true return back to today's purchasing power
+        if (trueRealEl) {
+          const discRate = (s.discountRate || 4.1) / 100;
+          const trueReturnReal = trueReturn / Math.pow(1 + discRate, yr);
+          trueRealEl.textContent = fmt(trueReturnReal);
+          trueRealEl.style.color = trueReturnReal >= 0 ? 'var(--green)' : 'var(--red)';
         }
       } else if (cfRow) {
         cfRow.style.display = 'none';
         if (trueEl) trueEl.textContent = '—';
+        if (trueRealEl) trueRealEl.textContent = '—';
       }
     });
     let cgtDiscountNote, cgtMethodNote;
@@ -3024,6 +3046,9 @@ function syncUI() {
   el('inflationSlider').value = s.expectedInflation || 2.5;
   el('inflationLabel').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
   el('inflationRangeVal').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
+  el('discountRateSlider').value = s.discountRate || 4.1;
+  el('discountRateLabel').textContent = (s.discountRate || 4.1).toFixed(1) + '%';
+  el('discountRateRangeVal').textContent = (s.discountRate || 4.1).toFixed(1) + '%';
   el('sp500Slider').value = s.sp500Rate || 10;
   el('sp500Label').textContent = (s.sp500Rate || 10).toFixed(1) + '%';
   el('sp500RangeVal').textContent = (s.sp500Rate || 10).toFixed(1) + '%';
