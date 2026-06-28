@@ -1299,6 +1299,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable5">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable5">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet5">—</span></div>
+              <div class="tax-row" id="cgtCFRow5"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF5">—</span></div>
+              <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn5">—</span></div>
             </div>
           </div>
           <div>
@@ -1310,6 +1312,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable10">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable10">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet10">—</span></div>
+              <div class="tax-row" id="cgtCFRow10"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF10">—</span></div>
+              <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn10">—</span></div>
             </div>
           </div>
           <div>
@@ -1321,6 +1325,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable15">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable15">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet15">—</span></div>
+              <div class="tax-row" id="cgtCFRow15"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF15">—</span></div>
+              <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn15">—</span></div>
             </div>
           </div>
           <div>
@@ -1332,6 +1338,8 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable20">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable20">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet20">—</span></div>
+              <div class="tax-row" id="cgtCFRow20"><span class="tl" style="color:var(--text3)">Cumulative cash flow</span><span class="tv" id="cgtCumulCF20">—</span></div>
+              <div class="tax-row" style="background:rgba(79,142,247,0.1);padding:3px 6px;border-radius:4px"><span class="tl" style="font-weight:600;color:#4f8ef7">True economic return</span><span class="tv" id="cgtTrueReturn20">—</span></div>
             </div>
           </div>
         </div>
@@ -1387,6 +1395,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>Your Equity</div>
       <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;opacity:0.8"></div>Cash + Inflation</div>
       <div class="legend-item"><div class="legend-dot" style="background:#f97316;opacity:0.8"></div>Cash in S&amp;P 500</div>
+      <div class="legend-item" id="trueWealthLegend"><div class="legend-dot" style="background:#a78bfa"></div>Total Wealth</div>
     </div>
     <canvas id="projChart" height="200"></canvas>
   </div>
@@ -2176,11 +2185,15 @@ function calculate() {
     const indexedCostBase = costBase * Math.pow(1 + inflation, yr);
     const indexedGain = Math.max(0, salePrice - indexedCostBase);
 
-    // Ring-fenced losses: established property under new law accumulates annual
-    // rental losses that can only be applied to offset the capital gain at sale.
-    const annualRingFencedLoss = (!canNegGear && s.purpose === 'investment' && rentalNetIncome < 0)
-      ? Math.abs(rentalNetIncome) : 0;
-    const accumulatedLosses = annualRingFencedLoss * yr;
+    // Ring-fenced losses: year-by-year accumulation (levy may stop after levyYears)
+    let accumulatedLosses = 0;
+    if (!canNegGear && s.purpose === 'investment') {
+      for (let y = 1; y <= yr; y++) {
+        const yLevyActive = s.levyYears >= 1 && y <= s.levyYears;
+        const yearRNI = rentalNetIncome + (yLevyActive ? s.levyAmount : 0) - levyAmt;
+        if (yearRNI < 0) accumulatedLosses += Math.abs(yearRNI);
+      }
+    }
 
     let taxableGain, cgtNote = '';
     if (s.taxLaw === 'old') {
@@ -2223,6 +2236,37 @@ function calculate() {
     rentalNetIncome, taxBenefit, gearingStatus, cashflowGearing, taxBenefitWeekly, afterTaxWeekly,
     depTaxSaving, costBase, canNegGear, cgtAtYear,
   };
+}
+
+// ═══════════════════════════════════════
+//  YEAR-BY-YEAR CASH FLOW HELPERS
+// ═══════════════════════════════════════
+
+// Returns after-tax annual cash flow for a specific ownership year (1-based).
+// Accounts for levy stopping after s.levyYears.
+function yearlyAfterTaxCF(yr, c) {
+  const yLevyActive = s.levyYears >= 1 && yr >= 1 && yr <= s.levyYears;
+  const levyThisYear = yLevyActive ? s.levyAmount : 0;
+  const levyDiff = levyThisYear - c.levyAmt;
+  if (levyDiff === 0) return c.afterTaxWeekly * 52;
+  const yearWeeklyCF = c.weeklyCashFlow + levyDiff / 52;
+  const yearRNI = c.rentalNetIncome + levyDiff;
+  let yearTaxBenefit;
+  if (!c.canNegGear) {
+    yearTaxBenefit = 0;
+  } else if (yearRNI < 0) {
+    yearTaxBenefit = calcTax(s.annualIncome) - calcTax(Math.max(0, s.annualIncome + yearRNI));
+  } else {
+    yearTaxBenefit = -(calcTax(s.annualIncome + yearRNI) - calcTax(s.annualIncome));
+  }
+  return (yearWeeklyCF + yearTaxBenefit / 52) * 52;
+}
+
+// Cumulative after-tax cash flow from year 1 through yr.
+function cumulativeAfterTaxCF(yr, c) {
+  let total = 0;
+  for (let y = 1; y <= yr; y++) total += yearlyAfterTaxCF(y, c);
+  return total;
 }
 
 // ═══════════════════════════════════════
@@ -2407,6 +2451,26 @@ function render() {
       set('cgtTaxable'+yr, fmt(cgt.taxableGain));
       set('cgtPayable'+yr, fmt(cgt.cgt));
       set('cgtNet'+yr, fmt(cgt.netProceeds));
+      // Cumulative cash flow and true economic return
+      const cfRow = el('cgtCFRow'+yr);
+      const cfEl = el('cgtCumulCF'+yr);
+      const trueEl = el('cgtTrueReturn'+yr);
+      if (cfRow && s.purpose === 'investment') {
+        cfRow.style.display = '';
+        const cumulCF = cumulativeAfterTaxCF(yr, c);
+        if (cfEl) {
+          cfEl.textContent = (cumulCF >= 0 ? '+$' : '−$') + Math.abs(Math.round(cumulCF)).toLocaleString('en-AU');
+          cfEl.style.color = cumulCF >= 0 ? 'var(--green)' : 'var(--red)';
+        }
+        if (trueEl) {
+          const trueReturn = cgt.netProceeds + cumulCF;
+          trueEl.textContent = fmt(trueReturn);
+          trueEl.style.color = trueReturn >= 0 ? 'var(--green)' : 'var(--red)';
+        }
+      } else if (cfRow) {
+        cfRow.style.display = 'none';
+        if (trueEl) trueEl.textContent = '—';
+      }
     });
     let cgtDiscountNote, cgtMethodNote;
     if (s.taxLaw === 'old') {
@@ -2513,7 +2577,13 @@ function render() {
       </div>`).join('');
   }
 
-  drawChart(loanBal, propVal, equity, c.totalUpfront, s.expectedInflation || 2.5, s.sp500Rate || 10);
+  // Build cumulative after-tax CF array for chart (year 0 = 0)
+  const cumulCFByYear = s.purpose === 'investment'
+    ? Array.from({length: 31}, (_, yr) => yr === 0 ? 0 : cumulativeAfterTaxCF(yr, c))
+    : null;
+  const twLegend = el('trueWealthLegend');
+  if (twLegend) twLegend.style.display = s.purpose === 'investment' ? '' : 'none';
+  drawChart(loanBal, propVal, equity, c.totalUpfront, s.expectedInflation || 2.5, s.sp500Rate || 10, cumulCFByYear);
 
   // Nav counter
   const simCount = getSims().length;
@@ -2525,7 +2595,7 @@ function render() {
 // ═══════════════════════════════════════
 //  CHART
 // ═══════════════════════════════════════
-function drawChart(loanBalFn, propValFn, equityFn, cashInvested, inflationPct, sp500Pct) {
+function drawChart(loanBalFn, propValFn, equityFn, cashInvested, inflationPct, sp500Pct, cumulCFArr) {
   const canvas = el('projChart');
   const dpr = window.devicePixelRatio || 1;
   const W = canvas.parentElement.clientWidth - 32;
@@ -2541,10 +2611,14 @@ function drawChart(loanBalFn, propValFn, equityFn, cashInvested, inflationPct, s
   const loanVals = years.map(y => Math.max(0, loanBalFn(y)));
   const propVals = years.map(y => propValFn(y));
   const eqVals = years.map(y => equityFn(y));
+  // Total wealth = equity + cumulative after-tax CF (clipped to 0 for chart scaling)
+  const totalWealthVals = cumulCFArr
+    ? eqVals.map((eq, i) => Math.max(0, eq + cumulCFArr[i]))
+    : null;
   const cash = cashInvested || 0;
   const infVals = years.map(y => cash * Math.pow(1 + inflationPct/100, y));
   const sp5Vals = years.map(y => cash * Math.pow(1 + sp500Pct/100, y));
-  const maxVal = Math.max(...propVals, ...sp5Vals, 1);
+  const maxVal = Math.max(...propVals, ...sp5Vals, ...(totalWealthVals || [0]), 1);
   const xOf = y => pad.l + (y/30)*gW;
   const yOf = v => pad.t + gH - Math.max(0, Math.min(1, v/maxVal))*gH;
   ctx.strokeStyle = 'rgba(30,45,71,0.8)'; ctx.lineWidth = 1;
@@ -2576,6 +2650,8 @@ function drawChart(loanBalFn, propValFn, equityFn, cashInvested, inflationPct, s
   drawLine(propVals, '#34d399', false);
   drawLine(loanVals, '#fb7185', true);
   drawLine(eqVals, '#4f8ef7', false);
+  // Total wealth line (equity + cumulative after-tax cash flows)
+  if (totalWealthVals) drawLine(totalWealthVals, '#a78bfa', false, 1.5);
 }
 
 // ═══════════════════════════════════════
@@ -2747,6 +2823,18 @@ function setSavedView(v) {
   renderSavedSimulations();
 }
 
+// Temporarily loads sim.inputs into global s, runs calculate(), then restores s.
+// This ensures all saved sims display with the same current calculation rules.
+function calculateForSim(inputs) {
+  const backup = {};
+  Object.keys(s).forEach(k => { backup[k] = s[k]; delete s[k]; });
+  Object.assign(s, inputs);
+  const result = calculate();
+  Object.keys(s).forEach(k => delete s[k]);
+  Object.assign(s, backup);
+  return result;
+}
+
 function renderSavedSimulations() {
   const sims = getSims();
   el('clearAllBtn').style.display = sims.length ? '' : 'none';
@@ -2765,10 +2853,12 @@ function renderSavedSimulations() {
     return;
   }
   grid.innerHTML = sims.map(sim => {
-    const cf = sim.results.weeklyCashFlow;
-    const atw = sim.results.afterTaxWeekly;
+    // Recalculate with current rules (apples to apples)
+    const r = calculateForSim(sim.inputs);
+    const cf = r.weeklyCashFlow;
+    const atw = r.afterTaxWeekly;
     const isInv = sim.inputs.purpose === 'investment';
-    const cfg = sim.results.cashflowGearing || sim.results.gearingStatus;
+    const cfg = r.cashflowGearing;
     const gearing = cfg === 'negative' ? '🔴 Neg. Cash Flow'
       : cfg === 'negative_ringfenced' ? '🟡 Ring-fenced'
       : cfg === 'positive' ? '🟢 Pos. Cash Flow' : '🔵 Neutral';
@@ -2784,16 +2874,16 @@ function renderSavedSimulations() {
       <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${sim.ts} · ${suburbLine}${sim.inputs.state} · ${meta}</div>
       <div class="sim-meta">
         <div class="sim-stat"><span class="ss-l">Price</span><span class="ss-v">${fmt(sim.inputs.purchasePrice)}</span></div>
-        <div class="sim-stat"><span class="ss-l">Weekly Repayment</span><span class="ss-v">${fmt(sim.results.weekly)}/wk</span></div>
+        <div class="sim-stat"><span class="ss-l">Weekly Repayment</span><span class="ss-v">${fmt(r.weekly)}/wk</span></div>
         ${isInv ? `
-        <div class="sim-stat"><span class="ss-l">Gross Yield</span><span class="ss-v" style="color:var(--green)">${sim.results.grossYield.toFixed(2)}%</span></div>
-        <div class="sim-stat"><span class="ss-l">Net Yield (pre-mortgage)</span><span class="ss-v" style="color:var(--teal)">${sim.results.netYield.toFixed(2)}%</span></div>
+        <div class="sim-stat"><span class="ss-l">Gross Yield</span><span class="ss-v" style="color:var(--green)">${r.grossYield.toFixed(2)}%</span></div>
+        <div class="sim-stat"><span class="ss-l">Net Yield (pre-mortgage)</span><span class="ss-v" style="color:var(--teal)">${r.netYield.toFixed(2)}%</span></div>
         <div class="sim-stat"><span class="ss-l">Weekly Cash Flow</span><span class="ss-v" style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">After-Tax Weekly</span><span class="ss-v" style="color:${atw>=0?'var(--green)':'var(--red)'}">${signedFmt(atw)}/wk</span></div>
         <div class="sim-stat"><span class="ss-l">Gearing</span><span class="ss-v">${gearing}</span></div>
         ` : `
-        <div class="sim-stat"><span class="ss-l">Loan Amount</span><span class="ss-v">${fmt(sim.results.loan)}</span></div>
-        <div class="sim-stat"><span class="ss-l">Total Upfront</span><span class="ss-v">${fmt(sim.results.totalUpfront)}</span></div>
+        <div class="sim-stat"><span class="ss-l">Loan Amount</span><span class="ss-v">${fmt(r.loan)}</span></div>
+        <div class="sim-stat"><span class="ss-l">Total Upfront</span><span class="ss-v">${fmt(r.totalUpfront)}</span></div>
         `}
       </div>
       ${sim.inputs.notes ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-style:italic">${sim.inputs.notes}</div>` : ''}
@@ -2804,34 +2894,36 @@ function renderSavedSimulations() {
 
 function renderCompareTable(sims) {
   if (!sims.length) return '<div class="empty-saved" style="margin:0">No simulations saved yet.</div>';
+  // Recalculate each sim with current rules (apples to apples)
+  const simResults = sims.map(sim => ({ sim, r: calculateForSim(sim.inputs) }));
   const rows = [
-    ['Property / Name', s => `<span style="font-weight:600">${s.name||'Untitled'}</span>${s.inputs.address?`<br><span style="font-size:10px;color:var(--text3)">${s.inputs.address}</span>`:''}${s.inputs.adUrl?`<br><a href="${s.inputs.adUrl}" target="_blank" style="font-size:10px;color:var(--accent)">Listing ↗</a>`:''}`],
-    ['Type / Beds / Baths', s => [s.inputs.propertySubtype||'', s.inputs.bedrooms?s.inputs.bedrooms+'bd':'', s.inputs.bathrooms?s.inputs.bathrooms+'ba':''].filter(Boolean).join(' · ')],
-    ['State', s => s.inputs.state],
-    ['Purpose', s => s.inputs.purpose === 'investment' ? 'Investment' : 'Owner-occupied'],
-    ['Tax Law', s => (s.inputs.taxLaw||'new') === 'new' ? 'Current' : 'Old'],
+    ['Property / Name', ({sim}) => `<span style="font-weight:600">${sim.name||'Untitled'}</span>${sim.inputs.address?`<br><span style="font-size:10px;color:var(--text3)">${sim.inputs.address}</span>`:''}${sim.inputs.adUrl?`<br><a href="${sim.inputs.adUrl}" target="_blank" style="font-size:10px;color:var(--accent)">Listing ↗</a>`:''}`],
+    ['Type / Beds / Baths', ({sim}) => [sim.inputs.propertySubtype||'', sim.inputs.bedrooms?sim.inputs.bedrooms+'bd':'', sim.inputs.bathrooms?sim.inputs.bathrooms+'ba':''].filter(Boolean).join(' · ')],
+    ['State', ({sim}) => sim.inputs.state],
+    ['Purpose', ({sim}) => sim.inputs.purpose === 'investment' ? 'Investment' : 'Owner-occupied'],
+    ['Tax Law', ({sim}) => (sim.inputs.taxLaw||'new') === 'new' ? 'Current' : 'Old'],
     ['─── Purchase ───', null],
-    ['Purchase Price', s => fmt(s.inputs.purchasePrice)],
-    ['Stamp Duty', s => fmt(s.results.stampDuty||0)],
-    ['Total Upfront', s => fmt(s.results.totalUpfront)],
+    ['Purchase Price', ({sim}) => fmt(sim.inputs.purchasePrice)],
+    ['Stamp Duty', ({r}) => fmt(r.stampDuty||0)],
+    ['Total Upfront', ({r}) => fmt(r.totalUpfront)],
     ['─── Mortgage ───', null],
-    ['Loan Amount', s => fmt(s.results.loan)],
-    ['Weekly Repayment', s => fmt(s.results.weekly)+'/wk'],
-    ['Interest Rate', s => s.inputs.interestRate+'%'],
+    ['Loan Amount', ({r}) => fmt(r.loan)],
+    ['Weekly Repayment', ({r}) => fmt(r.weekly)+'/wk'],
+    ['Interest Rate', ({sim}) => sim.inputs.interestRate+'%'],
     ['─── Investment ───', null],
-    ['Gross Yield', s => s.results.grossYield != null ? s.results.grossYield.toFixed(2)+'%' : '—'],
-    ['Net Yield (pre-mtg)', s => s.results.netYield != null ? s.results.netYield.toFixed(2)+'%' : '—'],
-    ['Weekly Cash Flow', s => { const cf=s.results.weeklyCashFlow; return cf!=null?`<span style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span>`:'—'; }],
-    ['After-Tax Weekly', s => { const a=s.results.afterTaxWeekly; return a!=null?`<span style="color:${a>=0?'var(--green)':'var(--red)'}">${signedFmt(a)}/wk</span>`:'—'; }],
-    ['Gearing', s => s.results.gearingStatus==='negative'?'🔴 Neg. Geared':s.results.gearingStatus==='positive'?'🟢 Pos. Geared':s.results.gearingStatus==='negative_ringfenced'?'🟡 Ring-fenced':'—'],
-    ['Notes', s => s.inputs.notes ? `<span style="font-style:italic;color:var(--text3)">${s.inputs.notes}</span>` : '—'],
+    ['Gross Yield', ({r}) => r.grossYield != null ? r.grossYield.toFixed(2)+'%' : '—'],
+    ['Net Yield (pre-mtg)', ({r}) => r.netYield != null ? r.netYield.toFixed(2)+'%' : '—'],
+    ['Weekly Cash Flow', ({r}) => { const cf=r.weeklyCashFlow; return cf!=null?`<span style="color:${cf>=0?'var(--green)':'var(--red)'}">${signedFmt(cf)}/wk</span>`:'—'; }],
+    ['After-Tax Weekly', ({r}) => { const a=r.afterTaxWeekly; return a!=null?`<span style="color:${a>=0?'var(--green)':'var(--red)'}">${signedFmt(a)}/wk</span>`:'—'; }],
+    ['Gearing', ({r}) => r.cashflowGearing==='negative'?'🔴 Neg. Cash Flow':r.cashflowGearing==='positive'?'🟢 Pos. Cash Flow':r.cashflowGearing==='negative_ringfenced'?'🟡 Ring-fenced':'—'],
+    ['Notes', ({sim}) => sim.inputs.notes ? `<span style="font-style:italic;color:var(--text3)">${sim.inputs.notes}</span>` : '—'],
   ];
   const header = `<tr><th class="metric-col">Metric</th>${sims.map(sim=>`<th style="text-align:right;cursor:pointer" onclick="loadSim(${sim.id})" title="Click to load">${sim.name||'Untitled'}<br><span style="font-weight:400;color:var(--text3)">${sim.ts}</span></th>`).join('')}</tr>`;
   const body = rows.map(([label, fn]) => {
     if (!fn) return `<tr><td colspan="${sims.length+1}" style="background:var(--surface2);font-size:11px;color:var(--text3);font-weight:600;padding:6px 12px;letter-spacing:0.5px">${label}</td></tr>`;
-    return `<tr><td class="metric-col">${label}</td>${sims.map(sim=>`<td class="sim-col" onclick="loadSim(${sim.id})">${fn(sim)}</td>`).join('')}</tr>`;
+    return `<tr><td class="metric-col">${label}</td>${simResults.map(sr=>`<td class="sim-col" onclick="loadSim(${sr.sim.id})">${fn(sr)}</td>`).join('')}</tr>`;
   }).join('');
-  return `<div class="compare-wrap"><table class="compare-table"><thead>${header}</thead><tbody>${body}</tbody></table></div><p style="font-size:11px;color:var(--text3);margin-top:8px;padding:0 4px">Click any column to load that simulation.</p>`;
+  return `<div class="compare-wrap"><table class="compare-table"><thead>${header}</thead><tbody>${body}</tbody></table></div><p style="font-size:11px;color:var(--text3);margin-top:8px;padding:0 4px">Click any column to load that simulation. Values recalculated with current rules.</p>`;
 }
 
 // ═══════════════════════════════════════
