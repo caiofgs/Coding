@@ -2148,6 +2148,15 @@ function calculate() {
 
   const taxBenefitWeekly = taxBenefit / 52;
   const afterTaxWeekly = weeklyCashFlow + taxBenefitWeekly;
+
+  // Cash flow gearing — based on full P&I mortgage, not interest-only.
+  // gearingStatus drives the TAX calculation (ATO concept: interest vs rent).
+  // cashflowGearing drives the displayed chip (cash actually in/out of pocket).
+  const cashflowGearing = s.purpose !== 'investment' ? 'neutral'
+    : weeklyCashFlow > 0.01 ? 'positive'
+    : weeklyCashFlow < -0.01
+      ? (gearingStatus === 'negative_ringfenced' ? 'negative_ringfenced' : 'negative')
+      : 'neutral';
   // Separate: how much of the tax benefit is from depreciation (non-cash)
   const depTaxSaving = canNegGear && depreciation > 0
     ? calcTax(Math.max(0, annualIncome + rentalNetIncome + depreciation)) - calcTax(Math.max(0, annualIncome + rentalNetIncome))
@@ -2211,7 +2220,7 @@ function calculate() {
     noi, trueGrossYield, grossYield, netYield,
     weeklyCashFlow, annualCashFlow, breakEvenWeekly,
     atoDepreciation, depreciation, cashDeductible, totalDeductible,
-    rentalNetIncome, taxBenefit, gearingStatus, taxBenefitWeekly, afterTaxWeekly,
+    rentalNetIncome, taxBenefit, gearingStatus, cashflowGearing, taxBenefitWeekly, afterTaxWeekly,
     depTaxSaving, costBase, canNegGear, cgtAtYear,
   };
 }
@@ -2375,12 +2384,12 @@ function render() {
     el('hCashFlowWk').style.color = cfColor;
     el('hCashFlowSubHero').textContent = signedFmt(cfTotMo) + '/mo · ' + signedFmt(c.annualCashFlow) + '/yr';
 
-    // Gearing chip
+    // Gearing chip — based on full cash flow after P&I mortgage
     const chip = el('gearingChip');
-    if (c.gearingStatus === 'negative') { chip.textContent = 'Negatively Geared'; chip.className = 'chip chip-red'; }
-    else if (c.gearingStatus === 'positive') { chip.textContent = 'Positively Geared'; chip.className = 'chip chip-green'; }
-    else if (c.gearingStatus === 'negative_ringfenced') {
-      chip.textContent = s.taxLaw === 'new' ? 'Loss Ring-fenced (Post 12 May 2026)' : 'Loss Ring-fenced';
+    if (c.cashflowGearing === 'negative') { chip.textContent = 'Negative Cash Flow'; chip.className = 'chip chip-red'; }
+    else if (c.cashflowGearing === 'positive') { chip.textContent = 'Positive Cash Flow'; chip.className = 'chip chip-green'; }
+    else if (c.cashflowGearing === 'negative_ringfenced') {
+      chip.textContent = s.taxLaw === 'new' ? 'Ring-fenced · Cash Negative' : 'Ring-fenced · Cash Negative';
       chip.className = 'chip chip-yellow';
     }
     else { chip.textContent = 'Neutral'; chip.className = 'chip chip-blue'; }
@@ -2699,7 +2708,7 @@ function confirmSave() {
       loan: c.loan, weekly: c.weekly,
       grossYield: c.grossYield, netYield: c.netYield,
       noi: c.noi, weeklyCashFlow: c.weeklyCashFlow,
-      afterTaxWeekly: c.afterTaxWeekly, gearingStatus: c.gearingStatus,
+      afterTaxWeekly: c.afterTaxWeekly, gearingStatus: c.gearingStatus, cashflowGearing: c.cashflowGearing,
       totalUpfront: c.totalUpfront, stampDuty: c.stampDuty,
     }
   };
@@ -2759,9 +2768,10 @@ function renderSavedSimulations() {
     const cf = sim.results.weeklyCashFlow;
     const atw = sim.results.afterTaxWeekly;
     const isInv = sim.inputs.purpose === 'investment';
-    const gearing = sim.results.gearingStatus === 'negative' ? '🔴 Neg. Geared'
-      : sim.results.gearingStatus === 'negative_ringfenced' ? '🟡 Ring-fenced'
-      : sim.results.gearingStatus === 'positive' ? '🟢 Pos. Geared' : '🔵 Neutral';
+    const cfg = sim.results.cashflowGearing || sim.results.gearingStatus;
+    const gearing = cfg === 'negative' ? '🔴 Neg. Cash Flow'
+      : cfg === 'negative_ringfenced' ? '🟡 Ring-fenced'
+      : cfg === 'positive' ? '🟢 Pos. Cash Flow' : '🔵 Neutral';
     const meta = [sim.inputs.propertySubtype||'', sim.inputs.bedrooms ? sim.inputs.bedrooms+'bd' : '', sim.inputs.bathrooms ? sim.inputs.bathrooms+'ba' : ''].filter(Boolean).join(' · ');
     const addrLine = sim.inputs.address ? `<div style="font-size:11px;color:var(--text3);margin-bottom:2px">📍 ${sim.inputs.address}</div>` : '';
     const allUrls = (sim.inputs.adUrls || []).filter(u => u).concat(sim.inputs.adUrl ? [sim.inputs.adUrl] : []).filter((v,i,a)=>a.indexOf(v)===i);
