@@ -439,12 +439,21 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <div class="field">
           <label>Beds / Baths</label>
           <div style="display:flex;gap:6px">
-            <div class="input-wrap" style="flex:1">
-              <input type="number" id="bedroomsField" value="3" min="0" max="20" step="1" placeholder="Beds" oninput="s.bedrooms=+this.value" style="text-align:center">
-            </div>
-            <div class="input-wrap" style="flex:1">
-              <input type="number" id="bathroomsField" value="2" min="0" max="10" step="0.5" placeholder="Baths" oninput="s.bathrooms=+this.value" style="text-align:center">
-            </div>
+            <select id="bedroomsField" onchange="s.bedrooms=+this.value" style="flex:1;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+              <option value="0">0 bed</option>
+              <option value="1">1 bed</option>
+              <option value="2">2 beds</option>
+              <option value="3" selected>3 beds</option>
+              <option value="4">4 beds</option>
+              <option value="5">5 beds</option>
+              <option value="6">6+ beds</option>
+            </select>
+            <select id="bathroomsField" onchange="s.bathrooms=+this.value" style="flex:1;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+              <option value="1">1 bath</option>
+              <option value="2" selected>2 baths</option>
+              <option value="3">3 baths</option>
+              <option value="4">4+ baths</option>
+            </select>
           </div>
           <p class="hint">Bedrooms · Bathrooms</p>
         </div>
@@ -452,13 +461,17 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
       <div class="two-col">
         <div class="field">
           <label>Parking Spots</label>
-          <div class="input-wrap">
-            <input type="number" id="parkingSpots" value="0" min="0" max="10" step="1" oninput="s.parkingSpots=+this.value" style="text-align:center">
-          </div>
+          <select id="parkingSpots" onchange="s.parkingSpots=+this.value" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none">
+            <option value="0" selected>None</option>
+            <option value="1">1 spot</option>
+            <option value="2">2 spots</option>
+            <option value="3">3+ spots</option>
+          </select>
         </div>
         <div class="field">
           <label>Suburb</label>
-          <input type="text" id="suburbField" placeholder="e.g. Fitzroy" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.suburb=this.value">
+          <input type="text" id="suburbField" list="suburbList" placeholder="e.g. Fitzroy" style="width:100%;padding:9px 11px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;" oninput="s.suburb=this.value">
+          <datalist id="suburbList"></datalist>
         </div>
       </div>
       <div class="field">
@@ -762,6 +775,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
         <div class="field">
           <label>Depreciation Amount</label>
           <div class="toggle-group" style="margin-bottom:8px">
+            <button class="tog" id="togDepNone" onclick="setDepMode('none')">No Depreciation</button>
             <button class="tog active" id="togDepATO" onclick="setDepMode('ato')">ATO Estimate</button>
             <button class="tog" id="togDepCustom" onclick="setDepMode('custom')">Custom Amount</button>
           </div>
@@ -1229,6 +1243,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <div class="tax-breakdown">
               <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice5">—</span></div>
               <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain5">—</span></div>
+              <div class="tax-row" id="cgtLossesRow5" style="display:none"><span class="tl" style="color:var(--green)">Less: ring-fenced losses</span><span class="tv val-green" id="cgtLosses5">—</span></div>
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable5">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable5">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet5">—</span></div>
@@ -1239,6 +1254,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <div class="tax-breakdown">
               <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice10">—</span></div>
               <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain10">—</span></div>
+              <div class="tax-row" id="cgtLossesRow10" style="display:none"><span class="tl" style="color:var(--green)">Less: ring-fenced losses</span><span class="tv val-green" id="cgtLosses10">—</span></div>
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable10">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable10">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet10">—</span></div>
@@ -1249,6 +1265,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <div class="tax-breakdown">
               <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice15">—</span></div>
               <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain15">—</span></div>
+              <div class="tax-row" id="cgtLossesRow15" style="display:none"><span class="tl" style="color:var(--green)">Less: ring-fenced losses</span><span class="tv val-green" id="cgtLosses15">—</span></div>
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable15">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable15">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet15">—</span></div>
@@ -1259,6 +1276,7 @@ canvas{display:block;width:100%;border-radius:var(--radius-sm)}
             <div class="tax-breakdown">
               <div class="tax-row"><span class="tl">Sale price</span><span class="tv" id="cgtSalePrice20">—</span></div>
               <div class="tax-row"><span class="tl">Capital gain</span><span class="tv" id="cgtGain20">—</span></div>
+              <div class="tax-row" id="cgtLossesRow20" style="display:none"><span class="tl" style="color:var(--green)">Less: ring-fenced losses</span><span class="tv val-green" id="cgtLosses20">—</span></div>
               <div class="tax-row"><span class="tl">Taxable gain</span><span class="tv" id="cgtTaxable20">—</span></div>
               <div class="tax-row" style="background:var(--red-bg);padding:3px 6px;border-radius:4px"><span class="tl" style="color:var(--red)">CGT payable</span><span class="tv val-red" id="cgtPayable20">—</span></div>
               <div class="tax-row"><span class="tl" style="font-weight:600;color:var(--text)">Net after CGT</span><span class="tv val-green" id="cgtNet20">—</span></div>
@@ -1403,6 +1421,7 @@ const s = {
   propertyYearBuilt: 2000,
   buildingValuePct: 70,
   useATODepreciation: true,
+  depreciationMode: 'ato',  // 'none' | 'ato' | 'custom'
   depreciationAmount: 0,
   // Purchase costs
   conveyancing: 2500,
@@ -1515,7 +1534,7 @@ const DEFAULT_STATE = {
   councilRates:1800, waterRates:1200, strataFees:0, buildingInsurance:1500,
   landlordInsurance:1000, maintenance:0, useMaintenanceEstimate:false,
   landTax:0, accounting:500, otherOutgoings:0, annualIncome:100000, capitalGrowthPct:5,
-  propertyYearBuilt:2000, buildingValuePct:70, useATODepreciation:true, depreciationAmount:0,
+  propertyYearBuilt:2000, buildingValuePct:70, useATODepreciation:true, depreciationMode:'ato', depreciationAmount:0,
   conveyancing:2500, buildingInspection:500, pestInspection:0, loanFee:0, otherPurchaseCosts:0,
   isFirstHomeBuyer:false, address:'', adUrl:'', adUrls:['','',''], suburb:'', propertySubtype:'house',
   bedrooms:3, bathrooms:2, notes:'', taxLaw:'new',
@@ -1574,7 +1593,9 @@ function setType(t) {
 }
 
 function setDepMode(mode) {
+  s.depreciationMode = mode;
   s.useATODepreciation = mode === 'ato';
+  el('togDepNone').classList.toggle('active', mode === 'none');
   el('togDepATO').classList.toggle('active', mode === 'ato');
   el('togDepCustom').classList.toggle('active', mode === 'custom');
   el('depAtoRow').style.display = mode === 'ato' ? '' : 'none';
@@ -1890,11 +1911,15 @@ function parseListing(html, url, idx) {
 }
 
 function applyListingData(data, idx) {
-  if (data.bedrooms !== undefined) { s.bedrooms = data.bedrooms; el('bedroomsField').value = data.bedrooms; }
-  if (data.bathrooms !== undefined) { s.bathrooms = data.bathrooms; el('bathroomsField').value = data.bathrooms; }
-  if (data.parkingSpots !== undefined) { s.parkingSpots = data.parkingSpots; el('parkingSpots').value = data.parkingSpots; }
+  if (data.bedrooms !== undefined) { s.bedrooms = data.bedrooms; el('bedroomsField').value = Math.min(data.bedrooms, 6); }
+  if (data.bathrooms !== undefined) { s.bathrooms = data.bathrooms; el('bathroomsField').value = Math.min(data.bathrooms, 4); }
+  if (data.parkingSpots !== undefined) { s.parkingSpots = data.parkingSpots; el('parkingSpots').value = Math.min(data.parkingSpots, 3); }
   if (data.address) { s.address = data.address; el('addressField').value = data.address; }
-  if (data.suburb) { s.suburb = data.suburb; el('suburbField').value = data.suburb; }
+  if (data.suburb) {
+    s.suburb = data.suburb; el('suburbField').value = data.suburb;
+    const dl = el('suburbList');
+    if (dl && ![...dl.options].some(o => o.value === data.suburb)) { const o = document.createElement('option'); o.value = data.suburb; dl.appendChild(o); }
+  }
   if (data.state) {
     const stateMap = { QLD:'QLD', NSW:'NSW', VIC:'VIC', WA:'WA', SA:'SA', ACT:'ACT', TAS:'TAS', NT:'NT' };
     const st = stateMap[data.state.toUpperCase()];
@@ -2026,9 +2051,10 @@ function calculate() {
   // Depreciation — available for post-1987 buildings (Div 43)
   const depRate = s.propertyYearBuilt >= 1988 ? 0.025 : (s.propertyYearBuilt >= 1985 ? 0.04 : 0);
   const atoDepreciation = depRate > 0 ? p * (s.buildingValuePct/100) * depRate : 0;
-  const depreciation = s.purpose === 'investment'
-    ? (s.useATODepreciation ? atoDepreciation : s.depreciationAmount)
-    : 0;
+  const depMode = s.depreciationMode || (s.useATODepreciation !== false ? 'ato' : 'custom');
+  const depreciation = s.purpose !== 'investment' || depMode === 'none' ? 0
+    : depMode === 'custom' ? s.depreciationAmount
+    : atoDepreciation;
 
   // Tax — using exact calculation from actual income
   const annualIncome = s.annualIncome || 0;
@@ -2085,6 +2111,12 @@ function calculate() {
     const indexedCostBase = costBase * Math.pow(1 + inflation, yr);
     const indexedGain = Math.max(0, salePrice - indexedCostBase);
 
+    // Ring-fenced losses: established property under new law accumulates annual
+    // rental losses that can only be applied to offset the capital gain at sale.
+    const annualRingFencedLoss = (!canNegGear && s.purpose === 'investment' && rentalNetIncome < 0)
+      ? Math.abs(rentalNetIncome) : 0;
+    const accumulatedLosses = annualRingFencedLoss * yr;
+
     let taxableGain, cgtNote = '';
     if (s.taxLaw === 'old') {
       // Grandfathered: 50% discount (held > 12m)
@@ -2096,9 +2128,9 @@ function calculate() {
       taxableGain = Math.min(by50pct, indexedGain);
       cgtNote = taxableGain === by50pct ? '50% discount (better)' : 'CPI indexation (better)';
     } else {
-      // Established post-12-May-2026: CPI indexation only
-      taxableGain = indexedGain;
-      cgtNote = 'CPI indexation, 30% min tax';
+      // Established post-12-May-2026: CPI indexation + ring-fenced losses offset gain
+      taxableGain = Math.max(0, indexedGain - accumulatedLosses);
+      cgtNote = 'CPI indexation, 30% min tax' + (accumulatedLosses > 0 ? ', ring-fenced losses applied' : '');
     }
 
     const taxWithoutGain = calcTax(annualIncome);
@@ -2112,7 +2144,7 @@ function calculate() {
       cgt = calcTax(annualIncome + taxableGain) - taxWithoutGain;
     }
     cgt = Math.max(0, cgt);
-    return { salePrice, gain: rawGain, taxableGain, cgt, netProceeds: salePrice - cgt, cgtNote };
+    return { salePrice, gain: rawGain, accumulatedLosses, taxableGain, cgt, netProceeds: salePrice - cgt, cgtNote };
   };
 
   return {
@@ -2302,6 +2334,11 @@ function render() {
       const cgt = c.cgtAtYear(yr);
       set('cgtSalePrice'+yr, fmt(cgt.salePrice));
       set('cgtGain'+yr, fmt(cgt.gain));
+      const lossRow = el('cgtLossesRow'+yr);
+      if (lossRow) {
+        lossRow.style.display = cgt.accumulatedLosses > 0 ? '' : 'none';
+        set('cgtLosses'+yr, '-' + fmt(cgt.accumulatedLosses));
+      }
       set('cgtTaxable'+yr, fmt(cgt.taxableGain));
       set('cgtPayable'+yr, fmt(cgt.cgt));
       set('cgtNet'+yr, fmt(cgt.netProceeds));
@@ -2654,8 +2691,8 @@ function syncUI() {
   el('fhbCheck').checked = s.isFirstHomeBuyer || false;
   el('addressField').value = s.address || '';
   el('propertySubtype').value = s.propertySubtype || 'house';
-  el('bedroomsField').value = s.bedrooms || 3;
-  el('bathroomsField').value = s.bathrooms || 2;
+  el('bedroomsField').value = Math.min(s.bedrooms || 3, 6);
+  el('bathroomsField').value = Math.min(s.bathrooms || 2, 4);
   el('notesField').value = s.notes || '';
   el('suburbField').value = s.suburb || '';
   // Restore URLs
@@ -2673,7 +2710,7 @@ function syncUI() {
   // New fields
   el('levyAmount').value = s.levyAmount || 0;
   el('levyYears').value = s.levyYears || 0;
-  el('parkingSpots').value = s.parkingSpots || 0;
+  el('parkingSpots').value = Math.min(s.parkingSpots || 0, 3);
   el('inflationSlider').value = s.expectedInflation || 2.5;
   el('inflationLabel').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
   el('inflationRangeVal').textContent = (s.expectedInflation || 2.5).toFixed(1) + '%';
@@ -2686,11 +2723,14 @@ function syncUI() {
   el('pestInspection').value = s.pestInspection;
   el('loanFee').value = s.loanFee;
   el('otherPurchaseCosts').value = s.otherPurchaseCosts;
-  if (!s.useATODepreciation) {
-    el('depAmount').value = s.depreciationAmount;
-    setDepMode('custom');
-  } else {
-    setDepMode('ato');
+  const currentDepMode = s.depreciationMode || (s.useATODepreciation !== false ? 'ato' : 'custom');
+  if (currentDepMode === 'custom') el('depAmount').value = s.depreciationAmount;
+  setDepMode(currentDepMode);
+  // Populate suburb datalist from saved simulations
+  const suburbDL = el('suburbList');
+  if (suburbDL) {
+    const known = new Set([...suburbDL.options].map(o => o.value));
+    getSims().forEach(sim => { if (sim.inputs.suburb && !known.has(sim.inputs.suburb)) { const o = document.createElement('option'); o.value = sim.inputs.suburb; suburbDL.appendChild(o); known.add(sim.inputs.suburb); } });
   }
   syncDepositLabels();
   setPurpose(s.purpose);
