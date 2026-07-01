@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conveyancer Co-pilot</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e2e0db;
+    --primary: #1a4a6b;
+    --primary-light: #e8f0f7;
+    --accent: #c8861a;
+    --accent-light: #fdf4e7;
+    --danger: #b32020;
+    --danger-light: #fdf0f0;
+    --success: #1a6b3a;
+    --success-light: #edf7f2;
+    --text: #1c1c1c;
+    --text-muted: #6b6b6b;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header .logo { font-size: 28px; }
+  header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; }
+  header p { font-size: 0.85rem; opacity: 0.75; }
+
+  .disclaimer {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    color: #5a4010;
+  }
+  .disclaimer strong { display: block; margin-bottom: 2px; }
+
+  main { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+  /* Upload area */
+  .upload-card {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 24px;
+  }
+  .upload-card:hover, .upload-card.dragover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .upload-card .icon { font-size: 48px; margin-bottom: 12px; }
+  .upload-card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 6px; }
+  .upload-card p { color: var(--text-muted); font-size: 0.9rem; }
+  .upload-card input[type="file"] { display: none; }
+
+  .file-selected {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: var(--primary);
+  }
+  .file-selected .filename { font-weight: 600; flex: 1; }
+  .file-selected .remove-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    opacity: 0.6;
+  }
+  .file-selected .remove-btn:hover { opacity: 1; }
+
+  .analyse-btn {
+    display: block;
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 24px;
+  }
+  .analyse-btn:hover:not(:disabled) { opacity: 0.88; }
+  .analyse-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Loading */
+  .loading {
+    display: none;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .loading.visible { display: block; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading h3 { color: var(--primary); margin-bottom: 6px; }
+  .loading p { color: var(--text-muted); font-size: 0.9rem; }
+  .loading-steps { margin-top: 16px; text-align: left; max-width: 320px; margin-left: auto; margin-right: auto; }
+  .loading-steps li { font-size: 0.85rem; color: var(--text-muted); padding: 4px 0; list-style: none; }
+  .loading-steps li::before { content: "⏳ "; }
+  .loading-steps li.done::before { content: "✓ "; color: var(--success); }
+
+  /* Error */
+  .error-box {
+    display: none;
+    background: var(--danger-light);
+    border: 1px solid #f0b0b0;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    color: var(--danger);
+    margin-bottom: 24px;
+  }
+  .error-box.visible { display: block; }
+  .error-box strong { display: block; margin-bottom: 4px; }
+
+  /* Results */
+  #results { display: none; }
+  #results.visible { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .results-header h2 { font-size: 1.2rem; color: var(--primary); }
+
+  .export-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .export-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text);
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .export-btn:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+
+  .copy-all-btn {
+    background: var(--primary);
+    color: white;
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .copy-all-btn:hover { opacity: 0.88; }
+
+  /* Section cards */
+  .section-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .section-card-header:hover { background: var(--bg); }
+  .section-card.open .section-card-header { border-bottom-color: var(--border); }
+  .section-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .section-num {
+    background: var(--primary);
+    color: white;
+    border-radius: 4px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .copy-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); }
+  .chevron {
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    font-size: 14px;
+  }
+  .section-card.open .chevron { transform: rotate(180deg); }
+
+  .section-card-body {
+    display: none;
+    padding: 20px;
+  }
+  .section-card.open .section-card-body { display: block; }
+
+  /* Content styles */
+  .prose p { margin-bottom: 12px; }
+  .prose p:last-child { margin-bottom: 0; }
+
+  .risk-item, .condition-item, .risk-item-small {
+    border-left: 3px solid var(--danger);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    background: var(--danger-light);
+    border-radius: 0 6px 6px 0;
+  }
+  .risk-item-small { border-color: var(--accent); background: var(--accent-light); }
+  .risk-item strong, .condition-item strong, .risk-item-small strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--danger);
+  }
+  .risk-item-small strong { color: var(--accent); }
+
+  .title-item, .oc-item {
+    border-left: 3px solid var(--primary);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    background: var(--primary-light);
+    border-radius: 0 6px 6px 0;
+  }
+  .title-item .badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .na-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .fd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .fd-grid { grid-template-columns: 1fr; } }
+  .fd-cell {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+  }
+  .fd-cell label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .fd-cell span { font-weight: 500; }
+
+  .dates-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .dates-table th { text-align: left; padding: 8px 12px; background: var(--bg); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  .dates-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .dates-table tr:last-child td { border-bottom: none; }
+
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .checklist-item:last-child { border-bottom: none; }
+  .status-badge {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .status-badge.before { background: #fde8e8; color: #991b1b; }
+  .status-badge.confirm { background: var(--accent-light); color: #78450a; }
+  .status-badge.review { background: var(--primary-light); color: var(--primary); }
+  .status-badge.na { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .checklist-content strong { display: block; margin-bottom: 2px; }
+  .checklist-content span { color: var(--text-muted); }
+
+  .question-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .question-item:last-child { border-bottom: none; }
+  .question-item .q-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .question-item strong { font-size: 0.95rem; }
+  .question-item .q-context { margin-top: 5px; color: var(--text-muted); font-size: 0.875rem; padding-left: 30px; }
+
+  .deal-memo {
+    display: grid;
+    gap: 14px;
+  }
+  .deal-headline {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.4;
+  }
+  .recommendation-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+  }
+  .recommendation-chip.proceed { background: #d1fae5; color: #065f46; }
+  .recommendation-chip.caution { background: #fef3c7; color: #92400e; }
+  .recommendation-chip.high-risk { background: #fee2e2; color: #991b1b; }
+
+  .deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .deal-grid { grid-template-columns: 1fr; } }
+  .deal-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+  .deal-cell label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .kn-table { width: 100%; border-collapse: collapse; }
+  .kn-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .kn-table td:first-child { color: var(--text-muted); width: 50%; }
+  .kn-table td:last-child { font-weight: 600; }
+  .kn-table tr:last-child td { border-bottom: none; }
+
+  .next-steps { list-style: none; counter-reset: steps; }
+  .next-steps li {
+    counter-increment: steps;
+    padding: 8px 0 8px 36px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .next-steps li:last-child { border-bottom: none; }
+  .next-steps li::before {
+    content: counter(steps);
+    position: absolute;
+    left: 0;
+    top: 9px;
+    background: var(--primary);
+    color: white;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #1a1a1a;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚖️</div>
+  <div>
+    <h1>Conveyancer Co-pilot</h1>
+    <p>Personal contract review assistant — for preparation purposes only</p>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <strong>Not legal advice.</strong>
+  This tool is a personal aid to help you prepare questions and spot potential issues before speaking with your licensed conveyancer. It does not constitute legal advice and should not be relied upon as such.
+</div>
+
+<main>
+  <!-- Upload area -->
+  <div class="upload-card" id="dropZone">
+    <div class="icon">📄</div>
+    <h2>Upload your Contract of Sale</h2>
+    <p>Drag and drop a PDF here, or click to browse</p>
+    <p style="margin-top:6px; font-size:0.8rem; color:#999;">Max 50 MB · Text-based PDFs only</p>
+    <input type="file" id="fileInput" accept=".pdf">
+  </div>
+
+  <div id="fileSelectedBar" style="display:none" class="file-selected">
+    <span>📎</span>
+    <span class="filename" id="fileNameDisplay"></span>
+    <button class="remove-btn" id="removeFileBtn" title="Remove file">✕</button>
+  </div>
+
+  <button class="analyse-btn" id="analyseBtn" disabled>Analyse Contract</button>
+
+  <!-- Loading state -->
+  <div class="loading" id="loadingBox">
+    <div class="spinner"></div>
+    <h3>Analysing your contract…</h3>
+    <p>Claude is reading the full document. This usually takes 30–90 seconds.</p>
+    <ul class="loading-steps" id="loadingSteps">
+      <li id="step1">Extracting text from PDF</li>
+      <li id="step2">Sending to Claude AI</li>
+      <li id="step3">Analysing 10 sections</li>
+      <li id="step4">Preparing results</li>
+    </ul>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox">
+    <strong>Analysis failed</strong>
+    <span id="errorMsg"></span>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="results-header">
+      <h2>Analysis complete</h2>
+      <div class="export-bar">
+        <button class="copy-all-btn" id="copyAllBtn">📋 Copy all</button>
+        <button class="export-btn" id="exportMdBtn">⬇ Markdown</button>
+        <button class="export-btn" id="exportDocxBtn">⬇ Word (.docx)</button>
+      </div>
+    </div>
+
+    <!-- Section cards will be injected here -->
+    <div id="sectionContainer"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileSelectedBar = document.getElementById('fileSelectedBar');
+const fileNameDisplay = document.getElementById('fileNameDisplay');
+const removeFileBtn = document.getElementById('removeFileBtn');
+const analyseBtn = document.getElementById('analyseBtn');
+const loadingBox = document.getElementById('loadingBox');
+const errorBox = document.getElementById('errorBox');
+const errorMsg = document.getElementById('errorMsg');
+const results = document.getElementById('results');
+const sectionContainer = document.getElementById('sectionContainer');
+const toastEl = document.getElementById('toast');
+
+let selectedFile = null;
+let currentAnalysis = null;
+
+// File selection
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.toLowerCase().endsWith('.pdf')) setFile(f);
+  else showToast('Please drop a PDF file');
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+function setFile(f) {
+  selectedFile = f;
+  fileNameDisplay.textContent = f.name + ' (' + (f.size / 1024 / 1024).toFixed(1) + ' MB)';
+  fileSelectedBar.style.display = 'flex';
+  dropZone.style.display = 'none';
+  analyseBtn.disabled = false;
+}
+
+removeFileBtn.addEventListener('click', () => {
+  selectedFile = null;
+  fileInput.value = '';
+  fileSelectedBar.style.display = 'none';
+  dropZone.style.display = 'block';
+  analyseBtn.disabled = true;
+});
+
+// Analyse
+analyseBtn.addEventListener('click', runAnalysis);
+
+async function runAnalysis() {
+  if (!selectedFile) return;
+
+  // Reset UI
+  hideError();
+  results.classList.remove('visible');
+  results.style.display = 'none';
+  sectionContainer.innerHTML = '';
+  currentAnalysis = null;
+
+  loadingBox.classList.add('visible');
+  analyseBtn.disabled = true;
+
+  const steps = ['step1','step2','step3','step4'];
+  let stepIdx = 0;
+  document.getElementById('step1').classList.add('done');
+  stepIdx = 1;
+
+  const formData = new FormData();
+  formData.append('contract', selectedFile);
+
+  try {
+    const response = await fetch('/analyse', { method: 'POST', body: formData });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Server error');
+    }
+
+    markStep(1); // PDF extraction done, now streaming
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let chunksReceived = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = JSON.parse(line.slice(6));
+
+        if (payload.type === 'chunk') {
+          chunksReceived++;
+          if (chunksReceived === 1) markStep(2);
+          if (chunksReceived === 5) markStep(3);
+        } else if (payload.type === 'complete') {
+          markStep(4);
+          currentAnalysis = payload.analysis;
+          renderResults(payload.analysis);
+        } else if (payload.type === 'error') {
+          throw new Error(payload.error);
+        }
+      }
+    }
+
+    loadingBox.classList.remove('visible');
+    analyseBtn.disabled = false;
+
+  } catch (err) {
+    loadingBox.classList.remove('visible');
+    analyseBtn.disabled = false;
+    showError(err.message);
+  }
+}
+
+function markStep(idx) {
+  const ids = ['step1','step2','step3','step4'];
+  for (let i = 0; i <= idx; i++) {
+    document.getElementById(ids[i]).classList.add('done');
+  }
+}
+
+// Render results
+function renderResults(a) {
+  sectionContainer.innerHTML = '';
+
+  const sections = [
+    { num: 1, title: 'Plain-English Summary', render: renderSummary, data: a.summary },
+    { num: 2, title: 'Key Risks & Red Flags', render: renderRisks, data: a.key_risks },
+    { num: 3, title: 'Special Conditions Review', render: renderSpecial, data: a.special_conditions },
+    { num: 4, title: 'Title, Easements & Covenants', render: renderTitle, data: a.title_issues },
+    { num: 5, title: 'Owners Corporation', render: renderOC, data: a.owners_corporation },
+    { num: 6, title: 'Settlement & Default Risks', render: renderSettlement, data: a.settlement_risks },
+    { num: 7, title: 'Finance & Deposit Obligations', render: renderFinance, data: a.finance_deposit },
+    { num: 8, title: 'Due Diligence Checklist', render: renderChecklist, data: a.due_diligence },
+    { num: 9, title: 'Questions for Your Conveyancer', render: renderQuestions, data: a.conveyancer_questions },
+    { num: 10, title: 'Deal Memo', render: renderDealMemo, data: a.deal_memo },
+  ];
+
+  for (const sec of sections) {
+    const card = createCard(sec.num, sec.title);
+    const body = card.querySelector('.section-card-body');
+    sec.render(body, sec.data);
+    sectionContainer.appendChild(card);
+
+    // Open sections 1 and 10 by default
+    if (sec.num === 1 || sec.num === 10) {
+      card.classList.add('open');
+    }
+  }
+
+  results.classList.add('visible');
+  results.style.display = 'block';
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function createCard(num, title) {
+  const card = document.createElement('div');
+  card.className = 'section-card';
+
+  const header = document.createElement('div');
+  header.className = 'section-card-header';
+  header.innerHTML = `
+    <div class="section-card-title">
+      <div class="section-num">${num}</div>
+      <span>${title}</span>
+    </div>
+    <div class="section-card-actions">
+      <button class="copy-btn">Copy</button>
+      <span class="chevron">▾</span>
+    </div>
+  `;
+
+  const body = document.createElement('div');
+  body.className = 'section-card-body';
+
+  card.appendChild(header);
+  card.appendChild(body);
+
+  header.addEventListener('click', (e) => {
+    if (e.target.classList.contains('copy-btn')) return;
+    card.classList.toggle('open');
+  });
+
+  const copyBtn = header.querySelector('.copy-btn');
+  copyBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await copyToClipboard(body.innerText);
+    copyBtn.textContent = 'Copied!';
+    copyBtn.classList.add('copied');
+    setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 2000);
+  });
+
+  return card;
+}
+
+function renderSummary(el, data) {
+  el.innerHTML = `<div class="prose">${(data||'').split('\n').filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('')}</div>`;
+}
+
+function renderRisks(el, data) {
+  if (!data || !data.length) { el.innerHTML = naBox('No significant risks identified'); return; }
+  el.innerHTML = data.map(r => `<div class="risk-item"><strong>${esc(r.risk)}</strong>${esc(r.detail)}</div>`).join('');
+}
+
+function renderSpecial(el, data) {
+  if (!data || !data.length) { el.innerHTML = naBox('No special conditions identified'); return; }
+  el.innerHTML = data.map(r => `<div class="condition-item"><strong>${esc(r.condition)}</strong>${esc(r.detail)}</div>`).join('');
+}
+
+function renderTitle(el, data) {
+  if (!data) { el.innerHTML = naBox('No title information available'); return; }
+  let html = `<div class="prose" style="margin-bottom:14px"><p>${esc(data.overview||'')}</p></div>`;
+  if (data.items && data.items.length) {
+    html += data.items.map(item => `
+      <div class="title-item">
+        <span class="badge">${esc(item.type||'')}</span>
+        <div>${esc(item.description||'')}</div>
+      </div>
+    `).join('');
+  }
+  el.innerHTML = html;
+}
+
+function renderOC(el, data) {
+  if (!data || !data.applicable) {
+    el.innerHTML = naBox('Owners Corporation does not appear to apply to this property.');
+    return;
+  }
+  let html = `<div class="prose" style="margin-bottom:12px"><p>${esc(data.overview||'')}</p></div>`;
+  if (data.issues && data.issues.length) {
+    html += data.issues.map(i => `<div class="oc-item">${esc(i)}</div>`).join('');
+  }
+  el.innerHTML = html;
+}
+
+function renderSettlement(el, data) {
+  if (!data || !data.length) { el.innerHTML = naBox('No specific settlement risks identified'); return; }
+  el.innerHTML = data.map(r => `<div class="risk-item-small"><strong>${esc(r.risk)}</strong>${esc(r.detail)}</div>`).join('');
+}
+
+function renderFinance(el, data) {
+  if (!data) { el.innerHTML = naBox('No finance or deposit information available'); return; }
+  let html = `
+    <div class="fd-grid">
+      <div class="fd-cell"><label>Deposit</label><span>${esc(data.deposit_amount||'—')}</span></div>
+      <div class="fd-cell"><label>Deposit Holder</label><span>${esc(data.deposit_holder||'—')}</span></div>
+      <div class="fd-cell"><label>Finance Clause</label><span>${esc(data.finance_clause||'None')}</span></div>
+      <div class="fd-cell"><label>Cooling Off</label><span>${esc(data.cooling_off||'—')}</span></div>
+    </div>
+  `;
+  if (data.key_dates && data.key_dates.length) {
+    html += `<table class="dates-table"><thead><tr><th>Date Type</th><th>Date / Timeframe</th></tr></thead><tbody>`;
+    html += data.key_dates.map(kd => `<tr><td>${esc(kd.date_type||'')}</td><td>${esc(kd.date||'')}</td></tr>`).join('');
+    html += `</tbody></table>`;
+  }
+  el.innerHTML = html;
+}
+
+function renderChecklist(el, data) {
+  if (!data || !data.length) { el.innerHTML = naBox('No checklist items'); return; }
+  el.innerHTML = data.map(item => {
+    const status = item.status || '';
+    let cls = 'na';
+    if (status.toLowerCase().includes('before')) cls = 'before';
+    else if (status.toLowerCase().includes('confirm')) cls = 'confirm';
+    else if (status.toLowerCase().includes('review')) cls = 'review';
+    return `
+      <div class="checklist-item">
+        <span class="status-badge ${cls}">${esc(status)}</span>
+        <div class="checklist-content">
+          <strong>${esc(item.item||'')}</strong>
+          <span>${esc(item.detail||'')}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderQuestions(el, data) {
+  if (!data || !data.length) { el.innerHTML = naBox('No questions generated'); return; }
+  el.innerHTML = data.map((q, i) => `
+    <div class="question-item">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <span class="q-num">${i+1}</span>
+        <strong>${esc(q.question||'')}</strong>
+      </div>
+      <div class="q-context">${esc(q.context||'')}</div>
+    </div>
+  `).join('');
+}
+
+function renderDealMemo(el, data) {
+  if (!data) { el.innerHTML = naBox('No deal memo available'); return; }
+
+  const rec = (data.recommendation || '').toLowerCase();
+  let chipClass = 'caution', chipIcon = '⚠️';
+  if (rec.includes('high risk')) { chipClass = 'high-risk'; chipIcon = '🚨'; }
+  else if (rec.includes('proceed with caution')) { chipClass = 'caution'; chipIcon = '⚠️'; }
+  else if (rec.includes('proceed')) { chipClass = 'proceed'; chipIcon = '✅'; }
+
+  let html = `<div class="deal-memo">`;
+  html += `<div class="deal-headline">${esc(data.headline||'')}</div>`;
+  html += `<span class="recommendation-chip ${chipClass}">${chipIcon} ${esc(data.recommendation||'')}</span>`;
+
+  html += `<div class="deal-grid">
+    <div class="deal-cell"><label>Situation</label><div>${esc(data.situation||'')}</div></div>
+    <div class="deal-cell"><label>Complication</label><div>${esc(data.complication||'')}</div></div>
+    <div class="deal-cell" style="grid-column:span 2"><label>Resolution</label><div>${esc(data.resolution||'')}</div></div>
+  </div>`;
+
+  if (data.key_numbers && data.key_numbers.length) {
+    html += `<div><strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted)">Key Numbers</strong>
+      <table class="kn-table" style="margin-top:8px">`;
+    html += data.key_numbers.map(kn => `<tr><td>${esc(kn.label)}</td><td>${esc(kn.value)}</td></tr>`).join('');
+    html += `</table></div>`;
+  }
+
+  if (data.next_steps && data.next_steps.length) {
+    html += `<div><strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted)">Next Steps</strong>
+      <ol class="next-steps" style="margin-top:8px">`;
+    html += data.next_steps.map(s => `<li>${esc(s)}</li>`).join('');
+    html += `</ol></div>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+function naBox(msg) {
+  return `<div class="na-box">${esc(msg)}</div>`;
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/\n/g, '<br>');
+}
+
+// Copy all
+document.getElementById('copyAllBtn').addEventListener('click', async () => {
+  if (!currentAnalysis) return;
+  const allText = document.getElementById('sectionContainer').innerText;
+  await copyToClipboard(allText);
+  showToast('All sections copied to clipboard');
+});
+
+// Export markdown
+document.getElementById('exportMdBtn').addEventListener('click', async () => {
+  if (!currentAnalysis) return;
+  const resp = await fetch('/export/markdown', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ analysis: currentAnalysis }),
+  });
+  if (resp.ok) {
+    const blob = await resp.blob();
+    downloadBlob(blob, 'contract-analysis.md');
+  } else {
+    showToast('Export failed');
+  }
+});
+
+// Export docx
+document.getElementById('exportDocxBtn').addEventListener('click', async () => {
+  if (!currentAnalysis) return;
+  const resp = await fetch('/export/docx', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ analysis: currentAnalysis }),
+  });
+  if (resp.ok) {
+    const blob = await resp.blob();
+    downloadBlob(blob, 'contract-analysis.docx');
+  } else {
+    showToast('Export failed');
+  }
+});
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function copyToClipboard(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+}
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 2500);
+}
+
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorBox.classList.add('visible');
+}
+
+function hideError() {
+  errorBox.classList.remove('visible');
+  errorMsg.textContent = '';
+}
+</script>
+</body>
+</html>
